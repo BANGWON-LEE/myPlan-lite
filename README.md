@@ -44,7 +44,7 @@ AI가 가장 적합한 **최적 루트 1개를 1초 만에 추천**해주는 가
 ### Frontend
 
 *   Next.js 16
-*   React 18
+*   React 19
 *   TypeScript
 *   TailwindCSS
 *   tanstack query
@@ -57,7 +57,7 @@ AI가 가장 적합한 **최적 루트 1개를 1초 만에 추천**해주는 가
 ### UI / 디자인
 
 *   lucide-react
-*   TailwindCSS Utility Components
+*   TailwindCSS
 
 * * *
 
