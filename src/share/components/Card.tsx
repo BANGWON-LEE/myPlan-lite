@@ -14,7 +14,7 @@ export const PurposeCard = ({
       onClick={onClick}
       className={`p-6 rounded-2xl transition-all duration-300 ${
         isActive
-          ? `${color} text-white shadow-lg scale-105`
+          ? `${color} text-white shadow-lg scale-105 border-2 border-${color}`
           : 'bg-white text-gray-700 hover:shadow-md border-2 border-gray-100'
       }`}
     >
