@@ -4,6 +4,7 @@ import { Coffee, Utensils, TreePine, Home, Navigation } from 'lucide-react'
 import { SectionTitle } from '@/share/components/Text'
 import { PurposeCard, TimeCard } from '@/share/components/Card'
 import { PrimaryButtonText } from '@/share/components/Button'
+import Link from 'next/link'
 
 export default function PlanMain() {
   const purposes = [
@@ -76,10 +77,16 @@ export default function PlanMain() {
 
         {/* 시작 버튼 - PrimaryButtonText 컴포넌트 사용 */}
         <PrimaryButtonText
-          disabled={!selectedPurpose}
-          onClick={() => console.log('Start')}
+          disabled={selectedPurpose.length === 0}
+          //   onClick={() => console.log('Start')}
         >
-          루트 추천받기
+          <Link
+            href={`/route?purposes=${selectedPurpose.join(
+              ','
+            )}&time=${selectedTime}`}
+          >
+            루트 추천받기
+          </Link>
         </PrimaryButtonText>
       </div>
     </div>
