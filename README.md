@@ -43,7 +43,7 @@ AI가 가장 적합한 **최적 루트 1개를 1초 만에 추천**해주는 가
 
 ### Frontend
 
-*   Next.js 14
+*   Next.js 16
 *   React 18
 *   TypeScript
 *   TailwindCSS
