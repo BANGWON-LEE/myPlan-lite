@@ -1,37 +1,166 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+📌 myPlan Lite
 
-## Getting Started
+목적 기반 자동 루트 추천 서비스
 
-First, run the development server:
+현재 위치를 기준으로 카페 / 식사 / 산책 / 휴식 등 목적을 선택하면
+AI가 가장 적합한 최적 루트 1개를 1초 만에 추천해주는 가벼운 라이트 서비스입니다.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🎯 기획 이유
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+일상 속에서 자주 겪는 고민들:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+“지금 근처에서 갈 만한 곳 없나?”
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+“카페 갔다가 산책도 하고 싶은데 어디로 가야 하지?”
 
-## Learn More
+“점심 시간 1시간 있는데 코스 좀 추천해줬으면…”
 
-To learn more about Next.js, take a look at the following resources:
+기존 지도 앱들은 장소 정보 제공 위주이기 때문에
+“상황 기반 루트 추천”이 부족하다는 문제가 있습니다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+그래서 myPlan Lite는 사용자가 목적만 선택하면
+생각할 필요 없이 바로 이동할 수 있는 단 하나의 추천 루트를 제공합니다.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+많은 옵션보다, 지금 당장 움직일 수 있는 단 하나의 루트가 더 중요하다.
 
-## Deploy on Vercel
+🛠 프로젝트 목표
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+사용자의 현재 위치 기반으로 목적에 맞는 최적 루트 1개 생성
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# myPlan-lite
+복잡한 검색이나 필터링 없이 초간단 UX 제공
+
+지도 기반으로 경로와 장소를 직관적으로 시각화
+
+모바일에서도 사용하기 좋은 반응형 UI 구성
+
+짧은 시간에 빠르고 명확한 경험 제공
+
+🧩 기술 스택
+Frontend
+
+Next.js 14
+
+React 18
+
+TypeScript
+
+TailwindCSS
+
+Zustand 또는 Recoil
+
+Map & API
+
+Naver Maps API
+또는
+
+Kakao Local API
+
+UI / 디자인
+
+lucide-react
+
+TailwindCSS Utility Components
+
+🚀 주요 기능
+✔ 1. 목적 기반 루트 추천
+
+카페, 식사, 산책, 휴식 중 선택
+
+목적에 따라 카테고리 기반 장소 자동 수집
+
+평점 + 거리 + 시간 조합으로 최적 루트 추천
+
+✔ 2. 시간 프리셋 기능
+
+30분
+
+1시간
+
+2시간
+
+선택한 시간에 맞게 최적 경로를 조정합니다.
+
+✔ 3. 자동 루트 생성 알고리즘
+
+현재 위치 기준 장소 수집
+
+단순하지만 빠른 Greedy 방식 최적 경로 계산
+
+단 하나의 ‘추천 코스’만 제공하여 선택 피로 최소화
+
+✔ 4. 지도 기반 경로 및 장소 시각화
+
+장소 핀 표시
+
+이동 경로(Polyline) 표시
+
+거리 및 예상 소요시간 안내
+
+✔ 5. 장소 상세 보기
+
+대표 이미지
+
+평점 / 리뷰 요약
+
+거리 / 예상 도보 시간
+
+장소 카테고리 표시
+
+📱 화면 구성 요약
+
+홈 화면
+
+목적 선택
+
+시간 선택
+
+추천받기 버튼
+
+로딩 화면
+
+루트 생성 중 애니메이션
+
+추천 루트 화면
+
+지도
+
+총 거리 / 총 시간
+
+장소 목록
+
+장소 상세 화면
+
+이미지
+
+장소 정보
+
+리뷰
+
+다시 추천받기 버튼
+
+📦 디렉토리 구조 (예시)
+src/
+ ├── components/
+ │    ├── PurposeCard/
+ │    ├── TimeCard/
+ │    ├── SectionTitle/
+ │    ├── ActionText/
+ │    ├── StatText/
+ │    └── PlaceCard/
+ ├── app/
+ │    ├── page.tsx
+ │    ├── loading.tsx
+ │    └── route/
+ ├── hooks/
+ ├── utils/
+ └── styles/
+
+🗺 향후 계획
+
+AI 기반 추천 멘트 생성
+
+복합 목적 루트(카페 → 산책 → 디저트) 지원
+
+사용자의 이동 패턴 기반 맞춤형 추천
+
+여행 코스 추천 기능 확장
