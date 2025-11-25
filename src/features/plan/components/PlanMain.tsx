@@ -13,8 +13,17 @@ export default function PlanMain() {
     { id: 'rest', icon: Home, label: '휴식', color: 'bg-blue-500' },
   ]
 
-  const [selectedPurpose, setSelectedPurpose] = useState(null)
+  const [selectedPurpose, setSelectedPurpose] = useState<string[]>([])
+
+  const timeOptionsArr = [30, 60, 120]
+
   const [selectedTime, setSelectedTime] = useState(60)
+
+  function togglePurpose(id: string) {
+    setSelectedPurpose((prev: string[]) => {
+      return prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
@@ -40,8 +49,8 @@ export default function PlanMain() {
                 icon={icon}
                 label={label}
                 color={color}
-                isActive={selectedPurpose === id}
-                onClick={() => console.log('purpose')}
+                isActive={selectedPurpose.includes(id)}
+                onClick={() => togglePurpose(id)}
                 // onClick={() => setSelectedPurpose(id)}
               />
             ))}
@@ -54,7 +63,7 @@ export default function PlanMain() {
             얼마나 시간을 보내실 건가요?
           </SectionTitle>
           <div className="flex gap-3">
-            {[30, 60, 120].map(time => (
+            {timeOptionsArr.map(time => (
               <TimeCard
                 key={time}
                 time={time}
