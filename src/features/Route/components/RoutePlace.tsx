@@ -1,9 +1,21 @@
-import { StatLabel } from '@/share/components/Text'
+import { StatLabel, StatValue } from '@/share/components/Text'
 import { Clock, MapPin, Star } from 'lucide-react'
 
 export default function RoutePlace() {
   return (
     <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
+      <div className=" bg-white rounded-2xl p-4 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <StatLabel>총 소요시간</StatLabel>
+            <StatValue>약 10분</StatValue>
+          </div>
+          <div className="text-right">
+            <StatLabel>총 거리</StatLabel>
+            <StatValue color="text-gray-900">1.3km</StatValue>
+          </div>
+        </div>
+      </div>
       {[
         {
           id: 1,
