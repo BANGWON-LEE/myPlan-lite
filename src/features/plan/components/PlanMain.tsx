@@ -50,8 +50,8 @@ export default function PlanMain() {
                 icon={icon}
                 label={label}
                 color={color}
-                isActive={selectedPurpose.includes(id)}
-                onClick={() => togglePurpose(id)}
+                isActive={selectedPurpose.includes(label)}
+                onClick={() => togglePurpose(label)}
                 // onClick={() => setSelectedPurpose(id)}
               />
             ))}
