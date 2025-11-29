@@ -6,7 +6,11 @@ import RouteHeader from './RouteHeader'
 import RouteMap from './RouteMap'
 import RoutePlace from './RoutePlace'
 import { getMyRouteList } from '../containers/RouteMainContainer'
-import { getMapOptions, getMyLocAddress } from '@/util/map/mapFunctions'
+import {
+  getCurrentPositionPromise,
+  getMapOptions,
+  getMyLocAddress,
+} from '@/util/map/mapFunctions'
 
 export default function RouteMain() {
   const searchParams = useSearchParams()
@@ -31,12 +35,13 @@ export default function RouteMain() {
   useEffect(() => {
     const getData = async () => {
       console.log('render useEffect')
-      const myLoc = await getMyLoc()
-      getMyRouteList(myLoc.jibunAddress, queryPurposes, queryTime)
+      // const myLoc = await getMyLoc()
+      const position = await getCurrentPositionPromise()
+      getMyRouteList(position, queryPurposes, queryTime)
     }
 
     getData()
-  }, [])
+  }, [queryPurposes, queryTime])
 
   return (
     <div className="font-sans">
