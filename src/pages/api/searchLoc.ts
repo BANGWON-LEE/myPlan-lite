@@ -5,22 +5,16 @@ export default async function getSearchLoc(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { text, time } = req.query
+  const { latitude, longitude, text, time } = req.query
 
-  const arr: string | string[] = text
-    ?.split(',')
-    .map(item => `query=${item}`)
-    .join('&')
+  console.log('pos into', latitude, text)
 
-  console.log('received query:', arr)
+  const headers = { appkey: process.env.TMAP_APP_KEY }
+
   const result = await axios.get(
-    `https://openapi.naver.com/v1/search/local?${arr}&time=${time}&display=10`,
-    {
-      headers: {
-        'X-Naver-Client-Id': process.env.NAVER_CLIENT_ID!,
-        'X-Naver-Client-Secret': process.env.NAVER_CLIENT_SECRET!,
-      },
-    }
+    `https://apis.openapi.sk.com/tmap/pois?searchKeyword=쉼터&searchType=all&centerLon=${longitude}&centerLat=${latitude}&radius=1`,
+
+    { headers: headers }
   )
 
   return res.status(200).json(result.data)
