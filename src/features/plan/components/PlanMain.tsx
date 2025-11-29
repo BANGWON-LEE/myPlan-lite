@@ -8,10 +8,10 @@ import Link from 'next/link'
 
 export default function PlanMain() {
   const purposes = [
-    { id: 'cafe', icon: Coffee, label: '카페', color: 'bg-amber-500' },
-    { id: 'meal', icon: Utensils, label: '식사', color: 'bg-rose-500' },
-    { id: 'walk', icon: TreePine, label: '산책', color: 'bg-emerald-500' },
-    { id: 'rest', icon: Home, label: '휴식', color: 'bg-blue-500' },
+    { id: '커피', icon: Coffee, label: '카페', color: 'bg-amber-500' },
+    { id: '음식점', icon: Utensils, label: '식사', color: 'bg-rose-500' },
+    { id: '산책로', icon: TreePine, label: '산책', color: 'bg-emerald-500' },
+    { id: '휴식', icon: Home, label: '휴식', color: 'bg-blue-500' },
   ]
 
   const [selectedPurpose, setSelectedPurpose] = useState<string[]>([])
@@ -76,18 +76,18 @@ export default function PlanMain() {
         </div>
 
         {/* 시작 버튼 - PrimaryButtonText 컴포넌트 사용 */}
-        <PrimaryButtonText
-          disabled={selectedPurpose.length === 0}
-          //   onClick={() => console.log('Start')}
+        <Link
+          href={`/route?purposes=${selectedPurpose.join(
+            ','
+          )}&time=${selectedTime}`}
         >
-          <Link
-            href={`/route?purposes=${selectedPurpose.join(
-              ','
-            )}&time=${selectedTime}`}
+          <PrimaryButtonText
+            disabled={selectedPurpose.length === 0}
+            //   onClick={() => console.log('Start')}
           >
             루트 추천받기
-          </Link>
-        </PrimaryButtonText>
+          </PrimaryButtonText>
+        </Link>
       </div>
     </div>
   )
