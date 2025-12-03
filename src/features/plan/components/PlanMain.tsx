@@ -1,6 +1,13 @@
 'use client'
 import React, { useState } from 'react'
-import { Coffee, Utensils, TreePine, Home, Navigation } from 'lucide-react'
+import {
+  Coffee,
+  Utensils,
+  TreePine,
+  Navigation,
+  ShoppingBag,
+  Key,
+} from 'lucide-react'
 import { SectionTitle } from '@/share/components/Text'
 import { PurposeCard, TimeCard } from '@/share/components/Card'
 import { PrimaryButtonText } from '@/share/components/Button'
@@ -8,15 +15,39 @@ import Link from 'next/link'
 
 export default function PlanMain() {
   const purposes = [
-    { id: '커피', icon: Coffee, label: '카페', color: 'bg-amber-500' },
-    { id: '음식점', icon: Utensils, label: '식사', color: 'bg-rose-500' },
-    { id: '산책로', icon: TreePine, label: '산책', color: 'bg-emerald-500' },
-    { id: '휴식', icon: Home, label: '휴식', color: 'bg-blue-500' },
+    {
+      id: '커피',
+      key: 'coffee',
+      icon: Coffee,
+      label: '카페',
+      color: 'bg-amber-500',
+    },
+    {
+      id: '음식점',
+      key: 'meal',
+      icon: Utensils,
+      label: '식사',
+      color: 'bg-rose-500',
+    },
+    {
+      id: '공원',
+      key: 'walk',
+      icon: TreePine,
+      label: '산책',
+      color: 'bg-emerald-500',
+    },
+    {
+      id: '쇼핑',
+      key: 'shopping',
+      icon: ShoppingBag,
+      label: '쇼핑',
+      color: 'bg-blue-500',
+    },
   ]
 
   const [selectedPurpose, setSelectedPurpose] = useState<string[]>([])
 
-  const timeOptionsArr = [30, 60, 120]
+  const timeOptionsArr = [60, 90, 120]
 
   const [selectedTime, setSelectedTime] = useState(60)
 
@@ -50,8 +81,8 @@ export default function PlanMain() {
                 icon={icon}
                 label={label}
                 color={color}
-                isActive={selectedPurpose.includes(label)}
-                onClick={() => togglePurpose(label)}
+                isActive={selectedPurpose.includes(id)}
+                onClick={() => togglePurpose(id)}
                 // onClick={() => setSelectedPurpose(id)}
               />
             ))}

@@ -1,54 +1,64 @@
 'use client'
 import { useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import RouteBottom from './RouteBottom'
 import RouteHeader from './RouteHeader'
 import RouteMap from './RouteMap'
 import RoutePlace from './RoutePlace'
 import { getMyRouteList } from '../containers/RouteMainContainer'
+import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 import {
-  getCurrentPositionPromise,
-  getMapOptions,
-  getMyLocAddress,
-} from '@/util/map/mapFunctions'
+  addValueByCategory,
+  filterApiData,
+  formatStringToArray,
+} from '@/util/common/common'
 
 export default function RouteMain() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
 
-  async function getMyLoc(): Promise<{
-    jibunAddress: string
-    roadAddress: string
-  }> {
-    return new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        async pos => {
-          const address = await getMyLocAddress(pos)
-          resolve(address)
-        },
-        err => reject(err)
-      )
-    })
-  }
+  const [routeList, setRouteList] = useState<Record<string, string[]>>({
+    meal: [],
+    coffee: [],
+    walk: [],
+    shopping: [],
+  })
 
   useEffect(() => {
     const getData = async () => {
-      console.log('render useEffect')
+      const purposesArr = formatStringToArray(queryPurposes)
+      console.log('queryPur', queryPurposes)
       // const myLoc = await getMyLoc()
       const position = await getCurrentPositionPromise()
-      getMyRouteList(position, queryPurposes, queryTime)
+
+      purposesArr.forEach(async (purpose: string) => {
+        addValueByCategory(
+          setRouteList,
+          purpose,
+          filterApiData(await getMyRouteList(position, purpose, queryTime))
+        )
+      })
+
+      // const result =
     }
 
     getData()
   }, [queryPurposes, queryTime])
+
+  const routeArr = [
+    routeList.meal[0],
+    routeList.coffee[0],
+    routeList.walk[0],
+    routeList.shopping[0],
+  ].filter(Boolean) // undefined 제거
 
   return (
     <div className="font-sans">
       <div className="min-h-screen bg-gray-50">
         <RouteHeader />
         <RouteMap />
-        <RoutePlace />
+        <RoutePlace routeArr={routeArr} />
         <RouteBottom />
       </div>
     </div>
