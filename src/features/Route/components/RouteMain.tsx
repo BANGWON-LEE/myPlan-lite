@@ -1,6 +1,6 @@
 'use client'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import RouteBottom from './RouteBottom'
 import RouteHeader from './RouteHeader'
 import RouteMap from './RouteMap'
@@ -14,6 +14,7 @@ import {
 } from '@/util/common/common'
 import { TmapPoiItem } from '@/types/placeType'
 import { useRouter } from 'next/router'
+import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RouteMain() {
   const searchParams = useSearchParams()
@@ -56,13 +57,15 @@ export default function RouteMain() {
   ].filter(Boolean) // undefined 제거
 
   return (
-    <div className="font-sans">
-      <div className="min-h-screen bg-gray-50">
-        <RouteHeader />
-        <RouteMap />
-        <RoutePlace routeArr={routeArr} />
-        <RouteBottom />
+    <Suspense fallback={<LoadingScreen />}>
+      <div className="font-sans">
+        <div className="min-h-screen bg-gray-50">
+          <RouteHeader />
+          <RouteMap />
+          <RoutePlace routeArr={routeArr} />
+          <RouteBottom />
+        </div>
       </div>
-    </div>
+    </Suspense>
   )
 }
