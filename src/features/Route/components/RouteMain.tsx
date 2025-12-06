@@ -12,7 +12,8 @@ import {
   filterApiData,
   formatStringToArray,
 } from '@/util/common/common'
-import { TmapPoiItem, TmapPoiResponse } from '@/types/placeType'
+import { TmapPoiItem } from '@/types/placeType'
+import { useRouter } from 'next/router'
 
 export default function RouteMain() {
   const searchParams = useSearchParams()
