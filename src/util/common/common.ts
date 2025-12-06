@@ -1,3 +1,5 @@
+import { TmapPoiResponse } from '@/types/placeType'
+
 export function checkEmptyString(text: string) {
   const textStatus = text === '' || text === null || text === undefined
   if (textStatus) return alert('검색어를 입력해주세요')
@@ -25,10 +27,12 @@ export function convertGetKm(meter: number): number {
   return Math.round(meter / 1000)
 }
 
-export function filterApiData(apiArr: Record<string, number>) {
+export function filterApiData(apiArr: TmapPoiResponse) {
+  console.log('pois poi', apiArr)
+
   const placeNameArr = apiArr.searchPoiInfo.pois.poi
 
-  const result = placeNameArr.filter((place: Record<string, string>) => {
+  const result = placeNameArr.filter(place => {
     return (
       !place.name.includes('주차장') &&
       !place.name.includes('정문') &&
