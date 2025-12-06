@@ -1,5 +1,5 @@
 import { StatLabel, StatValue } from '@/share/components/Text'
-import { placeType, RoutePlaceType } from '@/types/RouteType'
+import { placeType, RoutePlaceType } from '@/types/placeType'
 import { getHourTimeMinTimeFormat } from '@/util/common/common'
 import { Clock, MapPin, Phone } from 'lucide-react'
 

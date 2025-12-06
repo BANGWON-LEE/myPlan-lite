@@ -12,13 +12,14 @@ import {
   filterApiData,
   formatStringToArray,
 } from '@/util/common/common'
+import { TmapPoiItem, TmapPoiResponse } from '@/types/placeType'
 
 export default function RouteMain() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
 
-  const [routeList, setRouteList] = useState<Record<string, string[]>>({
+  const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
     meal: [],
     coffee: [],
     walk: [],

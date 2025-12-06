@@ -1,4 +1,4 @@
-import { TmapPoiResponse } from '@/types/placeType'
+import { TmapPoiItem, TmapPoiResponse } from '@/types/placeType'
 
 export function checkEmptyString(text: string) {
   const textStatus = text === '' || text === null || text === undefined
@@ -27,7 +27,7 @@ export function convertGetKm(meter: number): number {
   return Math.round(meter / 1000)
 }
 
-export function filterApiData(apiArr: TmapPoiResponse) {
+export function filterApiData(apiArr: TmapPoiResponse): TmapPoiItem[] {
   console.log('pois poi', apiArr)
 
   const placeNameArr = apiArr.searchPoiInfo.pois.poi
@@ -48,9 +48,11 @@ export function formatStringToArray(str: string) {
 }
 
 export function addValueByCategory(
-  setRouteList: React.Dispatch<React.SetStateAction<Record<string, string[]>>>,
+  setRouteList: React.Dispatch<
+    React.SetStateAction<Record<string, TmapPoiItem[]>>
+  >,
   purpose: string,
-  place: string[]
+  place: TmapPoiItem[]
 ) {
   switch (purpose) {
     case '음식점':

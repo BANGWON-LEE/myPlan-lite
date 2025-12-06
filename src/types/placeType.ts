@@ -9,7 +9,7 @@ export interface TmapPoiResponse {
   }
 }
 
-export interface TmapPoiItem {
+export interface TmapPoiItem extends placeType {
   id: string
   pkey: string
   navSeq: string
@@ -24,5 +24,21 @@ export interface TmapPoiItem {
   lowerAddrName?: string
   detailAddrName?: string
   mlClass?: string
-  radius?: string
+  radius: string
+}
+
+export type placeType = {
+  name: string
+  middleBizName: string
+  telNo: string
+  radius: string
+  newAddressList: {
+    newAddress: {
+      fullAddressRoad: string
+    }[]
+  }
+}
+
+export type RoutePlaceType = {
+  routeArr: placeType[]
 }
