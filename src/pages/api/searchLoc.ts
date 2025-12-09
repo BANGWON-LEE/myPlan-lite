@@ -5,15 +5,7 @@ export default async function getSearchLoc(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // const { latitude, longitude, purpose, time } = req.query
-
-  const url = new URL(req.url!, `http://${req.headers.host}`)
-  const searchParams = url.searchParams
-  const latitude = searchParams.get('latitude')
-  const longitude = searchParams.get('longitude')
-  const purpose = searchParams.get('purpose') // ← 여기서 "커피" 정상적으로 나옴
-
-  console.log('pos into', purpose)
+  const { latitude, longitude, purpose, time } = req.query
 
   const headers = { appkey: process.env.TMAP_APP_KEY }
 
