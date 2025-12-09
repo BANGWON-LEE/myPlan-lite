@@ -42,9 +42,11 @@ export default function RoutePlace() {
 
   useEffect(() => {
     const getData = async () => {
+      console.log('queryPurposes', queryPurposes)
       const purposesArr = formatStringToArray(queryPurposes)
       const position = await getCurrentPositionPromise()
 
+      console.log('purposesArr', purposesArr)
       purposesArr.forEach(async (purpose: string) => {
         addValueByCategory(
           setRouteList,

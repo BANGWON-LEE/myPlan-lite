@@ -5,11 +5,14 @@ export async function getMyRouteList(
   queryPurposes: string,
   queryTime: string
 ) {
-  const latitude = position.coords.latitude
-  const longitude = position.coords.longitude
+  const latitude = decodeURIComponent(position.coords.latitude.toString())
+  const longitude = decodeURIComponent(position.coords.longitude.toString())
+  const purpose = queryPurposes
+  const time = decodeURIComponent(queryTime)
+  console.log('purpose', purpose)
 
   const res = await axios.get(
-    `/api/searchLoc?latitude=${latitude}&longitude=${longitude}&purpose=${queryPurposes}&time=${queryTime}`
+    `/api/searchLoc?latitude=${latitude}&longitude=${longitude}&purpose=${purpose}&time=${time}`
   )
   return res.data
 }
