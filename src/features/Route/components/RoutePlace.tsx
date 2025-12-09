@@ -30,7 +30,7 @@ export default function RoutePlace() {
   const [loadingScreenAction, setLoadingSreenAction] = useState<boolean>(false)
 
   useLayoutEffect(() => {
-    const loadingTime = 1000
+    const loadingTime = 1500
     setLoadingSreenAction(true)
 
     const delayTime = setTimeout(() => {
@@ -42,11 +42,11 @@ export default function RoutePlace() {
 
   useEffect(() => {
     const getData = async () => {
-      console.log('queryPurposes', queryPurposes)
+      // console.log('queryPurposes', queryPurposes)
       const purposesArr = formatStringToArray(queryPurposes)
       const position = await getCurrentPositionPromise()
 
-      console.log('purposesArr', purposesArr)
+      // console.log('purposesArr', purposesArr)
       purposesArr.forEach(async (purpose: string) => {
         addValueByCategory(
           setRouteList,
