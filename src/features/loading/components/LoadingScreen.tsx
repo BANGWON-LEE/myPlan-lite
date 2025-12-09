@@ -2,7 +2,7 @@ import { MapPin } from 'lucide-react'
 
 export default function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center p-6">
+    <div className="fixed inset-0 z-[100] min-h-screen bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center p-6">
       <div className="text-center">
         <div className="relative w-24 h-24 mx-auto mb-8">
           <div className="absolute inset-0 border-4 border-white/30 rounded-full"></div>
