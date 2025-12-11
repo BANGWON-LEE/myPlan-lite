@@ -55,10 +55,10 @@ export default function RoutePlace() {
       const filterApiArr = filterApiData(apiArr)
       const formatApiData = formatResult(purposesArr, filterApiArr)
       const listArr = { meal: [], coffee: [], walk: [], shopping: [] }
-      // addValueByCategory(setRouteList, purposesArr, formatApiData)
-      addValueByCategory(listArr, formatApiData)
+      addValueByCategory(setRouteList, formatApiData)
+      // addValueByCategory(listArr, formatApiData)
       // console.log('result', result)
-      setRouteList(listArr)
+      // setRouteList(listArr)
       // return result
     }
 
