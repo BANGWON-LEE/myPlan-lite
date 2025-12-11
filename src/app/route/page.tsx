@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic'
 const RouteMap = dynamic(
   () => import('../../features/Route/components/RouteMap'),
   {
-    ssr: false,
+    ssr: true,
   }
 )
 

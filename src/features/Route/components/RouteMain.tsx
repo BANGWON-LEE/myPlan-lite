@@ -1,6 +1,5 @@
 'use client'
 
-import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import dynamic from 'next/dynamic'
 
 const RoutePlace = dynamic(() => import('../components/RoutePlace'), {
