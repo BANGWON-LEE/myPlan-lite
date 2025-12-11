@@ -64,9 +64,10 @@ export function formatStringToArray(str: string) {
 }
 
 export function addValueByCategory(
-  setRouteList: React.Dispatch<
-    React.SetStateAction<Record<string, TmapPoiItem[]>>
-  >,
+  // setRouteList: React.Dispatch<
+  //   React.SetStateAction<Record<string, TmapPoiItem[]>>
+  // >,
+  listArr: Record<string, TmapPoiItem[]>,
   purposeArr: string[],
   placeArr: Record<string, TmapPoiItem[]>
 ) {
@@ -75,27 +76,17 @@ export function addValueByCategory(
 
     switch (cateName) {
       case '음식점':
-        return setRouteList(prev => ({
-          ...prev,
-          meal: [...placeArr[cateName]],
-        }))
+        return (listArr.meal = placeArr[cateName])
       case '커피':
-        return setRouteList(prev => ({
-          ...prev,
-          coffee: [...placeArr[cateName]],
-        }))
+        return (listArr.coffee = placeArr[cateName])
       case '공원':
-        return setRouteList(prev => ({
-          ...prev,
-          walk: [...placeArr[cateName]],
-        }))
+        return (listArr.walk = placeArr[cateName])
       case '쇼핑':
-        return setRouteList(prev => ({
-          ...prev,
-          shopping: [...placeArr[cateName]],
-        }))
+        return (listArr.shopping = placeArr[cateName])
       default:
         null
     }
   })
+  // console.log('listArr', listArr)
+  return listArr
 }
