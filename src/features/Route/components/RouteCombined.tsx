@@ -1,9 +1,13 @@
 'use client'
 
 import RoutePlace from './RoutePlace'
-import RouteMap from './RouteMap'
+// import RouteMap from './RouteMap'
 import { useLayoutEffect, useState } from 'react'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
+import dynamic from 'next/dynamic'
+const RouteMap = dynamic(() => import('../components/RouteMap'), {
+  ssr: false,
+})
 
 export default function RouteCombined() {
   const [loadingScreenAction, setLoadingSreenAction] = useState<boolean>(true)
