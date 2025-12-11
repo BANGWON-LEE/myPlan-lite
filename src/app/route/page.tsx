@@ -5,7 +5,10 @@ import RouteMain from '@/features/Route/components/RouteMain'
 import dynamic from 'next/dynamic'
 
 const RouteMap = dynamic(
-  () => import('../../features/Route/components/RouteMap')
+  () => import('../../features/Route/components/RouteMap'),
+  {
+    ssr: false,
+  }
 )
 
 export default function RoutePage() {
