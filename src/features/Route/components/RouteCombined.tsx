@@ -6,11 +6,11 @@ import { useLayoutEffect, useState } from 'react'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RouteCombined() {
-  const [loadingScreenAction, setLoadingSreenAction] = useState<boolean>(false)
+  const [loadingScreenAction, setLoadingSreenAction] = useState<boolean>(true)
 
   useLayoutEffect(() => {
     const loadingTime = 1500
-    setLoadingSreenAction(true)
+    // setLoadingSreenAction(true)
 
     const delayTime = setTimeout(() => {
       setLoadingSreenAction(false)
