@@ -6,12 +6,29 @@ import { useLayoutEffect, useState } from 'react'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RouteCombined() {
-  // console.log('combined')
+  const [loadingScreenAction, setLoadingSreenAction] = useState<boolean>(false)
+
+  useLayoutEffect(() => {
+    const loadingTime = 1500
+    setLoadingSreenAction(true)
+
+    const delayTime = setTimeout(() => {
+      setLoadingSreenAction(false)
+    }, loadingTime)
+
+    return () => clearTimeout(delayTime)
+  }, [])
 
   return (
     <>
-      <RouteMap />
-      <RoutePlace />
+      {loadingScreenAction ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          <RouteMap />
+          <RoutePlace />
+        </>
+      )}
     </>
   )
 }
