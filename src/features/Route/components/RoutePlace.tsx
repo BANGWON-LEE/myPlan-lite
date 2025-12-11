@@ -17,6 +17,7 @@ const Icon = {
   MapPin: dynamic(() => import('lucide-react').then(m => m.MapPin)),
 }
 
+// import { Clock, MapPin, Phone } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { getMyRouteList } from '../containers/RouteMainContainer'
@@ -36,16 +37,16 @@ export default function RoutePlace() {
 
   // const [loadingScreenAction, setLoadingSreenAction] = useState<boolean>(false)
 
-  useLayoutEffect(() => {
-    const loadingTime = 1500
-    //     setLoadingSreenAction(true)
+  // useLayoutEffect(() => {
+  //   const loadingTime = 1500
+  //   //     setLoadingSreenAction(true)
 
-    const delayTime = setTimeout(() => {
-      setLoadingSreenAction(false)
-    }, loadingTime)
+  //   const delayTime = setTimeout(() => {
+  //     setLoadingSreenAction(false)
+  //   }, loadingTime)
 
-    return () => clearTimeout(delayTime)
-  }, [])
+  //   return () => clearTimeout(delayTime)
+  // }, [])
 
   useEffect(() => {
     const getData = async () => {
