@@ -1,5 +1,5 @@
 'use client'
-
+import dynamic from 'next/dynamic'
 import { StatLabel, StatValue } from '@/share/components/Text'
 import { placeType, TmapPoiItem } from '@/types/placeType'
 import {
@@ -10,6 +10,13 @@ import {
   getHourTimeMinTimeFormat,
 } from '@/util/common/common'
 import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
+
+const Icon = {
+  Phone: dynamic(() => import('lucide-react').then(m => m.Phone)),
+  Clock: dynamic(() => import('lucide-react').then(m => m.Clock)),
+  MapPin: dynamic(() => import('lucide-react').then(m => m.MapPin)),
+}
+
 import { Clock, MapPin, Phone } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
@@ -136,17 +143,17 @@ export default function RoutePlace() {
                   </div>
                   <div className="grid items-center gap-3 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
-                      <Phone className="w-4 h-4 text-amber-400 fill-amber-400" />
+                      <Icon.Phone className="w-4 h-4 text-amber-400 fill-amber-400" />
                       <span>{place.telNo}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
+                      <Icon.MapPin className="w-4 h-4" />
                       <span>
                         {place.newAddressList.newAddress[0].fullAddressRoad}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
+                      <Icon.Clock className="w-4 h-4" />
                       <span>
                         {getHourTimeMinTimeFormat(Number(place.radius)).hours >
                         0
