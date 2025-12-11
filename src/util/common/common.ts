@@ -63,12 +63,49 @@ export function formatStringToArray(str: string) {
   return str.split(',')
 }
 
+// export function addValueByCategory(
+//   setRouteList: React.Dispatch<
+//     React.SetStateAction<Record<string, TmapPoiItem[]>>
+//   >,
+//   purposeArr: string[],
+//   placeArr: Record<string, TmapPoiItem[]>
+// ) {
+//   Object.keys(placeArr).map(cateName => {
+//     // console.log('cateNAme', cateName)
+
+//     switch (cateName) {
+//       case '음식점':
+//         return setRouteList(prev => ({
+//           ...prev,
+//           meal: [...placeArr[cateName]],
+//         }))
+//       case '커피':
+//         return setRouteList(prev => ({
+//           ...prev,
+//           coffee: [...placeArr[cateName]],
+//         }))
+//       case '공원':
+//         return setRouteList(prev => ({
+//           ...prev,
+//           walk: [...placeArr[cateName]],
+//         }))
+//       case '쇼핑':
+//         return setRouteList(prev => ({
+//           ...prev,
+//           shopping: [...placeArr[cateName]],
+//         }))
+//       default:
+//         null
+//     }
+//   })
+// }
+
 export function addValueByCategory(
   // setRouteList: React.Dispatch<
   //   React.SetStateAction<Record<string, TmapPoiItem[]>>
   // >,
   listArr: Record<string, TmapPoiItem[]>,
-  purposeArr: string[],
+  // purposeArr: string[],
   placeArr: Record<string, TmapPoiItem[]>
 ) {
   Object.keys(placeArr).map(cateName => {
@@ -88,5 +125,5 @@ export function addValueByCategory(
     }
   })
   // console.log('listArr', listArr)
-  return listArr
+  // return listArr
 }
