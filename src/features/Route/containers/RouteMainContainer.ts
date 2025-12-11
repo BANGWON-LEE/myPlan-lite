@@ -2,14 +2,19 @@ import axios from 'axios'
 
 export async function getMyRouteList(
   position: GeolocationPosition,
-  queryPurposes: string,
+  queryPurposes: string[],
   queryTime: string
 ) {
   const latitude = position.coords.latitude
   const longitude = position.coords.longitude
 
-  const res = await axios.get(
-    `/api/searchLoc?latitude=${latitude}&longitude=${longitude}&purpose=${queryPurposes}&time=${queryTime}`
+  const res = await Promise.all(
+    queryPurposes.map(purpose =>
+      axios.get(
+        `/api/searchLoc?latitude=${latitude}&longitude=${longitude}&purpose=${purpose}&time=${queryTime}`
+      )
+    )
   )
-  return res.data
+
+  return res
 }

@@ -1,4 +1,4 @@
-import { TmapPoiItem, TmapPoiResponse } from '@/types/placeType'
+import { RouteApiDataType, TmapPoiItem } from '@/types/placeType'
 
 export function checkEmptyString(text: string) {
   const textStatus = text === '' || text === null || text === undefined
@@ -27,20 +27,36 @@ export function convertGetKm(meter: number): number {
   return Math.round(meter / 1000)
 }
 
-export function filterApiData(apiArr: TmapPoiResponse): TmapPoiItem[] {
-  console.log('pois poi', apiArr)
-
-  const placeNameArr = apiArr.searchPoiInfo.pois.poi
-
-  const result = placeNameArr.filter(place => {
-    return (
-      !place.name.includes('주차장') &&
-      !place.name.includes('정문') &&
-      !place.name.includes('후문')
-    )
+export function filterApiData(apiArr: RouteApiDataType[]): TmapPoiItem[][] {
+  const placeNameArr = apiArr.map(el => {
+    return el.data.searchPoiInfo.pois.poi
   })
 
+  const result = placeNameArr.map(place =>
+    place.filter(place => {
+      return (
+        !place.name.includes('주차장') &&
+        !place.name.includes('정문') &&
+        !place.name.includes('후문')
+      )
+    })
+  )
+
   return result
+}
+
+export function formatResult(
+  purposesArr: string[],
+  filterApiArr: TmapPoiItem[][]
+) {
+  const formatResult = purposesArr.reduce((acc, purpose, idx) => {
+    acc[purpose] = filterApiArr[idx] // 각 purpose 키에 맞게 응답 매핑
+
+    return acc
+  }, {} as Record<string, TmapPoiItem[]>)
+
+  // console.log('formatResult', formatResult)
+  return formatResult
 }
 
 export function formatStringToArray(str: string) {
@@ -51,31 +67,35 @@ export function addValueByCategory(
   setRouteList: React.Dispatch<
     React.SetStateAction<Record<string, TmapPoiItem[]>>
   >,
-  purpose: string,
-  place: TmapPoiItem[]
+  purposeArr: string[],
+  placeArr: Record<string, TmapPoiItem[]>
 ) {
-  switch (purpose) {
-    case '음식점':
-      return setRouteList(prev => ({
-        ...prev,
-        meal: [...place],
-      }))
-    case '커피':
-      return setRouteList(prev => ({
-        ...prev,
-        coffee: [...place],
-      }))
-    case '공원':
-      return setRouteList(prev => ({
-        ...prev,
-        walk: [...place],
-      }))
-    case '쇼핑':
-      return setRouteList(prev => ({
-        ...prev,
-        shopping: [...place],
-      }))
-    default:
-      null
-  }
+  Object.keys(placeArr).map(cateName => {
+    // console.log('cateNAme', cateName)
+
+    switch (cateName) {
+      case '음식점':
+        return setRouteList(prev => ({
+          ...prev,
+          meal: [...placeArr[cateName]],
+        }))
+      case '커피':
+        return setRouteList(prev => ({
+          ...prev,
+          coffee: [...placeArr[cateName]],
+        }))
+      case '공원':
+        return setRouteList(prev => ({
+          ...prev,
+          walk: [...placeArr[cateName]],
+        }))
+      case '쇼핑':
+        return setRouteList(prev => ({
+          ...prev,
+          shopping: [...placeArr[cateName]],
+        }))
+      default:
+        null
+    }
+  })
 }

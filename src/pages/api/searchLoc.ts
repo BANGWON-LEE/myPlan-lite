@@ -15,6 +15,8 @@ export default async function getSearchLoc(
     { headers: headers }
   )
 
+  // console.log('result@', result.data)
+
   return res.status(200).json(result.data)
 }
 

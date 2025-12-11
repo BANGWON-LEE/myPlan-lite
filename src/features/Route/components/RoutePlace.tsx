@@ -5,6 +5,7 @@ import { placeType, TmapPoiItem } from '@/types/placeType'
 import {
   addValueByCategory,
   filterApiData,
+  formatResult,
   formatStringToArray,
   getHourTimeMinTimeFormat,
 } from '@/util/common/common'
@@ -46,14 +47,12 @@ export default function RoutePlace() {
       const purposesArr = formatStringToArray(queryPurposes)
       const position = await getCurrentPositionPromise()
 
-      // console.log('purposesArr', purposesArr)
-      purposesArr.forEach(async (purpose: string) => {
-        addValueByCategory(
-          setRouteList,
-          purpose,
-          filterApiData(await getMyRouteList(position, purpose, queryTime))
-        )
-      })
+      console.log('purposesArr@', purposesArr)
+
+      const apiArr = await getMyRouteList(position, purposesArr, queryTime)
+      const filterApiArr = filterApiData(apiArr)
+      const formatApiData = formatResult(purposesArr, filterApiArr)
+      addValueByCategory(setRouteList, purposesArr, formatApiData)
     }
 
     getData()
@@ -65,6 +64,8 @@ export default function RoutePlace() {
     routeList.walk[0],
     routeList.shopping[0],
   ].filter(Boolean) // undefined 제거
+
+  console.log('routeList', routeList)
 
   return (
     <React.Fragment>
