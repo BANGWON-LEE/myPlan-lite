@@ -47,7 +47,7 @@ export default function RoutePlace() {
       const purposesArr = formatStringToArray(queryPurposes)
       const position = await getCurrentPositionPromise()
 
-      console.log('purposesArr@', purposesArr)
+      // console.log('purposesArr@', purposesArr)
 
       const apiArr = await getMyRouteList(position, purposesArr, queryTime)
       const filterApiArr = filterApiData(apiArr)
@@ -65,7 +65,7 @@ export default function RoutePlace() {
     routeList.shopping[0],
   ].filter(Boolean) // undefined 제거
 
-  console.log('routeList', routeList)
+  // console.log('routeList', routeList)
 
   return (
     <React.Fragment>

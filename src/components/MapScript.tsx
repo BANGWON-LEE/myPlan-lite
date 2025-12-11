@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 
 export default function MapScript() {
   useEffect(() => {
-    console.log('222')
+    // console.log('222')
     if (window.naver?.maps) {
       navigator.geolocation.getCurrentPosition(pos => {
         onLoadMap(pos)

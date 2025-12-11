@@ -274,7 +274,7 @@ export const setWalkPolyLine = (
     return [x, y]
   })
 
-  console.log('format', formatPath)
+  // console.log('format', formatPath)
 
   const pathFromAPI = formatPath.map(([x, y]) => new naver.maps.LatLng(y, x))
 
