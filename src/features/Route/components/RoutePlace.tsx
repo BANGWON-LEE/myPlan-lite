@@ -50,7 +50,7 @@ export default function RoutePlace() {
 
       const apiArr = await getMyRouteList(position, purposesArr, queryTime)
       const filterApiArr = filterApiData(apiArr)
-      console.log('filterApiArr', filterApiArr)
+      // console.log('filterApiArr', filterApiArr)
       const formatApiData = formatResult(purposesArr, filterApiArr)
       const listArr = { meal: [], coffee: [], walk: [], shopping: [] }
       // addValueByCategory(setRouteList, purposesArr, formatApiData)
@@ -83,10 +83,10 @@ export default function RoutePlace() {
   ].filter(Boolean) // undefined 제거
 
   const routeArrSize = [
-    routeList.meal.length - 1,
-    routeList.coffee.length - 1,
-    routeList.walk.length - 1,
-    routeList.shopping.length - 1,
+    routeList.meal.length,
+    routeList.coffee.length,
+    routeList.walk.length,
+    routeList.shopping.length,
   ].filter(Boolean) // undefined 제거
 
   const resultRouteArr =
@@ -139,7 +139,7 @@ export default function RoutePlace() {
               <div
                 key={index + 1}
                 className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                  routeArrSize[index] < idx && 'bg-slate-300'
+                  routeArrSize[index] <= idx && 'bg-slate-300'
                 }`}
               >
                 <div className="flex">
@@ -149,7 +149,7 @@ export default function RoutePlace() {
                       <div>
                         <span className="text-sm font-semibold text-red-500">
                           {/* {routeArr[index].name !== place?.name && */}
-                          {routeArrSize[index] < idx &&
+                          {routeArrSize[index] <= idx &&
                             '더 이상 추천할 장소가 없습니다'}
                         </span>
                         <div className="flex items-center gap-2 mb-1">
