@@ -135,7 +135,7 @@ export default function RoutePlace() {
           time: '6분',
         },
       ] */}
-          {(routeArr.length == 0 ? routeArrInitial : routeArr).map(
+          {(routeArr.length === 0 ? routeArrInitial : routeArr).map(
             (place: placeType | null, index: number) => (
               <div
                 key={index + 1}
