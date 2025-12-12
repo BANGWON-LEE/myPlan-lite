@@ -83,10 +83,10 @@ export default function RoutePlace() {
   ].filter(Boolean) // undefined 제거
 
   const routeArrSize = [
-    routeList.meal.length,
-    routeList.coffee.length,
-    routeList.walk.length,
-    routeList.shopping.length,
+    routeList.meal.length - 1,
+    routeList.coffee.length - 1,
+    routeList.walk.length - 1,
+    routeList.shopping.length - 1,
   ].filter(Boolean) // undefined 제거
 
   const resultRouteArr =
