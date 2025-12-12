@@ -140,7 +140,7 @@ export default function RoutePlace() {
               <div
                 key={index + 1}
                 className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                  routeArrSize[index] < idx && 'bg-slate-200'
+                  routeArrSize[index] < idx && 'bg-slate-300'
                 }`}
               >
                 <div className="flex">
