@@ -11,20 +11,25 @@ export const getMapOptions = (position: GeolocationPosition) => {
     center: new naver.maps.LatLng(x, y),
     zoom: 14,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
+    disableDoubleTapZoom: true,
+    disableTwoFingerTapZoom: true,
+    scaleControl: false,
+    logoControl: false,
+    mapDataControl: false,
   }
 }
 
-export const getSearchMapOptions = (position: simplePosition) => {
-  // console.log('검색 후', position)
-  const x = Number(position.x)
-  const y = Number(position.y)
+// export const getSearchMapOptions = (position: simplePosition) => {
+//   // console.log('검색 후', position)
+//   const x = Number(position.x)
+//   const y = Number(position.y)
 
-  return {
-    center: new naver.maps.LatLng(y, x),
-    zoom: 14,
-    mapTypeId: naver.maps.MapTypeId.NORMAL,
-  }
-}
+//   return {
+//     center: new naver.maps.LatLng(y, x),
+//     zoom: 14,
+//     mapTypeId: naver.maps.MapTypeId.NORMAL,
+//   }
+// }
 
 export const getRouteMapOptions = (position: simplePosition) => {
   // console.log('검색 후', position)
@@ -46,11 +51,11 @@ export const infowindow = () =>
 export const onLoadMap = (position: GeolocationPosition) =>
   new naver.maps.Map('map', getMapOptions(position))
 
-export const onSearchLoadMap = (position: simplePosition) =>
-  new naver.maps.Map('map', getSearchMapOptions(position))
+//export const onSearchLoadMap = (position: simplePosition) =>
+//  new naver.maps.Map('map', getSearchMapOptions(position))
 
-export const onLoadRouteMap = (position: simplePosition) =>
-  new naver.maps.Map('map', getRouteMapOptions(position))
+//xport const onLoadRouteMap = (position: simplePosition) =>
+//  new naver.maps.Map('map', getRouteMapOptions(position))
 
 export const myMarker = (
   map: naver.maps.Map,
@@ -118,79 +123,27 @@ export const mySearchMarker = (
     map: map,
   })
 }
-// const infowindow = () => new naver.maps.InfoWindow()
 
-export function setGeolocationOnMap(position: GeolocationPosition): void {
-  // console.log('setGeolocationOnMap')
-  const geolocationError =
-    '<div style="padding:20px;"><h5 style="margin-bottom:5px;color:#f00;">Geolocation not supported</h5></div>'
 
-  const map = onLoadMap(position)
-  const infoMark = infowindow()
 
-  switch (navigator.geolocation) {
-    case undefined: {
-      infoMark.setContent(geolocationError)
-      infoMark.open(map, map.getCenter())
-      break
-    }
-    default: {
-      navigator.geolocation.getCurrentPosition(onSuccessGeolocation)
-    }
-  }
-}
+// export function formatPlaceLocation(
+//   addresses: naver.maps.Service.AddressItemV2[]
+// ) {
+//   // console.log('check', addresses)
 
-function onSuccessGeolocation(position: GeolocationPosition) {
-  const location = new naver.maps.LatLng(
-    position.coords.latitude,
-    position.coords.longitude
-  )
+//   const position = addresses.map(el => {
+//     return { x: el.x, y: el.y }
+//   })
 
-  const map = onLoadMap(position)
-  // const infoMark = infowindow()
+//   const map = onSearchLoadMap(position[0])
 
-  map.setCenter(location) // 얻은 좌표를 지도의 중심으로 설정합니다.
-  map.setZoom(14) // 지도의 줌 레벨을 변경합니다.
-  myMarker(map, position)
-  // infoMark.open(map, location)
-}
-export function formatPlaceLocation(
-  addresses: naver.maps.Service.AddressItemV2[]
-) {
-  // console.log('check', addresses)
+//   position.forEach(el => {
+//     const position = { x: el.x, y: el.y }
 
-  const position = addresses.map(el => {
-    return { x: el.x, y: el.y }
-  })
+//     mySearchMarker(map, position)
+//   })
+// }
 
-  const map = onSearchLoadMap(position[0])
-
-  position.forEach(el => {
-    const position = { x: el.x, y: el.y }
-
-    mySearchMarker(map, position)
-  })
-}
-
-export function formatSearchPlaceLocation(addresses: SearchPlaceType[]) {
-  if (addresses.length === 0) return alert('장소를 찾을 수 없습니다. 겟냐?')
-  const position = addresses.map(el => {
-    return {
-      x: formatMyLocation(Number(el.mapx)),
-      y: formatMyLocation(Number(el.mapy)),
-    }
-  })
-
-  const map = onSearchLoadMap(position[0])
-
-  // console.log('map@@@3', map)
-
-  position.forEach(el => {
-    const position = { x: el.x, y: el.y }
-
-    mySearchMarker(map, position)
-  })
-}
 
 export async function getPlaceLocation(
   text: string,
@@ -214,9 +167,7 @@ export async function getPlaceLocation(
   )
 }
 
-export function renderPlaceMarker(text: string) {
-  getPlaceLocation(text, formatPlaceLocation)
-}
+
 
 // 현재 내 위치의 주소를 문자열로 반환
 export async function getMyLocAddress(
