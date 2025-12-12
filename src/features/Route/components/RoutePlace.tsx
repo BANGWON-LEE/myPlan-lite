@@ -37,7 +37,7 @@ export default function RoutePlace() {
     shopping: [],
   })
 
-  const { idx } = useRoutePlaceIdxStore()
+  const { idx, initialIdx } = useRoutePlaceIdxStore()
   // console.log('111')
 
   useEffect(() => {
@@ -59,6 +59,7 @@ export default function RoutePlace() {
       setRouteList(listArr)
       // return result
     }
+    initialIdx()
     getData()
   }, [])
 
