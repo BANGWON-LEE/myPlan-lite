@@ -89,12 +89,11 @@ export default function RoutePlace() {
     routeList.shopping.length,
   ].filter(Boolean) // undefined 제거
 
-  const resultRouteArr: number | null =
-    routeArr.length === 0 && idx === 0 ? null : 1
-
+  const resultRouteArr =
+    routeArr.length === 0 && idx === 0 ? 0 : routeArrInitial.length
   return (
     <React.Fragment>
-      {resultRouteArr !== null ? (
+      {resultRouteArr > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
           {/* <div className=" bg-white rounded-2xl p-4 shadow-lg">
             <div className="flex items-center justify-between">
