@@ -22,6 +22,7 @@ import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { getMyRouteList } from '../containers/RouteMainContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
+import { useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RoutePlace() {
@@ -36,11 +37,13 @@ export default function RoutePlace() {
     shopping: [],
   })
 
+  const { idx } = useRoutePlaceIdxStore()
+
   const routeArr = [
-    routeList.meal[0],
-    routeList.coffee[0],
-    routeList.walk[0],
-    routeList.shopping[0],
+    routeList.meal[idx],
+    routeList.coffee[idx],
+    routeList.walk[idx],
+    routeList.shopping[idx],
   ].filter(Boolean) // undefined 제거
 
   useEffect(() => {
