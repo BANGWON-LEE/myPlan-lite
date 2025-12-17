@@ -11,7 +11,7 @@ export const getMapOptions = (position: GeolocationPosition) => {
   return {
     center: new naver.maps.LatLng(x, y),
     zoom: 14,
-    mapTypeId: naver.maps.MapTypeId.NORMAL,
+    // mapTypeId: naver.maps.MapTypeId.NORMAL,s
   }
 }
 
