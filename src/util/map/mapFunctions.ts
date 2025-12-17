@@ -2,6 +2,7 @@ import { SearchPlaceType, simplePosition } from '@/types/marker'
 import { checkEmptyString, formatMyLocation } from '../common/common'
 
 export const getMapOptions = (position: GeolocationPosition) => {
+  // console.log('posi', position)
   // const checkPositionType = 'coords' in position
 
   const x = position.coords.latitude
@@ -46,11 +47,11 @@ export const infowindow = () =>
 export const onLoadMap = (position: GeolocationPosition) =>
   new naver.maps.Map('map', getMapOptions(position))
 
-export const onSearchLoadMap = (position: simplePosition) =>
-  new naver.maps.Map('map', getSearchMapOptions(position))
+// export const onSearchLoadMap = (position: simplePosition) =>
+//   new naver.maps.Map('map', getSearchMapOptions(position))
 
-export const onLoadRouteMap = (position: simplePosition) =>
-  new naver.maps.Map('map', getRouteMapOptions(position))
+// export const onLoadRouteMap = (position: simplePosition) =>
+//   new naver.maps.Map('map', getRouteMapOptions(position))
 
 export const myMarker = (
   map: naver.maps.Map,
@@ -154,43 +155,43 @@ function onSuccessGeolocation(position: GeolocationPosition) {
   myMarker(map, position)
   // infoMark.open(map, location)
 }
-export function formatPlaceLocation(
-  addresses: naver.maps.Service.AddressItemV2[]
-) {
-  // console.log('check', addresses)
+// export function formatPlaceLocation(
+//   addresses: naver.maps.Service.AddressItemV2[]
+// ) {
+//   // console.log('check', addresses)
 
-  const position = addresses.map(el => {
-    return { x: el.x, y: el.y }
-  })
+//   const position = addresses.map(el => {
+//     return { x: el.x, y: el.y }
+//   })
 
-  const map = onSearchLoadMap(position[0])
+//   const map = onSearchLoadMap(position[0])
 
-  position.forEach(el => {
-    const position = { x: el.x, y: el.y }
+//   position.forEach(el => {
+//     const position = { x: el.x, y: el.y }
 
-    mySearchMarker(map, position)
-  })
-}
+//     mySearchMarker(map, position)
+//   })
+// }
 
-export function formatSearchPlaceLocation(addresses: SearchPlaceType[]) {
-  if (addresses.length === 0) return alert('장소를 찾을 수 없습니다. 겟냐?')
-  const position = addresses.map(el => {
-    return {
-      x: formatMyLocation(Number(el.mapx)),
-      y: formatMyLocation(Number(el.mapy)),
-    }
-  })
+// export function formatSearchPlaceLocation(addresses: SearchPlaceType[]) {
+//   if (addresses.length === 0) return alert('장소를 찾을 수 없습니다. 겟냐?')
+//   const position = addresses.map(el => {
+//     return {
+//       x: formatMyLocation(Number(el.mapx)),
+//       y: formatMyLocation(Number(el.mapy)),
+//     }
+//   })
 
-  const map = onSearchLoadMap(position[0])
+//   const map = onSearchLoadMap(position[0])
 
-  // console.log('map@@@3', map)
+//   // console.log('map@@@3', map)
 
-  position.forEach(el => {
-    const position = { x: el.x, y: el.y }
+//   position.forEach(el => {
+//     const position = { x: el.x, y: el.y }
 
-    mySearchMarker(map, position)
-  })
-}
+//     mySearchMarker(map, position)
+//   })
+// }
 
 export async function getPlaceLocation(
   text: string,
@@ -214,9 +215,9 @@ export async function getPlaceLocation(
   )
 }
 
-export function renderPlaceMarker(text: string) {
-  getPlaceLocation(text, formatPlaceLocation)
-}
+// export function renderPlaceMarker(text: string) {
+//   getPlaceLocation(text, formatPlaceLocation)
+// }
 
 // 현재 내 위치의 주소를 문자열로 반환
 export async function getMyLocAddress(
