@@ -8,9 +8,15 @@ export default function RouteMap() {
 
   useEffect(() => {
     if (mapRef.current)
-      navigator.geolocation.getCurrentPosition(pos => {
-        onLoadMap(pos)
-      })
+      navigator.geolocation.getCurrentPosition(
+        pos => onLoadMap(pos),
+        console.error,
+        {
+          enableHighAccuracy: false,
+          timeout: 4000,
+          maximumAge: 60000,
+        }
+      )
   }, [mapRef])
 
   return (
