@@ -6,18 +6,47 @@ import { useEffect, useRef } from 'react'
 export default function RouteMap() {
   const mapRef = useRef(null)
 
+  const cachedPos = useRef<CachedLocation | null>(null)
+
+  function nowStatusCached(now: number) {
+    if (
+      mapRef.current &&
+      cachedPos.current &&
+      now - cachedPos.current.timestamp < 60_000
+    ) {
+      onLoadMap(cachedPos.current.pos)
+      return
+    }
+  }
+
+  function getLocation() {
+    const now = Date.now()
+
+    // 1분 이내면 캐시 사용
+    nowStatusCached(now)
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        cachedPos.current = { pos, timestamp: now }
+        onLoadMap(pos)
+      },
+      console.error,
+      {
+        enableHighAccuracy: false,
+        maximumAge: 60000,
+        timeout: 2000,
+      }
+    )
+  }
+
   useEffect(() => {
-    if (mapRef.current)
-      navigator.geolocation.getCurrentPosition(
-        pos => onLoadMap(pos),
-        console.error,
-        {
-          enableHighAccuracy: false,
-          timeout: 4000,
-          maximumAge: 60000,
-        }
-      )
+    getLocation()
   }, [mapRef])
+
+  type CachedLocation = {
+    pos: GeolocationPosition
+    timestamp: number
+  }
 
   return (
     <>
