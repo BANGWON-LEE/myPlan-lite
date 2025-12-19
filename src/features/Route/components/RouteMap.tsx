@@ -15,15 +15,16 @@ export default function RouteMap() {
       now - cachedPos.current.timestamp < 60_000
     ) {
       onLoadMap(cachedPos.current.pos)
-      return
+      return true
     }
+    return false
   }
 
   function getLocation() {
     const now = Date.now()
 
     // 1분 이내면 캐시 사용
-    nowStatusCached(now)
+    if (nowStatusCached(now)) return
 
     navigator.geolocation.getCurrentPosition(
       pos => {
