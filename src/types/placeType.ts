@@ -53,3 +53,10 @@ export type RouteApiDataType = AxiosResponse<{
 export type RoutePlaceType = {
   routeArr: placeType[]
 }
+
+export type PositionType = {
+  coords: {
+    latitude: number
+    longitude: number
+  }
+}

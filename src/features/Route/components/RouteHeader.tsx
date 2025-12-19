@@ -4,7 +4,7 @@ import Link from 'next/link'
 export default function RouteHeader() {
   return (
     <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
-      <div className="flex items-center justify-between max-w-md mx-auto">
+      <div className="flex items-center justify-start max-w-md mx-auto">
         <Link href="/">
           <button
             // onClick={() => setScreen('home')}
@@ -27,7 +27,7 @@ export default function RouteHeader() {
         </Link>
         {/* SectionTitle 컴포넌트 사용 */}
         <SectionTitle>추천 루트</SectionTitle>
-        <button className="p-2 hover:bg-gray-100 rounded-lg">
+        {/* <button className="p-2 hover:bg-gray-100 rounded-lg">
           <svg
             className="w-6 h-6"
             fill="none"
@@ -41,7 +41,7 @@ export default function RouteHeader() {
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
-        </button>
+        </button> */}
       </div>
     </div>
   )
