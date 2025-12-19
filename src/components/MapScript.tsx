@@ -29,12 +29,13 @@ export default function MapScript() {
   }
 
   const storagePosition = localStorage.getItem('poi-cache')
-  const formatPosition = storagePosition ? JSON.parse(storagePosition) : null
+  const formatPosition = storagePosition
+    ? JSON.parse(storagePosition)
+    : 'undefined'
+
   useEffect(() => {
     if (!window.naver) return
     savePositionStorage()
-
-    console.log('formatRR', formatPosition)
 
     const initialPosition = new naver.maps.Map('map', {
       center: new naver.maps.LatLng(
