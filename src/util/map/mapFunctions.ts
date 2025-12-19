@@ -1,6 +1,6 @@
 import { SearchPlaceType, simplePosition } from '@/types/marker'
 import { checkEmptyString, formatMyLocation } from '../common/common'
-import { PositionType } from '@/types/placeType'
+import { GeolocationPositionType, PositionType } from '@/types/placeType'
 
 export const getMapOptions = (position: GeolocationPosition) => {
   // console.log('posi', position)
@@ -59,8 +59,11 @@ export const infowindow = () =>
     content: '<div style="padding:10px;">i am here</div>',
   })
 
+export const onLoadInitialRouteMap = (position: GeolocationPositionType) =>
+  new naver.maps.Map('map', getMapOptionsRoute(position))
+
 export const onLoadRouteMap = (
-  position: PositionType,
+  position: GeolocationPosition,
   initialPosition: naver.maps.Map
 ) =>
   typeof position === 'undefined'

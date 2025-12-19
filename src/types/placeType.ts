@@ -60,3 +60,12 @@ export type PositionType = {
     longitude: number
   }
 }
+
+export interface GeolocationPositionType {
+  coords: GeolocationCoordinates
+  timestamp: number
+}
+
+export type MapScriptProps = {
+  position?: GeolocationPositionType
+}

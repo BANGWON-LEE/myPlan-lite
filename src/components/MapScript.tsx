@@ -1,55 +1,43 @@
 'use client'
 
-import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
-import { onLoadRouteMap } from '@/util/map/mapFunctions'
-import { useQuery } from '@tanstack/react-query'
+import { MapScriptProps } from '@/types/placeType'
+import { onLoadMap, onLoadRouteMap } from '@/util/map/mapFunctions'
 import Head from 'next/head'
 import Script from 'next/script'
 import { useEffect } from 'react'
 
-export default function MapScript() {
-  const getPosition = (): Promise<GeolocationPosition> =>
-    new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        position => resolve(position),
-        error => reject(error)
-      )
-    })
+export default function MapScript(props: MapScriptProps) {
+  const { position } = props
 
-  const { data: position } = useQuery<GeolocationPosition>({
-    queryKey: POSITION_QUERY_KEY,
-    queryFn: async () => await getPosition(),
-    staleTime: 1000 * 60 * 5, // 5분
-  })
-
-  function savePositionStorage() {
-    if (!position) return
-    localStorage.setItem('poi-cache', JSON.stringify(position))
-    return true
+  const getPositionFromStorage = () => {
+    if (typeof window === 'undefined') return null
+    const v = localStorage.getItem('poi-cache')
+    return v ? JSON.parse(v) : null
   }
 
-  const storagePosition = localStorage.getItem('poi-cache')
-  const formatPosition = storagePosition
-    ? JSON.parse(storagePosition)
-    : 'undefined'
-
+  const pos = getPositionFromStorage()
   useEffect(() => {
     if (!window.naver) return
-    savePositionStorage()
+    if (!pos) return
+    // onLoadRouteMap(pos, map)
+    // onLoadMap(pos)
+    onLoadRouteMap(
+      pos,
+      new naver.maps.Map('map', {
+        center: new naver.maps.LatLng(
+          37.5665, // 서울
+          126.978
+        ),
+        zoom: 14,
+        mapTypeId: naver.maps.MapTypeId.NORMAL,
+      })
+    )
+    // const map =
+  }, [pos])
 
-    const initialPosition = new naver.maps.Map('map', {
-      center: new naver.maps.LatLng(
-        37.5665, // 서울
-        126.978
-      ),
-      zoom: 14,
-      mapTypeId: naver.maps.MapTypeId.NORMAL,
-    })
-    onLoadRouteMap(formatPosition, initialPosition)
-  }, [])
   return (
     <>
-      <Head>
+      {/* <Head>
         <link
           rel="preconnect"
           as="script"
@@ -60,16 +48,17 @@ export default function MapScript() {
           as="script"
           href={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}&submodules=geocoder`}
         />
-      </Head>
+      </Head> */}
 
       <Script
         type="text/javascript"
         src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}&submodules=geocoder`}
         strategy="afterInteractive"
         onLoad={() => {
-          savePositionStorage()
+          // console.log('fefe')
+          const pos = getPositionFromStorage()
           onLoadRouteMap(
-            formatPosition!,
+            pos,
             new naver.maps.Map('map', {
               center: new naver.maps.LatLng(
                 37.5665, // 서울
