@@ -10,7 +10,7 @@ export default async function getSearchLoc(
   const headers = { appkey: process.env.TMAP_APP_KEY }
 
   const result = await axios.get(
-    `https://apis.openapi.sk.com/tmap/pois?searchKeyword=${purpose}&searchType=all&centerLon=${longitude}&centerLat=${latitude}&radius=${time}&count=17`,
+    `https://apis.openapi.sk.com/tmap/pois?searchKeyword=${purpose}&searchType=all&centerLon=${longitude}&centerLat=${latitude}&radius=${time}&count=7`,
 
     { headers: headers }
   )
