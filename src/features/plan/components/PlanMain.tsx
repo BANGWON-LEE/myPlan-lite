@@ -47,9 +47,13 @@ export default function PlanMain() {
 
   const [selectedPurpose, setSelectedPurpose] = useState<string[]>([])
 
-  const timeOptionsArr = [60, 90, 120]
+  const timeOptionsArr = [
+    { time: 10, radius: 1 },
+    { time: 20, radius: 5 },
+    { time: 30, radius: 10 },
+  ]
 
-  const [selectedTime, setSelectedTime] = useState(60)
+  const [selectedTime, setSelectedTime] = useState(10)
 
   function togglePurpose(id: string) {
     setSelectedPurpose((prev: string[]) => {
@@ -95,12 +99,12 @@ export default function PlanMain() {
             얼마나 시간을 보내실 건가요?
           </SectionTitle>
           <div className="flex gap-3">
-            {timeOptionsArr.map(time => (
+            {timeOptionsArr.map(li => (
               <TimeCard
-                key={time}
-                time={time}
-                isActive={selectedTime === time}
-                onClick={() => setSelectedTime(time)}
+                key={li.time}
+                time={li.time}
+                isActive={selectedTime === li.time}
+                onClick={() => setSelectedTime(li.radius)}
               />
             ))}
           </div>
