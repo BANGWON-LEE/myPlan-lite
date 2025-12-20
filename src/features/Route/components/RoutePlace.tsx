@@ -44,26 +44,26 @@ export default function RoutePlace() {
   const position = usePositionStore(state => state.position)
 
   const { data } = useQuery<RouteApiDataType[]>({
-    queryKey: PLACE_QUERY_KEY, // 검색어
+    queryKey: ['place', position, purposesArr, queryTime], // 검색어
     queryFn: async () => {
       const res = await getMyRouteList(position, purposesArr, queryTime)
 
       return res
     },
-    enabled: !!position,
+    enabled: !!position && purposesArr.length > 0,
 
     staleTime: 1000 * 60 * 5, // 5분
     placeholderData: prev => prev,
   })
 
   useEffect(() => {
-    // alert('호출! 1번')
+    alert('호출! 1번')
     if (typeof window === undefined) return
-    // alert('호출! 2번')
+    alert('호출! 2번')
     if (!position) return
-    // alert('호출! 3번')
+    alert('호출! 3번')
     if (data === undefined) return
-    // alert('호출! 4번')
+    alert('호출! 4번')
 
     const getData = () => {
       const filterApiArr = filterApiData(data)
