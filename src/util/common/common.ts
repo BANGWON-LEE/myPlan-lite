@@ -27,8 +27,12 @@ export function convertGetKm(meter: number): number {
   return Math.round(meter / 1000)
 }
 
-export function filterApiData(apiArr: RouteApiDataType[]): TmapPoiItem[][] {
-  const placeNameArr = apiArr.map(el => {
+export function filterApiData(
+  data: RouteApiDataType[] | undefined
+): TmapPoiItem[][] {
+  // alert('qqqq222' + data)
+  if (data === undefined) return []
+  const placeNameArr = data.map(el => {
     return el.data.searchPoiInfo.pois.poi
   })
 

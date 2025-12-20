@@ -1,7 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { StatLabel, StatValue } from '@/share/components/Text'
-import { placeType, TmapPoiItem } from '@/types/placeType'
+import { placeType, RouteApiDataType, TmapPoiItem } from '@/types/placeType'
 import {
   addValueByCategory,
   filterApiData,
@@ -22,13 +22,16 @@ import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { getMyRouteList } from '../containers/RouteMainContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
-import { useRoutePlaceIdxStore } from '@/stores/useRouteStore'
+import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
+import { useQuery } from '@tanstack/react-query'
+import { PLACE_QUERY_KEY } from '@/lib/queryKeys'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RoutePlace() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
+  const purposesArr = formatStringToArray(queryPurposes)
 
   const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
     meal: [],
@@ -38,37 +41,55 @@ export default function RoutePlace() {
   })
 
   const { idx, initialIdx } = useRoutePlaceIdxStore()
-  // console.log('111')
+  const position = usePositionStore(state => state.position)
+
+  const { data } = useQuery<RouteApiDataType[]>({
+    queryKey: PLACE_QUERY_KEY, // 검색어
+    queryFn: async () => {
+      const res = await getMyRouteList(position, purposesArr, queryTime)
+
+      return res
+    },
+    enabled: !!position,
+
+    staleTime: 1000 * 60 * 5, // 5분
+    placeholderData: prev => prev,
+  })
 
   useEffect(() => {
-    const getData = async () => {
-      // console.log('queryPurposes', queryPurposes)
-      const purposesArr = formatStringToArray(queryPurposes)
-      const position = await getCurrentPositionPromise()
+    // alert('호출! 1번')
+    if (typeof window === undefined) return
+    // alert('호출! 2번')
+    if (!position) return
+    // alert('호출! 3번')
+    if (data === undefined) return
+    // alert('호출! 4번')
 
-      // console.log('purposesArr@', purposesArr)
+    const getData = () => {
+      const filterApiArr = filterApiData(data)
 
-      const apiArr = await getMyRouteList(position, purposesArr, queryTime)
-      const filterApiArr = filterApiData(apiArr)
-      // console.log('filterApiArr', filterApiArr)
       const formatApiData = formatResult(purposesArr, filterApiArr)
       const listArr = { meal: [], coffee: [], walk: [], shopping: [] }
       // addValueByCategory(setRouteList, purposesArr, formatApiData)
       addValueByCategory(listArr, formatApiData)
       // console.log('divideList', divideList)
+      // alert(
+      //   'list ARr. : ' +
+      //     listArr.meal[0] +
+      //     ' / ' +
+      //     listArr.coffee[0] +
+      //     ' / ' +
+      //     listArr.walk[0] +
+      //     ' / ' +
+      //     listArr.shopping[0]
+      // )
       setRouteList(listArr)
       // return result
     }
     initialIdx()
     getData()
-  }, [])
+  }, [data])
 
-  // const routeArr = [
-  //   routeList.meal[idx],
-  //   routeList.coffee[idx],
-  //   routeList.walk[idx],
-  //   routeList.shopping[idx],
-  // ].filter(Boolean) // undefined 제거
   const routeArr = [
     routeList.meal[idx],
     routeList.coffee[idx],
