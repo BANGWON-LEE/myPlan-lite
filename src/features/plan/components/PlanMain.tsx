@@ -103,7 +103,7 @@ export default function PlanMain() {
               <TimeCard
                 key={li.time}
                 time={li.time}
-                isActive={selectedTime === li.time}
+                isActive={selectedTime === li.radius}
                 onClick={() => setSelectedTime(li.radius)}
               />
             ))}
