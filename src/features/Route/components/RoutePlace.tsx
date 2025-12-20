@@ -57,13 +57,13 @@ export default function RoutePlace() {
   })
 
   useEffect(() => {
-    alert('호출! 1번')
+    // alert('호출! 1번')
     if (typeof window === undefined) return
-    alert('호출! 2번')
+    // alert('호출! 2번')
     if (!position) return
-    alert('호출! 3번')
+    // alert('호출! 3번')
     if (data === undefined) return
-    alert('호출! 4번')
+    // alert('호출! 4번')
 
     const getData = () => {
       const filterApiArr = filterApiData(data)
