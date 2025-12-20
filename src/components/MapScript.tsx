@@ -6,18 +6,17 @@ import Head from 'next/head'
 import Script from 'next/script'
 import { useEffect } from 'react'
 
-export default function MapScript(props: MapScriptProps) {
-  const { position } = props
-
+export default function MapScript() {
+  // const position = usePositionStore(state => state.position)
   const getPositionFromStorage = () => {
     if (typeof window === 'undefined') return null
     const v = localStorage.getItem('poi-cache')
     return v ? JSON.parse(v) : null
   }
 
-  const pos = getPositionFromStorage()
   useEffect(() => {
     if (!window.naver) return
+    const pos = getPositionFromStorage()
     if (!pos) return
     // onLoadRouteMap(pos, map)
     // onLoadMap(pos)
@@ -32,8 +31,7 @@ export default function MapScript(props: MapScriptProps) {
         mapTypeId: naver.maps.MapTypeId.NORMAL,
       })
     )
-    // const map =
-  }, [pos])
+  }, [])
 
   return (
     <>

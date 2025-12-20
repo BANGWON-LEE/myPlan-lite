@@ -61,11 +61,17 @@ export type PositionType = {
   }
 }
 
-export interface GeolocationPositionType {
-  coords: GeolocationCoordinates
-  timestamp: number
-}
+// export interface GeolocationPositionType {
+//   coords: GeolocationCoordinates
+//   timestamp: number
+// }
 
 export type MapScriptProps = {
-  position?: GeolocationPositionType
+  position?: GeolocationPosition
+}
+
+export type PositionState = {
+  position: GeolocationPosition | null
+  setPosition: (pos: GeolocationPosition) => void
+  clearPosition: () => void
 }
