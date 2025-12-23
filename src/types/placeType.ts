@@ -10,6 +10,8 @@ export type placeType = {
       fullAddressRoad: string
     }[]
   }
+  pnsLat: string
+  pnsLon: string
 }
 
 export interface TmapPoiItem extends placeType {

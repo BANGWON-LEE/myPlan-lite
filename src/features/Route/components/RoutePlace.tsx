@@ -1,6 +1,6 @@
 'use client'
 import dynamic from 'next/dynamic'
-import { StatLabel, StatValue } from '@/share/components/Text'
+import { StatLabel } from '@/share/components/Text'
 import { placeType, RouteApiDataType, TmapPoiItem } from '@/types/placeType'
 import {
   addValueByCategory,
@@ -9,7 +9,7 @@ import {
   formatStringToArray,
   getHourTimeMinTimeFormat,
 } from '@/util/common/common'
-import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
+import { goalMarker, onLoadMarkerMap } from '@/util/map/mapFunctions'
 
 const Icon = {
   Phone: dynamic(() => import('lucide-react').then(m => m.Phone)),
@@ -113,6 +113,21 @@ export default function RoutePlace() {
 
   const resultRouteArr =
     routeArr.length === 0 && idx === 0 ? 0 : routeArrInitial.length
+
+  const getPositionFromStorage = () => {
+    if (typeof window === 'undefined') return null
+    const v = localStorage.getItem('poi-cache')
+    return v ? JSON.parse(v) : null
+  }
+
+  function drawMarker(lat: number, lon: number) {
+    // const pos = getPositionFromStorage()
+    const map = onLoadMarkerMap({ x: lat, y: lon })
+    console.log('map drawMarker', map, lat, lon)
+    // alert('마커 그리기! ' + map + lat + ' / ' + lon)
+    goalMarker(map, { x: lon, y: lat })
+  }
+
   return (
     <React.Fragment>
       {resultRouteArr > 0 ? (
@@ -158,64 +173,74 @@ export default function RoutePlace() {
       ] */}
           {(routeArr.length === 0 ? routeArrInitial : routeArr).map(
             (place: placeType | null, index: number) => (
-              <div
+              <button
                 key={index + 1}
-                className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                  routeArrSize[index] <= idx && 'bg-slate-300'
-                }`}
+                onClick={() =>
+                  drawMarker(Number(place?.pnsLat), Number(place?.pnsLon))
+                }
+                className="w-full"
               >
-                <div className="flex">
-                  {/* <div className="w-28 h-28 bg-gradient-to-br from-indigo-100 to-purple-100"></div> */}
-                  <div className="flex-1 p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <span className="text-sm font-semibold text-red-500">
-                          {/* {routeArr[index].name !== place?.name && */}
-                          {routeArrSize[index] <= idx &&
-                            '더 이상 추천할 장소가 없습니다'}
-                        </span>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-indigo-600">
-                            #{index + 1}
+                <div
+                  className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${
+                    routeArrSize[index] <= idx && 'bg-slate-300'
+                  }`}
+                >
+                  <div className="flex">
+                    {/* <div className="w-28 h-28 bg-gradient-to-br from-indigo-100 to-purple-100"></div> */}
+                    <div className="flex-1 p-4">
+                      <div className="flex w-full items-start justify-between mb-2">
+                        <div className="w-full grid text-left">
+                          <span className="text-sm font-semibold text-red-500">
+                            {/* {routeArr[index].name !== place?.name && */}
+                            {routeArrSize[index] <= idx &&
+                              '더 이상 추천할 장소가 없습니다'}
                           </span>
-                          <h3 className="font-bold text-gray-900">
-                            {place?.name}
-                          </h3>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-semibold text-indigo-600">
+                              #{index + 1}
+                            </span>
+                            <h3 className="font-bold text-gray-900">
+                              {place?.name}
+                            </h3>
+                          </div>
+                          {/* StatLabel 컴포넌트 사용 */}
+                          <StatLabel>{place?.middleBizName}</StatLabel>
                         </div>
-                        {/* StatLabel 컴포넌트 사용 */}
-                        <StatLabel>{place?.middleBizName}</StatLabel>
                       </div>
-                    </div>
-                    <div className="grid items-center gap-3 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Icon.Phone className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span>{place?.telNo}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon.MapPin className="w-4 h-4" />
-                        <span>
-                          {place?.newAddressList.newAddress[0].fullAddressRoad}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon.Clock className="w-4 h-4" />
-                        <span>
-                          {getHourTimeMinTimeFormat(Number(place?.radius))
-                            .hours > 0
-                            ? `${getHourTimeMinTimeFormat(
-                                Number(place?.radius)
-                              ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
-                                Number(place?.radius)
-                              ).minutes.toString()}분`
-                            : `${getHourTimeMinTimeFormat(
-                                Number(place?.radius)
-                              ).minutes.toString()}분`}{' '}
-                        </span>
+                      <div className="grid items-center gap-3 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Icon.Phone className="w-4 h-4 text-amber-400 fill-amber-400" />
+                          <span>{place?.telNo}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Icon.MapPin className="w-4 h-4" />
+                          <span>
+                            {
+                              place?.newAddressList.newAddress[0]
+                                .fullAddressRoad
+                            }
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Icon.Clock className="w-4 h-4" />
+                          <span>
+                            {getHourTimeMinTimeFormat(Number(place?.radius))
+                              .hours > 0
+                              ? `${getHourTimeMinTimeFormat(
+                                  Number(place?.radius)
+                                ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
+                                  Number(place?.radius)
+                                ).minutes.toString()}분`
+                              : `${getHourTimeMinTimeFormat(
+                                  Number(place?.radius)
+                                ).minutes.toString()}분`}{' '}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             )
           )}
         </div>
