@@ -16,6 +16,17 @@ export const getMapOptions = (position: GeolocationPosition) => {
   }
 }
 
+export const getMarkerMapOptions = (x: number, y: number) => {
+  // console.log('posi', position)
+  // const checkPositionType = 'coords' in position
+
+  return {
+    center: new naver.maps.LatLng(x, y),
+    zoom: 17,
+    // mapTypeId: naver.maps.MapTypeId.NORMAL,s
+  }
+}
+
 export const getMapOptionsRoute = (position: PositionType) => {
   // console.log('posi', position)
   // const checkPositionType = 'coords' in position
@@ -73,6 +84,9 @@ export const onLoadRouteMap = (
 export const onLoadMap = (position: GeolocationPosition) =>
   new naver.maps.Map('map', getMapOptions(position))
 
+export const onLoadMarkerMap = ({ x, y }: { x: number; y: number }) =>
+  new naver.maps.Map('map', getMarkerMapOptions(x, y))
+
 // export const onSearchLoadMap = (position: simplePosition) =>
 //   new naver.maps.Map('map', getSearchMapOptions(position))
 
@@ -120,10 +134,9 @@ export const goalMarker = (
   const position = new naver.maps.LatLng(goalPosition.y, goalPosition.x)
 
   new naver.maps.Marker({
-    // position: position.destinationPoint(90, 15),
     position: position,
     icon: {
-      url: '../../assets/end.png',
+      url: '/assets/goal.png', // ✅ 여기 절대 경로
       size: new naver.maps.Size(128, 128),
       origin: new naver.maps.Point(0, 0),
       scaledSize: new naver.maps.Size(32, 32),
