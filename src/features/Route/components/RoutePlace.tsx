@@ -114,8 +114,28 @@ export default function RoutePlace() {
   const resultRouteArr =
     routeArr.length === 0 && idx === 0 ? 0 : routeArrInitial.length
 
+  const prevPath = {
+    x: 0,
+    y: 0,
+  }
+
+  function validatePath(
+    prevPath: { x: number; y: number },
+    lat: number,
+    lon: number
+  ) {
+    if (lat === prevPath.x && lon === prevPath.y) return false
+
+    prevPath.x = lat
+    prevPath.y = lon
+    return true
+  }
+
   function drawMarker(lat: number, lon: number) {
     // const pos = getPositionFromStorage()
+
+    if (!validatePath(prevPath, lat, lon)) return
+
     const map = onLoadMarkerMap({ x: lat, y: lon })
     goalMarker(map, { x: lon, y: lat })
   }
