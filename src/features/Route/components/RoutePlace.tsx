@@ -19,7 +19,7 @@ const Icon = {
 
 // import { Clock, MapPin, Phone } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { getMyRouteList } from '../containers/RouteMainContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
@@ -72,17 +72,7 @@ export default function RoutePlace() {
       const listArr = { meal: [], coffee: [], walk: [], shopping: [] }
       // addValueByCategory(setRouteList, purposesArr, formatApiData)
       addValueByCategory(listArr, formatApiData)
-      // console.log('divideList', divideList)
-      // alert(
-      //   'list ARr. : ' +
-      //     listArr.meal[0] +
-      //     ' / ' +
-      //     listArr.coffee[0] +
-      //     ' / ' +
-      //     listArr.walk[0] +
-      //     ' / ' +
-      //     listArr.shopping[0]
-      // )
+
       setRouteList(listArr)
       // return result
     }
@@ -131,13 +121,27 @@ export default function RoutePlace() {
     return true
   }
 
+  const requestIdRef = useRef(0) // 요청 번호 발급기
+  const latestRequestIdRef = useRef(1) // 마지막 요청 번호
+
+  function validateLastRequest(requestId: number) {
+    if (requestId < latestRequestIdRef.current) return false
+
+    latestRequestIdRef.current = requestId
+    return true
+  }
+
   function drawMarker(lat: number, lon: number) {
-    // const pos = getPositionFromStorage()
+    const requestId = ++requestIdRef.current
 
     if (!validatePath(prevPath, lat, lon)) return
 
-    const map = onLoadMarkerMap({ x: lat, y: lon })
-    goalMarker(map, { x: lon, y: lat })
+    requestAnimationFrame(() => {
+      if (!validateLastRequest(requestId)) return
+
+      const map = onLoadMarkerMap({ x: lat, y: lon })
+      goalMarker(map, { x: lon, y: lat })
+    })
   }
 
   return (
