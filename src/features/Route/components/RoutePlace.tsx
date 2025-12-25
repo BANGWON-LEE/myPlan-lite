@@ -114,17 +114,9 @@ export default function RoutePlace() {
   const resultRouteArr =
     routeArr.length === 0 && idx === 0 ? 0 : routeArrInitial.length
 
-  const getPositionFromStorage = () => {
-    if (typeof window === 'undefined') return null
-    const v = localStorage.getItem('poi-cache')
-    return v ? JSON.parse(v) : null
-  }
-
   function drawMarker(lat: number, lon: number) {
     // const pos = getPositionFromStorage()
     const map = onLoadMarkerMap({ x: lat, y: lon })
-    console.log('map drawMarker', map, lat, lon)
-    // alert('마커 그리기! ' + map + lat + ' / ' + lon)
     goalMarker(map, { x: lon, y: lat })
   }
 
