@@ -3,3 +3,9 @@ export type RouteIdxState = {
   initialIdx: () => void
   idx: number
 }
+
+export type markerState = {
+  setLoadingMaker: () => void
+  setCompleteMarker: () => void
+  state: boolean
+}
