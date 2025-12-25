@@ -57,14 +57,11 @@ export default function RoutePlace() {
   })
 
   useEffect(() => {
-    // alert('호출! 1번')
     if (typeof window === undefined) return
-    // alert('호출! 2번')
     if (!position) return
-    // alert('호출! 3번')
     if (data === undefined) return
-    // alert('호출! 4번')
 
+    // alert('2 : ' + btnStatusRef.current)
     const getData = () => {
       const filterApiArr = filterApiData(data)
 
@@ -78,6 +75,7 @@ export default function RoutePlace() {
     }
     initialIdx()
     getData()
+    // alert('btnStatus : ' + btnStatus)
   }, [data])
 
   const routeArr = [
@@ -104,37 +102,37 @@ export default function RoutePlace() {
   const resultRouteArr =
     routeArr.length === 0 && idx === 0 ? 0 : routeArrInitial.length
 
-  const prevPath = {
-    x: 0,
-    y: 0,
-  }
+  const prevPathRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
-  function validatePath(
-    prevPath: { x: number; y: number },
-    lat: number,
-    lon: number
-  ) {
-    if (lat === prevPath.x && lon === prevPath.y) return false
+  function validatePath(lat: number, lon: number) {
+    const prev = prevPathRef.current
+    if (lat === prev.x && lon === prev.y) return false
 
-    prevPath.x = lat
-    prevPath.y = lon
+    prev.x = lat
+    prev.y = lon
     return true
   }
 
   const requestIdRef = useRef(0) // 요청 번호 발급기
   const latestRequestIdRef = useRef(0) // 마지막 요청 번호
 
+  const [isDisabled, setIsDisabled] = useState(false)
+
   function drawMarker(lat: number, lon: number) {
+    if (isDisabled) return
+    setIsDisabled(true)
     const requestId = ++requestIdRef.current
 
     latestRequestIdRef.current = requestId
-    if (!validatePath(prevPath, lat, lon)) return
+    if (!validatePath(lat, lon)) return
 
     requestAnimationFrame(() => {
       if (requestId !== latestRequestIdRef.current) return
 
       const map = onLoadMarkerMap({ x: lat, y: lon })
       goalMarker(map, { x: lon, y: lat })
+      setIsDisabled(false)
+      // btnStatusRef.current = true
     })
   }
 
@@ -185,6 +183,7 @@ export default function RoutePlace() {
             (place: placeType | null, index: number) => (
               <button
                 key={index + 1}
+                disabled={isDisabled}
                 onClick={() =>
                   drawMarker(Number(place?.pnsLat), Number(place?.pnsLon))
                 }
