@@ -122,22 +122,16 @@ export default function RoutePlace() {
   }
 
   const requestIdRef = useRef(0) // 요청 번호 발급기
-  const latestRequestIdRef = useRef(1) // 마지막 요청 번호
-
-  function validateLastRequest(requestId: number) {
-    if (requestId < latestRequestIdRef.current) return false
-
-    latestRequestIdRef.current = requestId
-    return true
-  }
+  const latestRequestIdRef = useRef(0) // 마지막 요청 번호
 
   function drawMarker(lat: number, lon: number) {
     const requestId = ++requestIdRef.current
 
+    latestRequestIdRef.current = requestId
     if (!validatePath(prevPath, lat, lon)) return
 
     requestAnimationFrame(() => {
-      if (!validateLastRequest(requestId)) return
+      if (requestId !== latestRequestIdRef.current) return
 
       const map = onLoadMarkerMap({ x: lat, y: lon })
       goalMarker(map, { x: lon, y: lat })
