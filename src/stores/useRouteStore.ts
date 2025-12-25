@@ -1,5 +1,5 @@
 import { PositionState } from '@/types/placeType'
-import { RouteIdxState } from '@/types/storeType'
+import { markerState, RouteIdxState } from '@/types/storeType'
 import { create } from 'zustand'
 
 export const useRoutePlaceIdxStore = create<RouteIdxState>(set => ({
@@ -12,4 +12,10 @@ export const usePositionStore = create<PositionState>(set => ({
   position: null,
   setPosition: pos => set({ position: pos }),
   clearPosition: () => set({ position: null }),
+}))
+
+export const useLoadingMarkerStore = create<markerState>(set => ({
+  state: false,
+  setLoadingMaker: () => set({ state: true }),
+  setCompleteMarker: () => set({ state: false }),
 }))

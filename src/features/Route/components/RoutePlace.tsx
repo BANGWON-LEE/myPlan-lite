@@ -25,6 +25,7 @@ import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 import { useQuery } from '@tanstack/react-query'
 import { PLACE_QUERY_KEY } from '@/lib/queryKeys'
+import FindingPlaceSpinner from '@/share/components/FindingPlaceSpinner'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RoutePlace() {
@@ -119,25 +120,34 @@ export default function RoutePlace() {
   const [isDisabled, setIsDisabled] = useState(false)
 
   function drawMarker(lat: number, lon: number) {
-    if (isDisabled) return
-    setIsDisabled(true)
     const requestId = ++requestIdRef.current
-
     latestRequestIdRef.current = requestId
     if (!validatePath(lat, lon)) return
+    if (isDisabled) return
+    setIsDisabled(true)
 
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       if (requestId !== latestRequestIdRef.current) return
 
       const map = onLoadMarkerMap({ x: lat, y: lon })
       goalMarker(map, { x: lon, y: lat })
       setIsDisabled(false)
       // btnStatusRef.current = true
-    })
+    }, 700)
   }
 
   return (
     <React.Fragment>
+      {/* <div> */}
+      {isDisabled && (
+        <div className="absolute top-0 w-full ">
+          <div className=" grid  h-64 bg-gradient-to-br from-blue-100 to-indigo-100">
+            <FindingPlaceSpinner />
+          </div>
+          {/* 루트 정보 카드 - StatValue & StatLabel 컴포넌트 사용 */}
+        </div>
+      )}
+      {/* </div> */}
       {resultRouteArr > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
           {/* <div className=" bg-white rounded-2xl p-4 shadow-lg">
