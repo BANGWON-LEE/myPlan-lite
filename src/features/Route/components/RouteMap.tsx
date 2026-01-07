@@ -13,7 +13,7 @@ export default function RouteMap(props: MapScriptProps) {
     if (!position) return
     setPosition(position)
     localStorage.setItem('poi-cache', JSON.stringify(position))
-  }, [position])
+  }, [])
   return (
     <>
       <div className="relative h-64 bg-gradient-to-br from-blue-100 to-indigo-100">

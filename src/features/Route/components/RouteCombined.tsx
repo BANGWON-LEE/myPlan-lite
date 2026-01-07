@@ -3,9 +3,7 @@
 import RoutePlace from './RoutePlace'
 import React, { Suspense, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { QueryClientProvider, useQuery } from '@tanstack/react-query'
-import { queryClient } from '@/lib/queryClient'
-import { usePositionStore } from '@/stores/useRouteStore'
+import { useQuery } from '@tanstack/react-query'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
 const RouteMap = dynamic(() => import('../components/RouteMap'), {
   ssr: false,
