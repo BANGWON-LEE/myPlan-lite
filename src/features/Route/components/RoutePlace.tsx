@@ -24,7 +24,6 @@ import { getMyRouteList } from '../containers/RouteMainContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 import { useQuery } from '@tanstack/react-query'
-import { PLACE_QUERY_KEY } from '@/lib/queryKeys'
 import FindingPlaceSpinner from '@/share/components/FindingPlaceSpinner'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
