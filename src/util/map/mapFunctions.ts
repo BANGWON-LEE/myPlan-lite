@@ -133,7 +133,7 @@ export const goalMarker = (
 ) => {
   const position = new naver.maps.LatLng(goalPosition.y, goalPosition.x)
 
-  new naver.maps.Marker({
+  return new naver.maps.Marker({
     position: position,
     icon: {
       url: '/assets/goal.png', // ✅ 여기 절대 경로
