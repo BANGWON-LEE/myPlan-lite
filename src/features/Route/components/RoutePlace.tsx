@@ -124,25 +124,13 @@ export default function RoutePlace() {
     if (isDisabled) return
     setIsDisabled(true)
 
-    // setTimeout(() => {
-    //   if (requestId !== latestRequestIdRef.current) return
-
-    //   const map = onLoadMarkerMap({ x: lat, y: lon })
-    //   goalMarker(map, { x: lon, y: lat })
-    //   setIsDisabled(false)
-    //   // btnStatusRef.current = true
-    // }, 700)
-
-    requestAnimationFrame(() => {
-      // 이 안의 코드는 "다음 페인트 직전"에 실행됨
-      // 화면이 페인트 된 후에야 마커를 요청할 수 있도록 로직 설정
+    setTimeout(() => {
       if (requestId !== latestRequestIdRef.current) return
 
       const map = onLoadMarkerMap({ x: lat, y: lon })
-      goalMarker(map, { x: lon, y: lat })
-      setIsDisabled(false)
-      // btnStatusRef.current = true
-    })
+      const mapResultSignal = goalMarker(map, { x: lon, y: lat })
+      if (mapResultSignal != null) setIsDisabled(false)
+    }, 700)
   }
 
   return (
