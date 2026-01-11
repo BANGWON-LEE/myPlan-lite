@@ -314,8 +314,6 @@ export const setWalkPolyLine = (
     return [x, y]
   })
 
-  // console.log('format', formatPath)
-
   const pathFromAPI = formatPath.map(([x, y]) => new naver.maps.LatLng(y, x))
 
   new naver.maps.Polyline({
@@ -339,4 +337,10 @@ export function getMyLocation(position: GeolocationPosition) {
   })
   // infoMark.open(map, location)
   myMarker(map, position)
+}
+
+export const getPositionFromStorage = () => {
+  if (typeof window === 'undefined') return null
+  const v = localStorage.getItem('poi-cache')
+  return v ? JSON.parse(v) : null
 }
