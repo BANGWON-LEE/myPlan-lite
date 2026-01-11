@@ -9,7 +9,13 @@ import {
   formatStringToArray,
   getHourTimeMinTimeFormat,
 } from '@/util/common/common'
-import { goalMarker, onLoadMarkerMap } from '@/util/map/mapFunctions'
+import {
+  getPositionFromStorage,
+  goalMarker,
+  onLoadMarkerMap,
+  setWalkPolyLine,
+  startMarker,
+} from '@/util/map/mapFunctions'
 
 const Icon = {
   Phone: dynamic(() => import('lucide-react').then(m => m.Phone)),
@@ -25,6 +31,14 @@ import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 import { useQuery } from '@tanstack/react-query'
 import FindingPlaceSpinner from '@/share/components/FindingPlaceSpinner'
+import {
+  goalInfoType,
+  goalRouteType,
+  startInfoType,
+  startRouteType,
+  tmapRoutePathType,
+} from '@/types/routeType'
+import { initialPlaceObj } from '@/data/constant'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RoutePlace() {
@@ -117,7 +131,12 @@ export default function RoutePlace() {
 
   const [isDisabled, setIsDisabled] = useState(false)
 
-  function drawMarker(lat: number, lon: number) {
+  function drawMarker(lat: number, lon: number, placeName: string | undefined) {
+    const position = getPositionFromStorage()
+
+    const x = position.coords.longitude
+    const y = position.coords.latitude
+
     const requestId = ++requestIdRef.current
     latestRequestIdRef.current = requestId
     if (!validatePath(lat, lon)) return
@@ -129,8 +148,56 @@ export default function RoutePlace() {
 
       const map = onLoadMarkerMap({ x: lat, y: lon })
       const mapResultSignal = goalMarker(map, { x: lon, y: lat })
-      if (mapResultSignal != null) setIsDisabled(false)
+      const mapStartSignal = startMarker(map, { x: x, y: y })
+      const mapPolyLine = getPathWalk(
+        map,
+        { x: x, y: y },
+        { x: lon, y: lat },
+        placeName || initialPlaceObj.name
+      )
+
+      if (mapResultSignal != null && mapPolyLine != null) setIsDisabled(false)
     }, 700)
+  }
+
+  function drawPolyLine(
+    map: naver.maps.Map,
+    path: tmapRoutePathType,
+    polyLine: (map: naver.maps.Map, path: [[number, number]]) => void
+  ) {
+    polyLine(map, path.path)
+  }
+
+  async function getPathWalk(
+    map: naver.maps.Map,
+    startInfoState: startRouteType,
+    goalInfoState: goalRouteType,
+    placeName: string
+  ) {
+    const requestData = {
+      startX: startInfoState.x,
+      startY: startInfoState.y,
+      endX: goalInfoState.x,
+      endY: goalInfoState.y,
+      // passList: '경도,위도_경도,위도_경도,위도',
+      reqCoordType: 'WGS84GEO',
+      resCoordType: 'WGS84GEO',
+      startName: encodeURIComponent('내 위치'),
+      // startName: startInfoState.start.name,
+      endName: encodeURIComponent(placeName),
+    }
+
+    // const path = await getPathWalking(requestData)
+    const res = await fetch('/api/walking', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
+    const path = await res.json()
+
+    drawPolyLine(map, path, setWalkPolyLine)
   }
 
   return (
@@ -144,54 +211,18 @@ export default function RoutePlace() {
           {/* 루트 정보 카드 - StatValue & StatLabel 컴포넌트 사용 */}
         </div>
       )}
-      {/* </div> */}
       {resultRouteArr > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
-          {/* <div className=" bg-white rounded-2xl p-4 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <StatLabel>총 소요시간</StatLabel>
-                <StatValue>약 10분</StatValue>
-              </div>
-              <div className="text-right">
-                <StatLabel>총 거리</StatLabel>
-                <StatValue color="text-gray-900">1.3km</StatValue>
-              </div>
-            </div>
-          </div> */}
-          {/* 
-      {[
-        {
-          id: 1,
-          name: '그린카페',
-          type: '카페',
-          rating: 4.5,
-          distance: '250m',
-          time: '3분',
-        },
-        {
-          id: 2,
-          name: '한강뷰 공원',
-          type: '산책',
-          rating: 4.8,
-          distance: '600m',
-          time: '8분',
-        },
-        {
-          id: 3,
-          name: '북카페 라운지',
-          type: '휴식',
-          rating: 4.6,
-          distance: '450m',
-          time: '6분',
-        },
-      ] */}
           {routeArr.map((place: placeType | null, index: number) => (
             <button
               key={index + 1}
               disabled={isDisabled}
               onClick={() =>
-                drawMarker(Number(place?.pnsLat), Number(place?.pnsLon))
+                drawMarker(
+                  Number(place?.pnsLat),
+                  Number(place?.pnsLon),
+                  place?.name
+                )
               }
               className="w-full"
             >
@@ -261,3 +292,18 @@ export default function RoutePlace() {
     </React.Fragment>
   )
 }
+// const [startSummaryState, setStartSummaryStateInternal] = useState<{
+//   pathArr: [[number, number]]
+//   distance: number
+//   duration: number
+//   method: string
+// } | null>(null)
+
+// const setStartSummaryState = (arg0: {
+//   pathArr: [[number, number]]
+//   distance: number
+//   duration: number
+//   method: string
+// }) => {
+//   setStartSummaryStateInternal(arg0)
+// }
