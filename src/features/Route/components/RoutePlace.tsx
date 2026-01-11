@@ -10,7 +10,6 @@ import {
   getHourTimeMinTimeFormat,
 } from '@/util/common/common'
 import {
-  getPositionFromStorage,
   goalMarker,
   onLoadMarkerMap,
   setWalkPolyLine,
@@ -130,6 +129,12 @@ export default function RoutePlace() {
   const latestRequestIdRef = useRef(0) // 마지막 요청 번호
 
   const [isDisabled, setIsDisabled] = useState(false)
+
+  const getPositionFromStorage = () => {
+    if (typeof window === 'undefined') return null
+    const v = localStorage.getItem('poi-cache')
+    return v ? JSON.parse(v) : null
+  }
 
   function drawMarker(lat: number, lon: number, placeName: string | undefined) {
     const position = getPositionFromStorage()
