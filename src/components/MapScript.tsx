@@ -1,19 +1,10 @@
 'use client'
 
-import { MapScriptProps } from '@/types/placeType'
-import { onLoadMap, onLoadRouteMap } from '@/util/map/mapFunctions'
-import Head from 'next/head'
+import { getPositionFromStorage, onLoadRouteMap } from '@/util/map/mapFunctions'
 import Script from 'next/script'
 import { useEffect } from 'react'
 
 export default function MapScript() {
-  // const position = usePositionStore(state => state.position)
-  const getPositionFromStorage = () => {
-    if (typeof window === 'undefined') return null
-    const v = localStorage.getItem('poi-cache')
-    return v ? JSON.parse(v) : null
-  }
-
   useEffect(() => {
     if (!window.naver) return
     const pos = getPositionFromStorage()
