@@ -6,6 +6,7 @@ import {
   TreePine,
   Navigation,
   ShoppingBag,
+  BriefcaseMedicalIcon,
 } from 'lucide-react'
 import { SectionTitle } from '@/share/components/Text'
 import { PurposeCard, TimeCard } from '@/share/components/Card'
@@ -30,10 +31,10 @@ export default function PlanMain() {
       color: 'bg-rose-500',
     },
     {
-      id: '공원',
-      key: 'walk',
-      icon: TreePine,
-      label: '산책',
+      id: '약국',
+      key: 'pharmacy',
+      icon: BriefcaseMedicalIcon,
+      label: '약국',
       color: 'bg-emerald-500',
     },
     {
