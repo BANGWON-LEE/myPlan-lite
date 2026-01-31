@@ -27,7 +27,7 @@ export function convertGetKm(meter: number): number {
   return Math.round(meter / 1000)
 }
 
-// 장소 데이터 중, 불필요한 데이터를 필터링 처리하는 함수
+// 장소 데이터 중, 불필요한 데이터를 필터링 처리하는 함
 export function filterApiData(
   data: RouteApiDataType[] | undefined,
 ): TmapPoiItem[][] {
@@ -87,8 +87,8 @@ export function addValueByCategory(
         return (listArr.meal = placeArr[cateName])
       case '커피':
         return (listArr.coffee = placeArr[cateName])
-      case '공원':
-        return (listArr.walk = placeArr[cateName])
+      case '약국':
+        return (listArr.pharmacy = placeArr[cateName])
       case '편의점':
         return (listArr.shopping = placeArr[cateName])
       default:

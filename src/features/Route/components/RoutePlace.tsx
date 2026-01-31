@@ -47,7 +47,7 @@ export default function RoutePlace() {
   const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
     meal: [],
     coffee: [],
-    walk: [],
+    pharmacy: [],
     shopping: [],
   })
 
@@ -78,7 +78,7 @@ export default function RoutePlace() {
       const filterApiArr = filterApiData(data)
 
       const formatApiData = formatResult(purposesArr, filterApiArr)
-      const listArr = { meal: [], coffee: [], walk: [], shopping: [] }
+      const listArr = { meal: [], coffee: [], pharmacy: [], shopping: [] }
       // addValueByCategory(setRouteList, purposesArr, formatApiData)
       addValueByCategory(listArr, formatApiData)
 
@@ -93,21 +93,21 @@ export default function RoutePlace() {
   const routeArr = [
     routeList.meal[idx] ?? routeList.meal[0],
     routeList.coffee[idx] ?? routeList.coffee[0],
-    routeList.walk[idx] ?? routeList.walk[0],
+    routeList.pharmacy[idx] ?? routeList.pharmacy[0],
     routeList.shopping[idx] ?? routeList.shopping[0],
   ].filter(Boolean) // undefined 제거
 
   const routeArrInitial = [
     routeList.meal[0],
     routeList.coffee[0],
-    routeList.walk[0],
+    routeList.pharmacy[0],
     routeList.shopping[0],
   ].filter(Boolean) // undefined 제거
 
   const routeArrSize = [
     routeList.meal.length,
     routeList.coffee.length,
-    routeList.walk.length,
+    routeList.pharmacy.length,
     routeList.shopping.length,
   ].filter(Boolean) // undefined 제거
 
