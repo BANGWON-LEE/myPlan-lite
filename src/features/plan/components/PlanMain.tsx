@@ -13,6 +13,7 @@ import { PrimaryButtonText } from '@/share/components/Button'
 import Link from 'next/link'
 
 export default function PlanMain() {
+  // 목적 선택 옵션 객체 리터럴로 정의
   const purposes = [
     {
       id: '커피',
@@ -36,24 +37,28 @@ export default function PlanMain() {
       color: 'bg-emerald-500',
     },
     {
-      id: '쇼핑',
+      id: '편의점',
       key: 'shopping',
       icon: ShoppingBag,
-      label: '쇼핑',
+      label: '편의점',
       color: 'bg-blue-500',
     },
   ]
 
+  // 선택된 목적과 시간 상태값
   const [selectedPurpose, setSelectedPurpose] = useState<string[]>([])
 
+  // 시간 선택 옵션 배열
   const timeOptionsArr = [
     { time: 10, radius: 1 },
     { time: 20, radius: 5 },
     { time: 30, radius: 10 },
   ]
 
-  const [selectedTime, setSelectedTime] = useState(10)
+  // 선택된 시간 상태값
+  const [selectedTime, setSelectedTime] = useState(1)
 
+  // 목적 선택 토글 함수
   function togglePurpose(id: string) {
     setSelectedPurpose((prev: string[]) => {
       return prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
@@ -103,7 +108,7 @@ export default function PlanMain() {
       {/* 시작 버튼 - PrimaryButtonText 컴포넌트 사용 */}
       <Link
         href={`/route?purposes=${selectedPurpose.join(
-          ','
+          ',',
         )}&time=${selectedTime}`}
       >
         <PrimaryButtonText

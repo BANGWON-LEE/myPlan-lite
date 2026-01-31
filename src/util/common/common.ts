@@ -27,8 +27,9 @@ export function convertGetKm(meter: number): number {
   return Math.round(meter / 1000)
 }
 
+// 장소 데이터 중, 불필요한 데이터를 필터링 처리하는 함수
 export function filterApiData(
-  data: RouteApiDataType[] | undefined
+  data: RouteApiDataType[] | undefined,
 ): TmapPoiItem[][] {
   // alert('qqqq222' + data)
   if (data === undefined) return []
@@ -43,7 +44,7 @@ export function filterApiData(
         !place.name.includes('정문') &&
         !place.name.includes('후문')
       )
-    })
+    }),
   )
 
   return result
@@ -51,13 +52,16 @@ export function filterApiData(
 
 export function formatResult(
   purposesArr: string[],
-  filterApiArr: TmapPoiItem[][]
+  filterApiArr: TmapPoiItem[][],
 ) {
-  const formatResult = purposesArr.reduce((acc, purpose, idx) => {
-    acc[purpose] = filterApiArr[idx] // 각 purpose 키에 맞게 응답 매핑
+  const formatResult = purposesArr.reduce(
+    (acc, purpose, idx) => {
+      acc[purpose] = filterApiArr[idx] // 각 purpose 키에 맞게 응답 매핑
 
-    return acc
-  }, {} as Record<string, TmapPoiItem[]>)
+      return acc
+    },
+    {} as Record<string, TmapPoiItem[]>,
+  )
 
   // console.log('formatResult', formatResult)
   return formatResult
@@ -67,50 +71,13 @@ export function formatStringToArray(str: string) {
   return str.split(',')
 }
 
-// export function addValueByCategory(
-//   setRouteList: React.Dispatch<
-//     React.SetStateAction<Record<string, TmapPoiItem[]>>
-//   >,
-//   purposeArr: string[],
-//   placeArr: Record<string, TmapPoiItem[]>
-// ) {
-//   Object.keys(placeArr).map(cateName => {
-//     // console.log('cateNAme', cateName)
-
-//     switch (cateName) {
-//       case '음식점':
-//         return setRouteList(prev => ({
-//           ...prev,
-//           meal: [...placeArr[cateName]],
-//         }))
-//       case '커피':
-//         return setRouteList(prev => ({
-//           ...prev,
-//           coffee: [...placeArr[cateName]],
-//         }))
-//       case '공원':
-//         return setRouteList(prev => ({
-//           ...prev,
-//           walk: [...placeArr[cateName]],
-//         }))
-//       case '쇼핑':
-//         return setRouteList(prev => ({
-//           ...prev,
-//           shopping: [...placeArr[cateName]],
-//         }))
-//       default:
-//         null
-//     }
-//   })
-// }
-
 export function addValueByCategory(
   // setRouteList: React.Dispatch<
   //   React.SetStateAction<Record<string, TmapPoiItem[]>>
   // >,
   listArr: Record<string, TmapPoiItem[]>,
   // purposeArr: string[],
-  placeArr: Record<string, TmapPoiItem[]>
+  placeArr: Record<string, TmapPoiItem[]>,
 ) {
   Object.keys(placeArr).map(cateName => {
     // console.log('cateNAme', cateName)
@@ -122,7 +89,7 @@ export function addValueByCategory(
         return (listArr.coffee = placeArr[cateName])
       case '공원':
         return (listArr.walk = placeArr[cateName])
-      case '쇼핑':
+      case '편의점':
         return (listArr.shopping = placeArr[cateName])
       default:
         null

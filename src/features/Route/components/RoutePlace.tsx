@@ -31,9 +31,7 @@ import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 import { useQuery } from '@tanstack/react-query'
 import FindingPlaceSpinner from '@/share/components/FindingPlaceSpinner'
 import {
-  goalInfoType,
   goalRouteType,
-  startInfoType,
   startRouteType,
   tmapRoutePathType,
 } from '@/types/routeType'
@@ -56,6 +54,7 @@ export default function RoutePlace() {
   const { idx, initialIdx } = useRoutePlaceIdxStore()
   const position = usePositionStore(state => state.position)
 
+  // 장소 데이터 가져와 캐싱처리하기
   const { data } = useQuery<RouteApiDataType[]>({
     queryKey: ['place', position, purposesArr, queryTime], // 검색어
     queryFn: async () => {
@@ -112,7 +111,7 @@ export default function RoutePlace() {
     routeList.shopping.length,
   ].filter(Boolean) // undefined 제거
 
-  const resultRouteArr = 0 && idx === 0 ? 0 : routeArrInitial.length
+  const resultRouteArr = routeArrInitial.length
 
   const prevPathRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
@@ -158,7 +157,7 @@ export default function RoutePlace() {
         map,
         { x: x, y: y },
         { x: lon, y: lat },
-        placeName || initialPlaceObj.name
+        placeName || initialPlaceObj.name,
       )
 
       if (mapResultSignal != null && mapPolyLine != null) setIsDisabled(false)
@@ -168,7 +167,7 @@ export default function RoutePlace() {
   function drawPolyLine(
     map: naver.maps.Map,
     path: tmapRoutePathType,
-    polyLine: (map: naver.maps.Map, path: [[number, number]]) => void
+    polyLine: (map: naver.maps.Map, path: [[number, number]]) => void,
   ) {
     polyLine(map, path.path)
   }
@@ -177,7 +176,7 @@ export default function RoutePlace() {
     map: naver.maps.Map,
     startInfoState: startRouteType,
     goalInfoState: goalRouteType,
-    placeName: string
+    placeName: string,
   ) {
     const requestData = {
       startX: startInfoState.x,
@@ -226,7 +225,7 @@ export default function RoutePlace() {
                 drawMarker(
                   Number(place?.pnsLat),
                   Number(place?.pnsLon),
-                  place?.name
+                  place?.name,
                 )
               }
               className="w-full"
@@ -275,12 +274,12 @@ export default function RoutePlace() {
                           {getHourTimeMinTimeFormat(Number(place?.radius))
                             .hours > 0
                             ? `${getHourTimeMinTimeFormat(
-                                Number(place?.radius)
+                                Number(place?.radius),
                               ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
-                                Number(place?.radius)
+                                Number(place?.radius),
                               ).minutes.toString()}분`
                             : `${getHourTimeMinTimeFormat(
-                                Number(place?.radius)
+                                Number(place?.radius),
                               ).minutes.toString()}분`}{' '}
                         </span>
                       </div>
