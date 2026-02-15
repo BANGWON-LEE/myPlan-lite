@@ -148,7 +148,7 @@ export default function RoutePlace() {
     setIsDisabled(true)
     setTimeout(() => {
       onDrawMarkerLine(requestId, lat, lon, currentX, currentY, placeName)
-    }, 700)
+    }, 1000)
   }
 
   function onDrawMarkerLine(
