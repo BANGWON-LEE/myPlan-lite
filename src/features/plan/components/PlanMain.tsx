@@ -92,7 +92,7 @@ export default function PlanMain() {
       {/* 시간 선택 - TimeCard 컴포넌트 사용 */}
       <div className="mb-8">
         <SectionTitle className="mb-4">
-          얼마나 시간을 보내실 건가요?
+          몇 분 거리의 장소를 원하시나요?
         </SectionTitle>
         <div className="flex gap-3">
           {timeOptionsArr.map(li => (
