@@ -146,10 +146,9 @@ export default function RoutePlace() {
     if (!validatePath(lat, lon)) return
     if (isDisabled) return
     setIsDisabled(true)
-    onDrawMarkerLine(requestId, lat, lon, currentX, currentY, placeName)
-    // setTimeout(() => {
-
-    // }, 700)
+    setTimeout(() => {
+      onDrawMarkerLine(requestId, lat, lon, currentX, currentY, placeName)
+    }, 700)
   }
 
   function onDrawMarkerLine(
