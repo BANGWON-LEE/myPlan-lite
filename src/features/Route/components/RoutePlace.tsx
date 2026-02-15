@@ -101,22 +101,46 @@ export default function RoutePlace() {
   const routePlaceIdxList = [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx]
 
   //각 장소별 인덱스 증가 함수를 배열로 관리
-  const routePlaceActionList = [
-    incMealIdx,
-    incCoffeeIdx,
-    incPharmacyIdx,
-    incShoppingIdx,
-  ]
+  // const routePlaceActionList = {
+  //   meal: incMealIdx(),
+  //   coffee: incCoffeeIdx(),
+  //   pharmacy: incPharmacyIdx(),
+  //   shopping: incShoppingIdx(),
+  // }
 
-  function changeRoutePlaceIdx(index: number) {
-    routePlaceActionList[index]()
+  function changeRoutePlaceIdx(list: string) {
+    switch (list) {
+      case 'meal':
+        incMealIdx()
+        break
+      case 'coffee':
+        incCoffeeIdx()
+        break
+      case 'pharmacy':
+        incPharmacyIdx()
+        break
+      case 'shopping':
+        incShoppingIdx()
+        break
+      default:
+        break
+    }
   }
 
   const routeArr = [
-    routeList.meal[mealIdx] ?? routeList.meal[0],
-    routeList.coffee[coffeeIdx] ?? routeList.coffee[0],
-    routeList.pharmacy[pharmacyIdx] ?? routeList.pharmacy[0],
-    routeList.shopping[shoppingIdx] ?? routeList.shopping[0],
+    { key: 'meal', list: routeList.meal[mealIdx] ?? routeList.meal[0] },
+    {
+      key: 'coffee',
+      list: routeList.coffee[coffeeIdx] ?? routeList.coffee[0],
+    },
+    {
+      key: 'pharmacy',
+      list: routeList.pharmacy[pharmacyIdx] ?? routeList.pharmacy[0],
+    },
+    {
+      key: 'shopping',
+      list: routeList.shopping[shoppingIdx] ?? routeList.shopping[0],
+    },
   ].filter(Boolean) // undefined 제거
 
   const routeArrInitial = [
@@ -244,6 +268,8 @@ export default function RoutePlace() {
 
   // const { incIdx } = useRoutePlaceIdxStore()
 
+  queryPurposes
+
   return (
     <React.Fragment>
       {/* <div> */}
@@ -257,93 +283,104 @@ export default function RoutePlace() {
       )}
       {resultRouteArrSize > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
-          {routeArr.map((place: placeType | null, index: number) => (
-            <section key={index + 1} className="w-full">
-              <div
-                className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
-                  routeArrSize[index] <= routePlaceIdxList[index] &&
-                  'bg-slate-300'
-                }`}
-              >
-                <div className="flex w-3/4">
-                  {/* <div className="w-28 h-28 bg-gradient-to-br from-indigo-100 to-purple-100"></div> */}
-                  <div className="flex-1 p-4">
-                    <div className="flex w-full items-start justify-between mb-2">
-                      <div className="w-full grid text-left">
-                        <span className="text-sm font-semibold text-red-500">
-                          {/* {routeArr[index].name !== place?.name && */}
-                          {routeArrSize[index] <= routePlaceIdxList[index] &&
-                            '더 이상 추천할 장소가 없습니다'}
-                        </span>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-indigo-600">
-                            #{index + 1}
-                          </span>
-                          <h3 className="font-bold text-gray-900">
-                            {place?.name}
-                          </h3>
+          {routeArr.map(
+            (place: { key: string; list: placeType | null }, index: number) => (
+              <>
+                {place.list?.name !== undefined && (
+                  <section key={index + 1} className="w-full">
+                    <div
+                      className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
+                        routeArrSize[index] <= routePlaceIdxList[index] &&
+                        'bg-slate-300'
+                      }`}
+                    >
+                      <div className="flex w-3/4">
+                        {/* <div className="w-28 h-28 bg-gradient-to-br from-indigo-100 to-purple-100"></div> */}
+                        <div className="flex-1 p-4">
+                          <div className="flex w-full items-start justify-between mb-2">
+                            <div className="w-full grid text-left">
+                              <span className="text-sm font-semibold text-red-500">
+                                {/* {routeArr[index].name !== place?.name && */}
+                                {routeArrSize[index] <=
+                                  routePlaceIdxList[index] &&
+                                  '더 이상 추천할 장소가 없습니다'}
+                              </span>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-semibold text-indigo-600">
+                                  #{index + 1}
+                                </span>
+                                <h3 className="font-bold text-gray-900">
+                                  {place.list?.name}
+                                </h3>
+                              </div>
+                              {/* StatLabel 컴포넌트 사용 */}
+                              <StatLabel>{place.list?.middleBizName}</StatLabel>
+                            </div>
+                          </div>
+                          <div className="grid items-center gap-3 text-sm text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <Icon.Phone className="w-4 h-4 text-amber-400 fill-amber-400" />
+                              <span>{place.list?.telNo}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Icon.MapPin className="w-4 h-4" />
+                              <span>
+                                {
+                                  place.list?.newAddressList.newAddress[0]
+                                    .fullAddressRoad
+                                }
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Icon.Clock className="w-4 h-4" />
+                              <span>
+                                {getHourTimeMinTimeFormat(
+                                  Number(place.list?.radius),
+                                ).hours > 0
+                                  ? `${getHourTimeMinTimeFormat(
+                                      Number(place.list?.radius),
+                                    ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
+                                      Number(place.list?.radius),
+                                    ).minutes.toString()}분`
+                                  : `${getHourTimeMinTimeFormat(
+                                      Number(place.list?.radius),
+                                    ).minutes.toString()}분`}{' '}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        {/* StatLabel 컴포넌트 사용 */}
-                        <StatLabel>{place?.middleBizName}</StatLabel>
+                      </div>
+                      <div className="w-1/4 grid  ">
+                        <button
+                          className="h-full  w-full bg-slate-200"
+                          disabled={isDisabled}
+                          onClick={() =>
+                            drawMarker(
+                              Number(place.list?.pnsLat),
+                              Number(place.list?.pnsLon),
+                              place.list?.name,
+                            )
+                          }
+                        >
+                          <div className="text-indigo-600 font-semibold">
+                            경로 찾기
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => changeRoutePlaceIdx(place.key)}
+                          className="h-full  w-full bg-amber-200"
+                        >
+                          <div className="text-amber-600 font-semibold">
+                            다른 장소
+                          </div>
+                        </button>
                       </div>
                     </div>
-                    <div className="grid items-center gap-3 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Icon.Phone className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span>{place?.telNo}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon.MapPin className="w-4 h-4" />
-                        <span>
-                          {place?.newAddressList.newAddress[0].fullAddressRoad}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Icon.Clock className="w-4 h-4" />
-                        <span>
-                          {getHourTimeMinTimeFormat(Number(place?.radius))
-                            .hours > 0
-                            ? `${getHourTimeMinTimeFormat(
-                                Number(place?.radius),
-                              ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
-                                Number(place?.radius),
-                              ).minutes.toString()}분`
-                            : `${getHourTimeMinTimeFormat(
-                                Number(place?.radius),
-                              ).minutes.toString()}분`}{' '}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="w-1/4 grid  ">
-                  <button
-                    className="h-full  w-full bg-slate-200"
-                    disabled={isDisabled}
-                    onClick={() =>
-                      drawMarker(
-                        Number(place?.pnsLat),
-                        Number(place?.pnsLon),
-                        place?.name,
-                      )
-                    }
-                  >
-                    <div className="text-indigo-600 font-semibold">
-                      경로 찾기
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => changeRoutePlaceIdx(index)}
-                    className="h-full  w-full bg-amber-200"
-                  >
-                    <div className="text-amber-600 font-semibold">
-                      다른 장소
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </section>
-          ))}
+                  </section>
+                )}
+              </>
+            ),
+          )}
         </div>
       ) : (
         <LoadingScreen />
@@ -351,18 +388,3 @@ export default function RoutePlace() {
     </React.Fragment>
   )
 }
-// const [startSummaryState, setStartSummaryStateInternal] = useState<{
-//   pathArr: [[number, number]]
-//   distance: number
-//   duration: number
-//   method: string
-// } | null>(null)
-
-// const setStartSummaryState = (arg0: {
-//   pathArr: [[number, number]]
-//   distance: number
-//   duration: number
-//   method: string
-// }) => {
-//   setStartSummaryStateInternal(arg0)
-// }
