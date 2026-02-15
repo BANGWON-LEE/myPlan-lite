@@ -11,7 +11,7 @@ export default function RoutePage() {
         <RouteHeader />
         {/* <RouteMap /> */}
         <RouteMain />
-        <RouteBottom />
+        {/* <RouteBottom /> */}
       </div>
     </div>
   )

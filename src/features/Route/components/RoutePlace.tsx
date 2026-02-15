@@ -51,7 +51,18 @@ export default function RoutePlace() {
     shopping: [],
   })
 
-  const { idx, initialIdx } = useRoutePlaceIdxStore()
+  const {
+    mealIdx,
+    coffeeIdx,
+    pharmacyIdx,
+    shoppingIdx,
+    incMealIdx,
+    incCoffeeIdx,
+    incPharmacyIdx,
+    incShoppingIdx,
+    initialIdx,
+  } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+
   const position = usePositionStore(state => state.position)
 
   // 장소 데이터 가져와 캐싱처리하기
@@ -73,28 +84,39 @@ export default function RoutePlace() {
     if (!position) return
     if (data === undefined) return
 
-    // alert('2 : ' + btnStatusRef.current)
     const getData = () => {
       const filterApiArr = filterApiData(data)
 
       const formatApiData = formatResult(purposesArr, filterApiArr)
       const listArr = { meal: [], coffee: [], pharmacy: [], shopping: [] }
-      // addValueByCategory(setRouteList, purposesArr, formatApiData)
       addValueByCategory(listArr, formatApiData)
 
       setRouteList(listArr)
-      // return result
     }
     initialIdx()
     getData()
-    // alert('btnStatus : ' + btnStatus)
   }, [data])
 
+  // 각 장소별 인덱스를 배열로 관리
+  const routePlaceIdxList = [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx]
+
+  //각 장소별 인덱스 증가 함수를 배열로 관리
+  const routePlaceActionList = [
+    incMealIdx,
+    incCoffeeIdx,
+    incPharmacyIdx,
+    incShoppingIdx,
+  ]
+
+  function changeRoutePlaceIdx(index: number) {
+    routePlaceActionList[index]()
+  }
+
   const routeArr = [
-    routeList.meal[idx] ?? routeList.meal[0],
-    routeList.coffee[idx] ?? routeList.coffee[0],
-    routeList.pharmacy[idx] ?? routeList.pharmacy[0],
-    routeList.shopping[idx] ?? routeList.shopping[0],
+    routeList.meal[mealIdx] ?? routeList.meal[0],
+    routeList.coffee[coffeeIdx] ?? routeList.coffee[0],
+    routeList.pharmacy[pharmacyIdx] ?? routeList.pharmacy[0],
+    routeList.shopping[shoppingIdx] ?? routeList.shopping[0],
   ].filter(Boolean) // undefined 제거
 
   const routeArrInitial = [
@@ -111,7 +133,7 @@ export default function RoutePlace() {
     routeList.shopping.length,
   ].filter(Boolean) // undefined 제거
 
-  const resultRouteArr = routeArrInitial.length
+  const resultRouteArrSize = routeArrInitial.length
 
   const prevPathRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
@@ -138,30 +160,46 @@ export default function RoutePlace() {
   function drawMarker(lat: number, lon: number, placeName: string | undefined) {
     const position = getPositionFromStorage()
 
-    const x = position.coords.longitude
-    const y = position.coords.latitude
+    const currentX = position.coords.longitude
+    const currentY = position.coords.latitude
 
     const requestId = ++requestIdRef.current
     latestRequestIdRef.current = requestId
     if (!validatePath(lat, lon)) return
     if (isDisabled) return
     setIsDisabled(true)
-
     setTimeout(() => {
-      if (requestId !== latestRequestIdRef.current) return
+      onDrawMarkerLine(requestId, lat, lon, currentX, currentY, placeName)
+    }, 1000)
+  }
 
-      const map = onLoadMarkerMap({ x: lat, y: lon })
-      const mapResultSignal = goalMarker(map, { x: lon, y: lat })
-      const mapStartSignal = startMarker(map, { x: x, y: y })
-      const mapPolyLine = getPathWalk(
-        map,
-        { x: x, y: y },
-        { x: lon, y: lat },
-        placeName || initialPlaceObj.name,
-      )
+  function onDrawMarkerLine(
+    requestId: number,
+    lat: number,
+    lon: number,
+    currentX: number,
+    currentY: number,
+    placeName: string | undefined,
+  ) {
+    if (requestId !== latestRequestIdRef.current) return
 
-      if (mapResultSignal != null && mapPolyLine != null) setIsDisabled(false)
-    }, 700)
+    const map = onLoadMarkerMap({ x: lat, y: lon })
+    const mapStartSignal = startMarker(map, { x: currentX, y: currentY })
+    const mapResultSignal = goalMarker(map, { x: lon, y: lat })
+
+    const mapPolyLine = getPathWalk(
+      map,
+      { x: currentX, y: currentY },
+      { x: lon, y: lat },
+      placeName || initialPlaceObj.name,
+    )
+
+    const mapLoadCheck =
+      mapStartSignal !== null &&
+      mapResultSignal !== null &&
+      mapPolyLine !== null
+
+    if (mapLoadCheck) setIsDisabled(false)
   }
 
   function drawPolyLine(
@@ -204,6 +242,8 @@ export default function RoutePlace() {
     drawPolyLine(map, path, setWalkPolyLine)
   }
 
+  // const { incIdx } = useRoutePlaceIdxStore()
+
   return (
     <React.Fragment>
       {/* <div> */}
@@ -215,34 +255,24 @@ export default function RoutePlace() {
           {/* 루트 정보 카드 - StatValue & StatLabel 컴포넌트 사용 */}
         </div>
       )}
-      {resultRouteArr > 0 ? (
+      {resultRouteArrSize > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
           {routeArr.map((place: placeType | null, index: number) => (
-            <button
-              key={index + 1}
-              disabled={isDisabled}
-              onClick={() =>
-                drawMarker(
-                  Number(place?.pnsLat),
-                  Number(place?.pnsLon),
-                  place?.name,
-                )
-              }
-              className="w-full"
-            >
+            <section key={index + 1} className="w-full">
               <div
-                className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                  routeArrSize[index] <= idx && 'bg-slate-300'
+                className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
+                  routeArrSize[index] <= routePlaceIdxList[index] &&
+                  'bg-slate-300'
                 }`}
               >
-                <div className="flex">
+                <div className="flex w-3/4">
                   {/* <div className="w-28 h-28 bg-gradient-to-br from-indigo-100 to-purple-100"></div> */}
                   <div className="flex-1 p-4">
                     <div className="flex w-full items-start justify-between mb-2">
                       <div className="w-full grid text-left">
                         <span className="text-sm font-semibold text-red-500">
                           {/* {routeArr[index].name !== place?.name && */}
-                          {routeArrSize[index] <= idx &&
+                          {routeArrSize[index] <= routePlaceIdxList[index] &&
                             '더 이상 추천할 장소가 없습니다'}
                         </span>
                         <div className="flex items-center gap-2 mb-1">
@@ -286,8 +316,33 @@ export default function RoutePlace() {
                     </div>
                   </div>
                 </div>
+                <div className="w-1/4 grid  ">
+                  <button
+                    className="h-full  w-full bg-slate-200"
+                    disabled={isDisabled}
+                    onClick={() =>
+                      drawMarker(
+                        Number(place?.pnsLat),
+                        Number(place?.pnsLon),
+                        place?.name,
+                      )
+                    }
+                  >
+                    <div className="text-indigo-600 font-semibold">
+                      경로 찾기
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => changeRoutePlaceIdx(index)}
+                    className="h-full  w-full bg-amber-200"
+                  >
+                    <div className="text-amber-600 font-semibold">
+                      다른 장소
+                    </div>
+                  </button>
+                </div>
               </div>
-            </button>
+            </section>
           ))}
         </div>
       ) : (
