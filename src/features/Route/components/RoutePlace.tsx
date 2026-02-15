@@ -138,30 +138,47 @@ export default function RoutePlace() {
   function drawMarker(lat: number, lon: number, placeName: string | undefined) {
     const position = getPositionFromStorage()
 
-    const x = position.coords.longitude
-    const y = position.coords.latitude
+    const currentX = position.coords.longitude
+    const currentY = position.coords.latitude
 
     const requestId = ++requestIdRef.current
     latestRequestIdRef.current = requestId
     if (!validatePath(lat, lon)) return
     if (isDisabled) return
     setIsDisabled(true)
+    onDrawMarkerLine(requestId, lat, lon, currentX, currentY, placeName)
+    // setTimeout(() => {
 
-    setTimeout(() => {
-      if (requestId !== latestRequestIdRef.current) return
+    // }, 700)
+  }
 
-      const map = onLoadMarkerMap({ x: lat, y: lon })
-      const mapResultSignal = goalMarker(map, { x: lon, y: lat })
-      const mapStartSignal = startMarker(map, { x: x, y: y })
-      const mapPolyLine = getPathWalk(
-        map,
-        { x: x, y: y },
-        { x: lon, y: lat },
-        placeName || initialPlaceObj.name,
-      )
+  function onDrawMarkerLine(
+    requestId: number,
+    lat: number,
+    lon: number,
+    currentX: number,
+    currentY: number,
+    placeName: string | undefined,
+  ) {
+    if (requestId !== latestRequestIdRef.current) return
 
-      if (mapResultSignal !== null && mapPolyLine !== null) setIsDisabled(false)
-    }, 700)
+    const map = onLoadMarkerMap({ x: lat, y: lon })
+    const mapStartSignal = startMarker(map, { x: currentX, y: currentY })
+    const mapResultSignal = goalMarker(map, { x: lon, y: lat })
+
+    const mapPolyLine = getPathWalk(
+      map,
+      { x: currentX, y: currentY },
+      { x: lon, y: lat },
+      placeName || initialPlaceObj.name,
+    )
+
+    const mapLoadCheck =
+      mapStartSignal !== null &&
+      mapResultSignal !== null &&
+      mapPolyLine !== null
+
+    if (mapLoadCheck) setIsDisabled(false)
   }
 
   function drawPolyLine(

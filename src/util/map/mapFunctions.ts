@@ -75,7 +75,7 @@ export const onLoadInitialRouteMap = (position: GeolocationPosition) =>
 
 export const onLoadRouteMap = (
   position: GeolocationPosition,
-  initialPosition: naver.maps.Map
+  initialPosition: naver.maps.Map,
 ) =>
   typeof position === 'undefined'
     ? initialPosition
@@ -95,12 +95,12 @@ export const onLoadMarkerMap = ({ x, y }: { x: number; y: number }) =>
 
 export const myMarker = (
   map: naver.maps.Map,
-  position: GeolocationPosition
+  position: GeolocationPosition,
 ) => {
   new naver.maps.Marker({
     position: new naver.maps.LatLng(
       position.coords.latitude,
-      position.coords.longitude
+      position.coords.longitude,
     ),
     map: map,
   })
@@ -108,11 +108,11 @@ export const myMarker = (
 
 export const startMarker = (
   map: naver.maps.Map,
-  startPosition: { x: number; y: number }
+  startPosition: { x: number; y: number },
 ) => {
   const position = new naver.maps.LatLng(startPosition.y, startPosition.x)
 
-  new naver.maps.Marker({
+  return new naver.maps.Marker({
     // position: position.destinationPoint(90, 15),
     position: position,
     icon: {
@@ -129,7 +129,7 @@ export const startMarker = (
 }
 export const goalMarker = (
   map: naver.maps.Map,
-  goalPosition: { x: number; y: number }
+  goalPosition: { x: number; y: number },
 ) => {
   const position = new naver.maps.LatLng(goalPosition.y, goalPosition.x)
 
@@ -148,7 +148,7 @@ export const goalMarker = (
 
 export const mySearchMarker = (
   map: naver.maps.Map,
-  position: simplePosition
+  position: simplePosition,
 ) => {
   const x = Number(position.x)
   const y = Number(position.y)
@@ -183,7 +183,7 @@ export function setGeolocationOnMap(position: GeolocationPosition): void {
 function onSuccessGeolocation(position: GeolocationPosition) {
   const location = new naver.maps.LatLng(
     position.coords.latitude,
-    position.coords.longitude
+    position.coords.longitude,
   )
 
   const map = onLoadMap(position)
@@ -234,7 +234,7 @@ function onSuccessGeolocation(position: GeolocationPosition) {
 
 export async function getPlaceLocation(
   text: string,
-  formatPlaceLocation: (addresses: naver.maps.Service.AddressItemV2[]) => void
+  formatPlaceLocation: (addresses: naver.maps.Service.AddressItemV2[]) => void,
 ) {
   checkEmptyString(text)
 
@@ -250,7 +250,7 @@ export async function getPlaceLocation(
       const result = response.v2 // 검색 결과의 컨테이너
       const address = result.addresses
       formatPlaceLocation(address)
-    }
+    },
   )
 }
 
@@ -260,7 +260,7 @@ export async function getPlaceLocation(
 
 // 현재 내 위치의 주소를 문자열로 반환
 export async function getMyLocAddress(
-  position: GeolocationPosition
+  position: GeolocationPosition,
 ): Promise<naver.maps.Service.ReverseGeocodeAddress> {
   const x = position.coords.latitude
   const y = position.coords.longitude
@@ -282,7 +282,7 @@ export async function getMyLocAddress(
         }
         const address = response.v2.address
         return resolve(address)
-      }
+      },
     )
   })
 }
@@ -294,7 +294,7 @@ export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
 
 export const setCarPolyLine = (
   map: naver.maps.Map,
-  path: [[number, number]]
+  path: [[number, number]],
 ) => {
   const pathFromAPI = path.map(([x, y]) => new naver.maps.LatLng(y, x))
 
@@ -308,7 +308,7 @@ export const setCarPolyLine = (
 
 export const setWalkPolyLine = (
   map: naver.maps.Map,
-  path: [[number, number]]
+  path: [[number, number]],
 ) => {
   const formatPath = path.map(([x, y]) => {
     return [x, y]
@@ -329,7 +329,7 @@ export function getMyLocation(position: GeolocationPosition) {
 
   const location = new naver.maps.LatLng(
     position.coords.latitude,
-    position.coords.longitude
+    position.coords.longitude,
   )
 
   naver.maps.Event.once(map, 'init', () => {
