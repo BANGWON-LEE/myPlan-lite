@@ -160,7 +160,7 @@ export default function RoutePlace() {
         placeName || initialPlaceObj.name,
       )
 
-      if (mapResultSignal != null && mapPolyLine != null) setIsDisabled(false)
+      if (mapResultSignal !== null && mapPolyLine !== null) setIsDisabled(false)
     }, 700)
   }
 
@@ -231,11 +231,11 @@ export default function RoutePlace() {
               className="w-full"
             >
               <div
-                className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${
+                className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
                   routeArrSize[index] <= idx && 'bg-slate-300'
                 }`}
               >
-                <div className="flex">
+                <div className="flex w-3/4">
                   {/* <div className="w-28 h-28 bg-gradient-to-br from-indigo-100 to-purple-100"></div> */}
                   <div className="flex-1 p-4">
                     <div className="flex w-full items-start justify-between mb-2">
@@ -285,6 +285,9 @@ export default function RoutePlace() {
                       </div>
                     </div>
                   </div>
+                </div>
+                <div className="w-1/4 flex items-center justify-center bg-indigo-50">
+                  <div className="text-indigo-600 font-semibold">경로 찾기</div>
                 </div>
               </div>
             </button>
