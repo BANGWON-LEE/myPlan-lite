@@ -10,6 +10,8 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  turbopack: {},
+  outputFileTracingRoot: process.cwd(),
 }
 
 export default withPWA(nextConfig)
