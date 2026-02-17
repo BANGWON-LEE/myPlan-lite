@@ -2,7 +2,6 @@ import { PositionState } from '@/types/placeType'
 import {
   markerState,
   RouteCategoryIdxState,
-  RouteIdxState,
 } from '@/types/storeType'
 import { create } from 'zustand'
 
@@ -31,19 +30,12 @@ export const useRoutePlaceIdxStore = create<RouteCategoryIdxState>(set => ({
       shoppingIdx: state.shoppingIdx + 1,
     })),
   initialIdx: () =>
-    set(
-      (state: {
-        mealIdx: number
-        coffeeIdx: number
-        pharmacyIdx: number
-        shoppingIdx: number
-      }) => ({
-        mealIdx: 0,
-        coffeeIdx: 0,
-        pharmacyIdx: 0,
-        shoppingIdx: 0,
-      }),
-    ),
+    set({
+      mealIdx: 0,
+      coffeeIdx: 0,
+      pharmacyIdx: 0,
+      shoppingIdx: 0,
+    }),
 }))
 
 export const usePositionStore = create<PositionState>(set => ({

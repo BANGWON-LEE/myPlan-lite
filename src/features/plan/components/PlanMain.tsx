@@ -3,8 +3,6 @@ import React, { useState } from 'react'
 import {
   Coffee,
   Utensils,
-  TreePine,
-  Navigation,
   ShoppingBag,
   BriefcaseMedicalIcon,
 } from 'lucide-react'
