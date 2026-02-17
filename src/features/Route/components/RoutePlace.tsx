@@ -11,6 +11,7 @@ import {
 } from '@/util/common/common'
 import {
   goalMarker,
+  getCurrentPositionPromise,
   onLoadMarkerMap,
   setWalkPolyLine,
   startMarker,
@@ -42,7 +43,6 @@ export default function RoutePlace() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
-  const purposesArr = formatStringToArray(queryPurposes)
 
   const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
     meal: [],
@@ -67,24 +67,26 @@ export default function RoutePlace() {
 
   // 장소 데이터 가져와 캐싱처리하기
   const { data } = useQuery<RouteApiDataType[]>({
-    queryKey: ['place', position, purposesArr, queryTime], // 검색어
+    queryKey: ['place', position, queryPurposes, queryTime], // 검색어
     queryFn: async () => {
+      const purposesArr = formatStringToArray(queryPurposes)
       const res = await getMyRouteList(position, purposesArr, queryTime)
 
       return res
     },
-    enabled: !!position && purposesArr.length > 0,
+    enabled: !!position && formatStringToArray(queryPurposes).length > 0,
 
     staleTime: 1000 * 60 * 5, // 5분
     placeholderData: prev => prev,
   })
 
   useEffect(() => {
-    if (typeof window === undefined) return
+    if (typeof window === 'undefined') return
     if (!position) return
     if (data === undefined) return
 
     const getData = () => {
+      const purposesArr = formatStringToArray(queryPurposes)
       const filterApiArr = filterApiData(data)
 
       const formatApiData = formatResult(purposesArr, filterApiArr)
@@ -95,7 +97,7 @@ export default function RoutePlace() {
     }
     initialIdx()
     getData()
-  }, [data])
+  }, [data, initialIdx, position, queryPurposes])
 
   // 각 장소별 인덱스를 배열로 관리
   const routePlaceIdxList = [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx]
@@ -155,7 +157,7 @@ export default function RoutePlace() {
     routeList.coffee.length,
     routeList.pharmacy.length,
     routeList.shopping.length,
-  ].filter(Boolean) // undefined 제거
+  ]
 
   const resultRouteArrSize = routeArrInitial.length
 
@@ -175,14 +177,63 @@ export default function RoutePlace() {
 
   const [isDisabled, setIsDisabled] = useState(false)
 
-  const getPositionFromStorage = () => {
-    if (typeof window === 'undefined') return null
-    const v = localStorage.getItem('poi-cache')
-    return v ? JSON.parse(v) : null
+  // localStorage 값이 GeolocationPosition 형태인지 최소 필드만 검증한다.
+  function isValidPositionData(
+    value: unknown,
+  ): value is { coords: { latitude: number; longitude: number } } {
+    if (!value || typeof value !== 'object') return false
+
+    const coords = (value as { coords?: unknown }).coords
+    if (!coords || typeof coords !== 'object') return false
+
+    const latitude = (coords as { latitude?: unknown }).latitude
+    const longitude = (coords as { longitude?: unknown }).longitude
+
+    return typeof latitude === 'number' && typeof longitude === 'number'
   }
 
-  function drawMarker(lat: number, lon: number, placeName: string | undefined) {
-    const position = getPositionFromStorage()
+  // 저장된 poi-cache를 안전하게 파싱하고, 유효하지 않으면 null을 반환한다.
+  const getPositionFromStorage = (): GeolocationPosition | null => {
+    if (typeof window === 'undefined') return null
+
+    try {
+      const v = localStorage.getItem('poi-cache')
+      if (!v) return null
+
+      const parsedValue: unknown = JSON.parse(v)
+      if (!isValidPositionData(parsedValue)) return null
+
+      return parsedValue as GeolocationPosition
+    } catch {
+      return null
+    }
+  }
+
+  // 캐시 우선 사용, 실패 시 현재 위치를 조회해 캐시를 복구한다.
+  async function getPositionWithFallback(): Promise<GeolocationPosition | null> {
+    const cachedPosition = getPositionFromStorage()
+    if (cachedPosition) return cachedPosition
+
+    if (typeof window === 'undefined' || !navigator.geolocation) return null
+
+    try {
+      const currentPosition = await getCurrentPositionPromise()
+      // 이후 경로 탐색에서 동일 값을 재사용할 수 있도록 캐시에 저장한다.
+      localStorage.setItem('poi-cache', JSON.stringify(currentPosition))
+      return currentPosition
+    } catch {
+      return null
+    }
+  }
+
+  async function drawMarker(
+    lat: number,
+    lon: number,
+    placeName: string | undefined,
+  ) {
+    // 캐시 누락/오염을 fallback으로 복구한 뒤에만 좌표 접근한다.
+    const position = await getPositionWithFallback()
+    if (!position) return
 
     const currentX = position.coords.longitude
     const currentY = position.coords.latitude
@@ -267,8 +318,6 @@ export default function RoutePlace() {
   }
 
   // const { incIdx } = useRoutePlaceIdxStore()
-
-  queryPurposes
 
   return (
     <React.Fragment>
