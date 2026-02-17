@@ -2,6 +2,7 @@
   "name": "마이 플랜",
   "short_name": "마이플랜",
   "description": "가장 가까운 장소와 루트를 추천해주는 서비스",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,13 +12,13 @@
   "lang": "ko",
   "icons": [
     {
-      "src": "/assets/logo.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/logo.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
