@@ -1,5 +1,4 @@
 'use client'
-import { useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 
 export default function RouteBottom() {
   // const { incIdx } = useRoutePlaceIdxStore()
