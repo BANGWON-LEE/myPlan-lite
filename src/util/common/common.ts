@@ -79,7 +79,7 @@ export function addValueByCategory(
   // purposeArr: string[],
   placeArr: Record<string, TmapPoiItem[]>,
 ) {
-  Object.keys(placeArr).map(cateName => {
+  Object.keys(placeArr).forEach(cateName => {
     // console.log('cateNAme', cateName)
 
     switch (cateName) {
@@ -92,7 +92,7 @@ export function addValueByCategory(
       case '편의점':
         return (listArr.shopping = placeArr[cateName])
       default:
-        null
+        return
     }
   })
   // console.log('listArr', listArr)
