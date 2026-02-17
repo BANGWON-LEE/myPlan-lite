@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: '마이 플랜',
   description: '가장 가까운 장소와 루트를 추천해주는 서비스',
+  manifest: '/manifest.json',
   icons: {
     icon: '/assets/logo.png',
   },
