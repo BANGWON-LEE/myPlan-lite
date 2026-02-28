@@ -72,3 +72,11 @@ export type goalInfoType = {
     category: string
   }
 }
+
+export type StoredPosition = {
+  coords: {
+    latitude: number
+    longitude: number
+  }
+  timestamp: number
+}
