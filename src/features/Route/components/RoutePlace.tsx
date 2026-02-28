@@ -63,7 +63,10 @@ export default function RoutePlace() {
     initialIdx,
   } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
 
-  const position = usePositionStore(state => state.position)
+  // 전역으로 가져오는 좌표값에 문제가 생길 때, localStorage에서 좌표값을 가져와 fallback으로 사용한다.
+  const position =
+    usePositionStore(state => state.position) ??
+    JSON.parse(localStorage.getItem('position') as string)
 
   // 장소 데이터 가져와 캐싱처리하기
   const { data } = useQuery<RouteApiDataType[]>({
@@ -101,14 +104,6 @@ export default function RoutePlace() {
 
   // 각 장소별 인덱스를 배열로 관리
   const routePlaceIdxList = [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx]
-
-  //각 장소별 인덱스 증가 함수를 배열로 관리
-  // const routePlaceActionList = {
-  //   meal: incMealIdx(),
-  //   coffee: incCoffeeIdx(),
-  //   pharmacy: incPharmacyIdx(),
-  //   shopping: incShoppingIdx(),
-  // }
 
   function changeRoutePlaceIdx(list: string) {
     switch (list) {
@@ -192,12 +187,12 @@ export default function RoutePlace() {
     return typeof latitude === 'number' && typeof longitude === 'number'
   }
 
-  // 저장된 poi-cache를 안전하게 파싱하고, 유효하지 않으면 null을 반환한다.
+  // 저장된 position를 안전하게 파싱하고, 유효하지 않으면 null을 반환한다.
   const getPositionFromStorage = (): GeolocationPosition | null => {
     if (typeof window === 'undefined') return null
 
     try {
-      const v = localStorage.getItem('poi-cache')
+      const v = localStorage.getItem('position')
       if (!v) return null
 
       const parsedValue: unknown = JSON.parse(v)
@@ -219,7 +214,7 @@ export default function RoutePlace() {
     try {
       const currentPosition = await getCurrentPositionPromise()
       // 이후 경로 탐색에서 동일 값을 재사용할 수 있도록 캐시에 저장한다.
-      localStorage.setItem('poi-cache', JSON.stringify(currentPosition))
+      localStorage.setItem('position', JSON.stringify(currentPosition))
       return currentPosition
     } catch {
       return null

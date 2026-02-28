@@ -70,9 +70,7 @@ export default function PlanMain() {
 
       {/* 목적 선택 - PurposeCard 컴포넌트 사용 */}
       <div className="mb-8">
-        <SectionTitle className="mb-4">
-          어떤 시간을 보내고 싶으세요?
-        </SectionTitle>
+        <SectionTitle className="mb-4">어떤 장소를 찾고 싶으세요?</SectionTitle>
         <div className="grid grid-cols-2 gap-4">
           {purposes.map(({ id, icon, label, color }) => (
             <PurposeCard
@@ -90,7 +88,7 @@ export default function PlanMain() {
       {/* 시간 선택 - TimeCard 컴포넌트 사용 */}
       <div className="mb-8">
         <SectionTitle className="mb-4">
-          몇 분 거리의 장소를 원하시나요?
+          몇 분 거리까지의 장소를 원하시나요?
         </SectionTitle>
         <div className="flex gap-3">
           {timeOptionsArr.map(li => (
@@ -114,7 +112,7 @@ export default function PlanMain() {
           disabled={selectedPurpose.length === 0}
           //   onClick={() => console.log('Start')}
         >
-          루트 추천받기
+          장소 찾기
         </PrimaryButtonText>
       </Link>
     </React.Fragment>

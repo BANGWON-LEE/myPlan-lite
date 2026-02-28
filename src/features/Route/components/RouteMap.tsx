@@ -2,6 +2,7 @@
 import MapScript from '@/components/MapScript'
 import { usePositionStore } from '@/stores/useRouteStore'
 import { MapScriptProps } from '@/types/placeType'
+import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect } from 'react'
 
 export default function RouteMap(props: MapScriptProps) {
@@ -12,7 +13,7 @@ export default function RouteMap(props: MapScriptProps) {
   useEffect(() => {
     if (!position) return
     setPosition(position)
-    localStorage.setItem('poi-cache', JSON.stringify(position))
+    savePositionToStorage(position)
   }, [position, setPosition])
   return (
     <>
