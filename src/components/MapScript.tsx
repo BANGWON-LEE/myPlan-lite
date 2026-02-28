@@ -16,17 +16,17 @@ export default function MapScript() {
     if (!pos) return
     // onLoadRouteMap(pos, map)
     // onLoadMap(pos)
-    onLoadRouteMap(
-      pos,
-      new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(
-          37.5665, // 서울
-          126.978
-        ),
-        zoom: 14,
-        mapTypeId: naver.maps.MapTypeId.NORMAL,
-      })
-    )
+    // onLoadRouteMap(
+    //   pos,
+    //   new naver.maps.Map('map', {
+    //     center: new naver.maps.LatLng(
+    //       37.5665, // 서울
+    //       126.978
+    //     ),
+    //     zoom: 14,
+    //     mapTypeId: naver.maps.MapTypeId.NORMAL,
+    //   })
+    // )
   }, [])
 
   return (
@@ -55,12 +55,14 @@ export default function MapScript() {
             pos,
             new naver.maps.Map('map', {
               center: new naver.maps.LatLng(
-                37.5665, // 서울
-                126.978
+                // 37.5665, // 서울
+                // 126.978,
+                pos ? pos.coords.latitude : 37.5665,
+                pos ? pos.coords.longitude : 126.978,
               ),
               zoom: 14,
               mapTypeId: naver.maps.MapTypeId.NORMAL,
-            })
+            }),
           )
         }}
       ></Script>
