@@ -105,14 +105,6 @@ export default function RoutePlace() {
   // 각 장소별 인덱스를 배열로 관리
   const routePlaceIdxList = [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx]
 
-  //각 장소별 인덱스 증가 함수를 배열로 관리
-  // const routePlaceActionList = {
-  //   meal: incMealIdx(),
-  //   coffee: incCoffeeIdx(),
-  //   pharmacy: incPharmacyIdx(),
-  //   shopping: incShoppingIdx(),
-  // }
-
   function changeRoutePlaceIdx(list: string) {
     switch (list) {
       case 'meal':
@@ -195,12 +187,12 @@ export default function RoutePlace() {
     return typeof latitude === 'number' && typeof longitude === 'number'
   }
 
-  // 저장된 poi-cache를 안전하게 파싱하고, 유효하지 않으면 null을 반환한다.
+  // 저장된 position를 안전하게 파싱하고, 유효하지 않으면 null을 반환한다.
   const getPositionFromStorage = (): GeolocationPosition | null => {
     if (typeof window === 'undefined') return null
 
     try {
-      const v = localStorage.getItem('poi-cache')
+      const v = localStorage.getItem('position')
       if (!v) return null
 
       const parsedValue: unknown = JSON.parse(v)
@@ -222,7 +214,7 @@ export default function RoutePlace() {
     try {
       const currentPosition = await getCurrentPositionPromise()
       // 이후 경로 탐색에서 동일 값을 재사용할 수 있도록 캐시에 저장한다.
-      localStorage.setItem('poi-cache', JSON.stringify(currentPosition))
+      localStorage.setItem('position', JSON.stringify(currentPosition))
       return currentPosition
     } catch {
       return null

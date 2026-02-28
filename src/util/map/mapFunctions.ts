@@ -1,6 +1,7 @@
 import { simplePosition } from '@/types/marker'
 import { checkEmptyString } from '../common/common'
 import { PositionType } from '@/types/placeType'
+import { POSITION_STORAGE_KEY } from '@/data/constant'
 
 export const getMapOptions = (position: GeolocationPosition) => {
   // console.log('posi', position)
@@ -350,6 +351,6 @@ export function getMyLocation(position: GeolocationPosition) {
 
 export const getPositionFromStorage = () => {
   if (typeof window === 'undefined') return null
-  const v = localStorage.getItem('poi-cache')
+  const v = localStorage.getItem(POSITION_STORAGE_KEY)
   return v ? JSON.parse(v) : null
 }
