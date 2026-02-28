@@ -12,7 +12,7 @@ export default function RouteMap(props: MapScriptProps) {
   useEffect(() => {
     if (!position) return
     setPosition(position)
-    localStorage.setItem('poi-cache', JSON.stringify(position))
+    localStorage.setItem('position', JSON.stringify(position))
   }, [position, setPosition])
   return (
     <>

@@ -1,7 +1,7 @@
 'use client'
 
 import RoutePlace from './RoutePlace'
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
@@ -25,11 +25,6 @@ export default function RouteCombined() {
     queryFn: async () => await getPosition(),
     staleTime: 1000 * 60 * 5, // 5분
   })
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!position) return
-  }, [position])
 
   return (
     <React.Fragment>

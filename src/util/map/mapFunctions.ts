@@ -70,16 +70,25 @@ export const infowindow = () =>
     content: '<div style="padding:10px;">i am here</div>',
   })
 
-export const onLoadInitialRouteMap = (position: GeolocationPosition) =>
-  new naver.maps.Map('map', getMapOptionsRoute(position))
+export const onLoadInitialRouteMap = () =>
+  new naver.maps.Map(
+    'map',
+    new naver.maps.Map('map', {
+      center: new naver.maps.LatLng(
+        37.5665, // 서울
+        126.978,
+        // pos ? pos.coords.latitude : 37.5665,
+        // pos ? pos.coords.longitude : 126.978,
+      ),
+      zoom: 14,
+      mapTypeId: naver.maps.MapTypeId.NORMAL,
+    }),
+  )
 
 export const onLoadRouteMap = (
-  position: GeolocationPosition,
-  initialPosition: naver.maps.Map,
-) =>
-  typeof position === 'undefined'
-    ? initialPosition
-    : new naver.maps.Map('map', getMapOptionsRoute(position))
+  // position: GeolocationPosition,
+  position: naver.maps.Map,
+) => (typeof position === 'undefined' ? onLoadInitialRouteMap : position)
 
 export const onLoadMap = (position: GeolocationPosition) =>
   new naver.maps.Map('map', getMapOptions(position))
