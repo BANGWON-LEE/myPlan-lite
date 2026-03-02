@@ -33,7 +33,9 @@ function isInStandaloneMode() {
 export default function PwaInstallNotice() {
   // 사용자가 설치 안내 배너를 닫았는지 여부 (localStorage로 유지)
   const [dismissed, setDismissed] = useState(
-    () => window.localStorage.getItem(DISMISS_KEY) === 'true',
+    () =>
+      typeof window !== 'undefined' &&
+      window.localStorage.getItem(DISMISS_KEY) === 'true',
   )
   // 현재 앱이 이미 설치(standalone 모드)되었는지 여부
   const [isInstalled, setIsInstalled] = useState(() => isInStandaloneMode())
