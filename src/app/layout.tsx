@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: '/assets/logo.png',
+    apple: '/icons/icon-192.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: '마이 플랜',
   },
 }
 
