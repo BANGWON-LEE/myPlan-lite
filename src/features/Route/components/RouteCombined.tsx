@@ -1,6 +1,6 @@
 'use client'
 
-import RoutePlace from './RoutePlace'
+import RoutePlace from './routeplace/RoutePlace'
 import React, { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
