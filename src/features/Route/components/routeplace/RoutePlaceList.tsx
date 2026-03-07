@@ -12,12 +12,7 @@ export default function RoutePlaceList(props: {
 }) {
   const { place, routeArrSize, routePlaceIdxList } = props
 
-  function createListNumber() {
-    let number = 0
-    return function getNextListNumber(): number {
-      return (number += 1)
-    }
-  }
+  const listNum = routePlaceIdxList <= routeArrSize ? routePlaceIdxList + 1 : 1
 
   return (
     <div className="flex w-3/4">
@@ -30,7 +25,7 @@ export default function RoutePlaceList(props: {
             </span>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-semibold text-indigo-600">
-                #{createListNumber()()}
+                #{listNum}
               </span>
               <h3 className="font-bold text-gray-900">{place.list?.name}</h3>
             </div>
