@@ -348,9 +348,3 @@ export function getMyLocation(position: GeolocationPosition) {
   // infoMark.open(map, location)
   myMarker(map, position)
 }
-
-export const getPositionFromStorage = () => {
-  if (typeof window === 'undefined') return null
-  const v = localStorage.getItem(POSITION_STORAGE_KEY)
-  return v ? JSON.parse(v) : null
-}
