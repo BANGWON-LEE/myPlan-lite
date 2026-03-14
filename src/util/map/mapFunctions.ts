@@ -2,6 +2,10 @@ import { simplePosition } from '@/types/marker'
 import { checkEmptyString } from '../common/common'
 import { PositionType } from '@/types/placeType'
 
+export const DEFAULT_MAP_ZOOM = 15
+export const ROUTE_MAP_ZOOM = 16
+export const MARKER_MAP_ZOOM = 17
+
 export const getMapOptions = (position: GeolocationPosition) => {
   // console.log('posi', position)
   // const checkPositionType = 'coords' in position
@@ -11,7 +15,7 @@ export const getMapOptions = (position: GeolocationPosition) => {
 
   return {
     center: new naver.maps.LatLng(x, y),
-    zoom: 14,
+    zoom: DEFAULT_MAP_ZOOM,
     // mapTypeId: naver.maps.MapTypeId.NORMAL,s
   }
 }
@@ -22,7 +26,7 @@ export const getMarkerMapOptions = (x: number, y: number) => {
 
   return {
     center: new naver.maps.LatLng(x, y),
-    zoom: 17,
+    zoom: MARKER_MAP_ZOOM,
     // mapTypeId: naver.maps.MapTypeId.NORMAL,s
   }
 }
@@ -36,7 +40,7 @@ export const getMapOptionsRoute = (position: PositionType) => {
 
   return {
     center: new naver.maps.LatLng(x, y),
-    zoom: 14,
+    zoom: DEFAULT_MAP_ZOOM,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   }
 }
@@ -48,7 +52,7 @@ export const getSearchMapOptions = (position: simplePosition) => {
 
   return {
     center: new naver.maps.LatLng(y, x),
-    zoom: 14,
+    zoom: DEFAULT_MAP_ZOOM,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   }
 }
@@ -60,7 +64,7 @@ export const getRouteMapOptions = (position: simplePosition) => {
 
   return {
     center: new naver.maps.LatLng(y, x),
-    zoom: 15,
+    zoom: ROUTE_MAP_ZOOM,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   }
 }
@@ -80,7 +84,7 @@ export const onLoadInitialRouteMap = () =>
         // pos ? pos.coords.latitude : 37.5665,
         // pos ? pos.coords.longitude : 126.978,
       ),
-      zoom: 14,
+      zoom: DEFAULT_MAP_ZOOM,
       mapTypeId: naver.maps.MapTypeId.NORMAL,
     }),
   )
@@ -199,7 +203,7 @@ function onSuccessGeolocation(position: GeolocationPosition) {
   // const infoMark = infowindow()
 
   map.setCenter(location) // 얻은 좌표를 지도의 중심으로 설정합니다.
-  map.setZoom(12) // 지도의 줌 레벨을 변경합니다.
+  map.setZoom(DEFAULT_MAP_ZOOM) // 지도의 줌 레벨을 변경합니다.
   myMarker(map, position)
 }
 

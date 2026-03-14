@@ -9,7 +9,7 @@ import {
   tmapWalkingRouteResponseType,
 } from '@/types/routeType'
 import { filterPlaceList } from '@/util/common/common'
-import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
+import { getCurrentPositionPromise, ROUTE_MAP_ZOOM } from '@/util/map/mapFunctions'
 
 function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
@@ -127,7 +127,7 @@ function createRouteMap(
 ) {
   const map = new naver.maps.Map('map', {
     center: new naver.maps.LatLng(startPoint.y, startPoint.x),
-    zoom: 14,
+    zoom: ROUTE_MAP_ZOOM,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   })
 
