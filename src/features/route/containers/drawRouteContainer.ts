@@ -1,24 +1,15 @@
-import { TmapPoiItem, TmapPoiResponse } from '@/types/placeType'
-import { tmapWalkingRouteResponseType } from '@/types/routeType'
-
-export type RoutePoint = {
-  x: number
-  y: number
-  name: string
-}
-
-type SearchLocResponse = {
-  searchPoiInfo: TmapPoiResponse
-}
-
-const ORDERED_ROUTE_COLORS = [
-  '#22c55e',
-  '#14b8a6',
-  '#06b6d4',
-  '#3b82f6',
-  '#2563eb',
-  '#1d4ed8',
-] as const
+import React from 'react'
+import { ORDERED_ROUTE_COLORS, PURPOSE_TO_CATEGORY_KEY } from '@/data/constant'
+import { renderRouteMarker } from '@/features/route/components/RouteMarker'
+import { MarkerVariant } from '@/types/marker'
+import { TmapPoiItem } from '@/types/placeType'
+import {
+  RoutePoint,
+  SearchLocResponse,
+  tmapWalkingRouteResponseType,
+} from '@/types/routeType'
+import { filterPlaceList } from '@/util/common/common'
+import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 
 function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
@@ -28,22 +19,6 @@ export function normalizePurpose(purpose: string) {
   const trimmedPurpose = purpose.trim()
   if (trimmedPurpose === '카페') return '커피'
   return trimmedPurpose
-}
-
-function filterPlaces(places: TmapPoiItem[]) {
-  return places.filter(place => {
-    return (
-      !place.name.includes('주차장') &&
-      !place.name.includes('정문') &&
-      !place.name.includes('후문')
-    )
-  })
-}
-
-async function getCurrentPosition() {
-  return new Promise<GeolocationPosition>((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject)
-  })
 }
 
 async function getNearestPlace(
@@ -64,7 +39,7 @@ async function getNearestPlace(
   }
 
   const data = (await response.json()) as SearchLocResponse
-  const nearestPlace = filterPlaces(data.searchPoiInfo?.pois?.poi ?? [])[0]
+  const nearestPlace = filterPlaceList(data.searchPoiInfo?.pois?.poi ?? [])[0]
 
   if (!nearestPlace) {
     throw new Error(`${purpose} 장소를 찾지 못했습니다.`)
@@ -96,7 +71,9 @@ async function getWalkingPath(startPoint: RoutePoint, goalPoint: RoutePoint) {
   })
 
   if (!response.ok) {
-    throw new Error(`${startPoint.name}에서 ${goalPoint.name}까지 경로를 그리지 못했습니다.`)
+    throw new Error(
+      `${startPoint.name}에서 ${goalPoint.name}까지 경로를 그리지 못했습니다.`,
+    )
   }
 
   return (await response.json()) as tmapWalkingRouteResponseType
@@ -118,12 +95,44 @@ function drawPolyline(
   })
 }
 
-function drawMarker(map: naver.maps.Map, point: RoutePoint, title: string) {
+function drawMarker(
+  map: naver.maps.Map,
+  point: RoutePoint,
+  title: string,
+  variant: MarkerVariant,
+  order?: number,
+) {
+  const markerColor =
+    variant === 'ordered' && typeof order === 'number'
+      ? getOrderedRouteColor(order - 1)
+      : '#2563eb'
+
   return new naver.maps.Marker({
     position: new naver.maps.LatLng(point.y, point.x),
     map,
     title,
+    icon: {
+      content: renderRouteMarker({ variant, index: order, color: markerColor }),
+      anchor: new naver.maps.Point(
+        variant === 'current' ? 12 : 15,
+        variant === 'current' ? 12 : 15,
+      ),
+    },
   })
+}
+
+function createRouteMap(
+  mapRef: React.MutableRefObject<naver.maps.Map | null>,
+  startPoint: RoutePoint,
+) {
+  const map = new naver.maps.Map('map', {
+    center: new naver.maps.LatLng(startPoint.y, startPoint.x),
+    zoom: 14,
+    mapTypeId: naver.maps.MapTypeId.NORMAL,
+  })
+
+  mapRef.current = map
+  return map
 }
 
 async function drawOrderedRoute(
@@ -140,34 +149,88 @@ async function drawOrderedRoute(
   const path = await getWalkingPath(startPoint, goalPoint)
 
   drawPolyline(map, path.path, getOrderedRouteColor(depth))
-  drawMarker(map, goalPoint, `${depth + 1}. ${goalPoint.name}`)
+  drawMarker(
+    map,
+    goalPoint,
+    `${depth + 1}. ${goalPoint.name}`,
+    'ordered',
+    depth + 1,
+  )
 
   await drawOrderedRoute(map, purposes, time, goalPoint, depth + 1)
 }
 
-export async function drawOrderedRouteMain(
-  mapRef: React.MutableRefObject<naver.maps.Map | null>,
-  purposes: string[],
-  time: string,
+async function drawRouteByPoints(
+  map: naver.maps.Map,
+  routePoints: RoutePoint[],
+  startPoint: RoutePoint,
 ) {
-  const currentPosition = await getCurrentPosition()
+  let currentPoint = startPoint
+  let latestPath: tmapWalkingRouteResponseType | null = null
 
+  for (const [index, goalPoint] of routePoints.entries()) {
+    const path = await getWalkingPath(currentPoint, goalPoint)
+
+    drawPolyline(map, path.path, getOrderedRouteColor(index))
+    drawMarker(
+      map,
+      goalPoint,
+      `${index + 1}. ${goalPoint.name}`,
+      'ordered',
+      index + 1,
+    )
+    currentPoint = goalPoint
+    latestPath = path
+  }
+
+  return latestPath
+}
+
+export function getRoutePointFromPlace(
+  place: Pick<TmapPoiItem, 'pnsLon' | 'pnsLat' | 'name'>,
+): RoutePoint {
+  return {
+    x: Number(place.pnsLon),
+    y: Number(place.pnsLat),
+    name: place.name,
+  }
+}
+
+export function getSelectedRoutePoints(
+  purposes: string[],
+  routeList: Record<string, TmapPoiItem[]>,
+  routePlaceIndexes: Record<string, number>,
+) {
+  return purposes
+    .map(purpose => {
+      const categoryKey = PURPOSE_TO_CATEGORY_KEY[purpose]
+      if (!categoryKey) return null
+
+      const selectedIndex = routePlaceIndexes[categoryKey] ?? 0
+      const selectedPlace = routeList[categoryKey]?.[selectedIndex]
+
+      return selectedPlace ? getRoutePointFromPlace(selectedPlace) : null
+    })
+    .filter((point): point is RoutePoint => point !== null)
+}
+
+// 현재 위치를 시작점으로 지도와 출발 마커를 만든 뒤,
+// 이미 선택된 장소 목록(routePoints)을 전달받은 순서대로 연결해 경로를 그린다.
+export async function drawOrderedRouteByPlacesMain(
+  mapRef: React.MutableRefObject<naver.maps.Map | null>,
+  routePoints: RoutePoint[],
+) {
+  if (routePoints.length === 0) return
+
+  const currentPosition = await getCurrentPositionPromise()
   const startPoint = {
     x: currentPosition.coords.longitude,
     y: currentPosition.coords.latitude,
     name: '현재 위치',
   }
 
-  const map =
-    mapRef.current ??
-    new naver.maps.Map('map', {
-      center: new naver.maps.LatLng(startPoint.y, startPoint.x),
-      zoom: 14,
-      mapTypeId: naver.maps.MapTypeId.NORMAL,
-    })
+  const map = createRouteMap(mapRef, startPoint)
 
-  mapRef.current = map
-
-  drawMarker(map, startPoint, startPoint.name)
-  await drawOrderedRoute(map, purposes, time, startPoint)
+  drawMarker(map, startPoint, startPoint.name, 'current')
+  return await drawRouteByPoints(map, routePoints, startPoint)
 }

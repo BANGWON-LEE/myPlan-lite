@@ -1,6 +1,14 @@
 'use client'
+import {
+  drawOrderedRouteByPlacesMain,
+  getSelectedRoutePoints,
+} from '@/features/route/containers/drawRouteContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
-import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
+import {
+  usePositionStore,
+  useRoutePathStore,
+  useRoutePlaceIdxStore,
+} from '@/stores/useRouteStore'
 import { placeType, RouteApiDataType, TmapPoiItem } from '@/types/placeType'
 import {
   addValueByCategory,
@@ -8,10 +16,13 @@ import {
   formatResult,
   formatStringToArray,
 } from '@/util/common/common'
+import { PURPOSE_TO_CATEGORY_KEY } from '@/data/constant'
+import { RouteCategoryKey } from '@/types/routeType'
 
 import { useQuery } from '@tanstack/react-query'
+import { ArrowDown } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { getMyRouteList } from '../../containers/RouteMainContainer'
 
 import LoadingSpin from '../LoadingSpin'
@@ -23,6 +34,7 @@ export default function RoutePlace() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
+  const mapRef = useRef<naver.maps.Map | null>(null)
 
   const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
     meal: [],
@@ -42,6 +54,7 @@ export default function RoutePlace() {
     touristSpotIdx,
     initialIdx,
   } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+  const setRoutePath = useRoutePathStore(state => state.setPath)
 
   // 전역으로 가져오는 좌표값에 문제가 생길 때, localStorage에서 좌표값을 가져와 fallback으로 사용한다.
   const position =
@@ -64,61 +77,58 @@ export default function RoutePlace() {
     placeholderData: prev => prev,
   })
 
-  // 각 장소별 인덱스를 배열로 관리
-  const routePlaceIdxList = [
-    mealIdx,
-    coffeeIdx,
-    pharmacyIdx,
-    shoppingIdx,
-    karaokeIdx,
-    touristSpotIdx,
-  ]
-
-  const routeArr = [
-    { key: 'meal', list: routeList.meal[mealIdx] ?? routeList.meal[0] },
-    {
-      key: 'coffee',
-      list: routeList.coffee[coffeeIdx] ?? routeList.coffee[0],
-    },
-    {
-      key: 'pharmacy',
-      list: routeList.pharmacy[pharmacyIdx] ?? routeList.pharmacy[0],
-    },
-    {
-      key: 'shopping',
-      list: routeList.shopping[shoppingIdx] ?? routeList.shopping[0],
-    },
-    {
-      key: 'karaoke',
-      list: routeList.karaoke[karaokeIdx] ?? routeList.karaoke[0],
-    },
-    {
-      key: 'touristSpot',
-      list: routeList.touristSpot[touristSpotIdx] ?? routeList.touristSpot[0],
-    },
-  ].filter(Boolean) // undefined 제거
-
-  const routeArrInitial = [
-    routeList.meal[0],
-    routeList.coffee[0],
-    routeList.pharmacy[0],
-    routeList.shopping[0],
-    routeList.karaoke[0],
-    routeList.touristSpot[0],
-  ].filter(Boolean) // undefined 제거
-
-  const routeArrSize = [
-    routeList.meal.length,
-    routeList.coffee.length,
-    routeList.pharmacy.length,
-    routeList.shopping.length,
-    routeList.karaoke.length,
-    routeList.touristSpot.length,
-  ]
-
-  const resultRouteArrSize = routeArrInitial.length
-
   const [isLoading, setIsLoading] = useState(false)
+  const [isMapReady, setIsMapReady] = useState(false)
+  const purposesArr = useMemo(
+    () => formatStringToArray(queryPurposes).filter(Boolean),
+    [queryPurposes],
+  )
+
+  const routePlaceIndexes = useMemo(
+    () => ({
+      meal: mealIdx,
+      coffee: coffeeIdx,
+      pharmacy: pharmacyIdx,
+      shopping: shoppingIdx,
+      karaoke: karaokeIdx,
+      touristSpot: touristSpotIdx,
+    }),
+    [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx, karaokeIdx, touristSpotIdx],
+  )
+
+  const selectedRoutePoints = useMemo(
+    () => getSelectedRoutePoints(purposesArr, routeList, routePlaceIndexes),
+    [purposesArr, routeList, routePlaceIndexes],
+  )
+
+  const routeArr: {
+    key: RouteCategoryKey
+    list: placeType
+    placeList: TmapPoiItem[]
+    currentIdx: number
+    routeArrSize: number
+    renderKey: string
+  }[] = []
+
+  purposesArr.forEach((purpose, index) => {
+    const categoryKey = PURPOSE_TO_CATEGORY_KEY[purpose]
+    if (!categoryKey) return
+
+    const currentIdx = routePlaceIndexes[categoryKey] ?? 0
+    const placeList = routeList[categoryKey] ?? []
+    const selectedPlace = placeList[currentIdx] ?? placeList[0]
+
+    if (!selectedPlace) return
+
+    routeArr.push({
+      key: categoryKey,
+      list: selectedPlace,
+      placeList,
+      currentIdx,
+      routeArrSize: placeList.length,
+      renderKey: `${categoryKey}-${index}`,
+    })
+  })
 
   function toggleDisabled(state: boolean) {
     setIsLoading(state)
@@ -151,41 +161,95 @@ export default function RoutePlace() {
     getData()
   }, [data, initialIdx, position, queryPurposes])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    // Naver Map SDK는 Script로 비동기 로드되므로, 전역 객체가 준비된 뒤에만 경로를 그린다.
+    if (typeof naver !== 'undefined') {
+      setIsMapReady(true)
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      if (typeof naver !== 'undefined') {
+        setIsMapReady(true)
+        window.clearInterval(timer)
+      }
+    }, 300)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!isMapReady) return
+    if (!position) return
+    if (selectedRoutePoints.length === 0) return
+
+    let cancelled = false
+
+    const drawRoute = async () => {
+      toggleDisabled(true)
+
+      try {
+        const path = await drawOrderedRouteByPlacesMain(
+          mapRef,
+          selectedRoutePoints,
+        )
+        if (!cancelled && path) {
+          setRoutePath(path)
+        }
+      } finally {
+        if (!cancelled) {
+          toggleDisabled(false)
+        }
+      }
+    }
+
+    drawRoute()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isMapReady, position, selectedRoutePoints, setRoutePath])
+
   return (
     <React.Fragment>
       {/* <div> */}
       <LoadingSpin isLoading={isLoading} />
-      {resultRouteArrSize > 0 ? (
+      {routeArr.length > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
-          {routeArr.map(
-            (place: { key: string; list: placeType | null }, index: number) => (
-              <>
-                {place.list?.name !== undefined && (
-                  <section key={place.key} className="w-full">
-                    <div
-                      className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
-                        routeArrSize[index] <= routePlaceIdxList[index] &&
-                        'bg-slate-300'
-                      }`}
-                    >
-                      <RoutePlaceList
-                        place={place}
-                        routeArrSize={routeArrSize[index]}
-                        routePlaceIdxList={routePlaceIdxList[index]}
-                      />
-                      <RoutePlaceBottom
-                        place={place}
-                        placeList={routeList[place.key] ?? []}
-                        currentIdx={routePlaceIdxList[index]}
-                        isDisabled={isLoading}
-                        toggleDisabled={toggleDisabled}
-                      />
-                    </div>
-                  </section>
-                )}
-              </>
-            ),
-          )}
+          {routeArr.map((place, index) => (
+            <React.Fragment key={place.renderKey}>
+              <section className="w-full">
+                <div
+                  className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
+                    place.routeArrSize <= place.currentIdx && 'bg-slate-300'
+                  }`}
+                >
+                  <RoutePlaceList
+                    place={place}
+                    routeArrSize={place.routeArrSize}
+                    routePlaceIdxList={place.currentIdx}
+                  />
+                  <RoutePlaceBottom
+                    place={place}
+                    placeList={place.placeList}
+                    currentIdx={place.currentIdx}
+                    isDisabled={isLoading}
+                  />
+                </div>
+              </section>
+              {index < routeArr.length - 1 && (
+                <div className="flex justify-center py-1" aria-hidden="true">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm">
+                    <ArrowDown className="h-5 w-5" />
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
         </div>
       ) : (
         <LoadingScreen />

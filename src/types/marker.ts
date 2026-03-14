@@ -1,3 +1,5 @@
+export type MarkerVariant = 'current' | 'ordered'
+
 export type simplePosition = {
   x: number | string
   y: number | string

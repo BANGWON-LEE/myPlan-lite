@@ -1,7 +1,6 @@
 import { simplePosition } from '@/types/marker'
 import { checkEmptyString } from '../common/common'
 import { PositionType } from '@/types/placeType'
-import { POSITION_STORAGE_KEY } from '@/data/constant'
 
 export const getMapOptions = (position: GeolocationPosition) => {
   // console.log('posi', position)
@@ -200,47 +199,9 @@ function onSuccessGeolocation(position: GeolocationPosition) {
   // const infoMark = infowindow()
 
   map.setCenter(location) // 얻은 좌표를 지도의 중심으로 설정합니다.
-  map.setZoom(14) // 지도의 줌 레벨을 변경합니다.
+  map.setZoom(12) // 지도의 줌 레벨을 변경합니다.
   myMarker(map, position)
-  // infoMark.open(map, location)
 }
-// export function formatPlaceLocation(
-//   addresses: naver.maps.Service.AddressItemV2[]
-// ) {
-//   // console.log('check', addresses)
-
-//   const position = addresses.map(el => {
-//     return { x: el.x, y: el.y }
-//   })
-
-//   const map = onSearchLoadMap(position[0])
-
-//   position.forEach(el => {
-//     const position = { x: el.x, y: el.y }
-
-//     mySearchMarker(map, position)
-//   })
-// }
-
-// export function formatSearchPlaceLocation(addresses: SearchPlaceType[]) {
-//   if (addresses.length === 0) return alert('장소를 찾을 수 없습니다. 겟냐?')
-//   const position = addresses.map(el => {
-//     return {
-//       x: formatMyLocation(Number(el.mapx)),
-//       y: formatMyLocation(Number(el.mapy)),
-//     }
-//   })
-
-//   const map = onSearchLoadMap(position[0])
-
-//   // console.log('map@@@3', map)
-
-//   position.forEach(el => {
-//     const position = { x: el.x, y: el.y }
-
-//     mySearchMarker(map, position)
-//   })
-// }
 
 export async function getPlaceLocation(
   text: string,
@@ -264,21 +225,12 @@ export async function getPlaceLocation(
   )
 }
 
-// export function renderPlaceMarker(text: string) {
-//   getPlaceLocation(text, formatPlaceLocation)
-// }
-
 // 현재 내 위치의 주소를 문자열로 반환
 export async function getMyLocAddress(
   position: GeolocationPosition,
 ): Promise<naver.maps.Service.ReverseGeocodeAddress> {
   const x = position.coords.latitude
   const y = position.coords.longitude
-
-  // if (naver.maps.Service === undefined || naver.maps.Service === null) {
-  //   alert('아나 스벌')
-  //   setTimeout(() => {})
-  // }
 
   return new Promise((resolve, reject) => {
     naver.maps.Service.reverseGeocode(

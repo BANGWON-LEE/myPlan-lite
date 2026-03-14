@@ -1,3 +1,5 @@
+import { RouteCategoryKey } from '@/types/routeType'
+
 export const initialPlaceObj = {
   name: '',
   path: {
@@ -8,6 +10,24 @@ export const initialPlaceObj = {
   roadAddress: '',
   category: '',
 }
+
+export const PURPOSE_TO_CATEGORY_KEY: Record<string, RouteCategoryKey> = {
+  음식점: 'meal',
+  커피: 'coffee',
+  약국: 'pharmacy',
+  편의점: 'shopping',
+  노래방: 'karaoke',
+  관광지: 'touristSpot',
+}
+
+export const ORDERED_ROUTE_COLORS = [
+  '#22c55e',
+  '#14b8a6',
+  '#06b6d4',
+  '#3b82f6',
+  '#2563eb',
+  '#1d4ed8',
+] as const
 
 // 위치 저장 payload를 localStorage에 보관할 때 사용하는 키 (src/util/storage/positionStorage.ts)
 export const POSITION_STORAGE_KEY = 'position'
