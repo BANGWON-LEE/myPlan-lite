@@ -1,3 +1,4 @@
+import { AVERAGE_WALKING_SPEED_METERS_PER_SECOND } from '@/data/constant'
 import { RouteApiDataType, TmapPoiItem } from '@/types/placeType'
 
 export function checkEmptyString(text: string) {
@@ -13,14 +14,18 @@ export function formatAddressTitle(title: string, charsToRemove: string) {
   return title.replace(removePattern, '')
 }
 
-export function getHourTimeMinTimeFormat(duration: number): {
+export function getHourTimeMinTimeFormat(distanceMeter: number): {
   hours: number
   minutes: number
 } {
-  const totalSeconds = Math.floor(duration * 800) //
-  const hours = Math.floor(totalSeconds / 3600) // 1시간 = 3600초
-  const minutes = Math.ceil((totalSeconds % 3600) / 60) // 남은 초에서 분 계산
-  return { hours: hours, minutes: minutes }
+  const totalSeconds = Math.ceil(
+    distanceMeter / AVERAGE_WALKING_SPEED_METERS_PER_SECOND,
+  )
+  const totalMinutes = Math.ceil(totalSeconds / 60)
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  return { hours, minutes }
 }
 
 export function convertGetKm(meter: number): number {
@@ -91,6 +96,10 @@ export function addValueByCategory(
         return (listArr.pharmacy = placeArr[cateName])
       case '편의점':
         return (listArr.shopping = placeArr[cateName])
+      case '노래방':
+        return (listArr.karaoke = placeArr[cateName])
+      case '관광지':
+        return (listArr.touristSpot = placeArr[cateName])
       default:
         return
     }
