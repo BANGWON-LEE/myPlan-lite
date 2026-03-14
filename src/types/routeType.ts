@@ -5,9 +5,8 @@ export interface tmapResponseWalk {
   }
 }
 
-export type tmapRoutePathType = {
-  path: [[number, number]]
-  summary: {
+export type tmapDistanceType = {
+  properties: {
     description: string
     index: number
     name: string
@@ -20,6 +19,13 @@ export type tmapRoutePathType = {
     totalTime: number
     turnType: number
   }
+}
+
+export type tmapRoutePathType = [number, number][]
+
+export type tmapWalkingRouteResponseType = {
+  path: tmapRoutePathType
+  summary: tmapDistanceType
 }
 
 // export type startInfoType = {

@@ -318,7 +318,7 @@ export const setCarPolyLine = (
 
 export const setWalkPolyLine = (
   map: naver.maps.Map,
-  path: [[number, number]],
+  path: [number, number][],
 ) => {
   const formatPath = path.map(([x, y]) => {
     return [x, y]
