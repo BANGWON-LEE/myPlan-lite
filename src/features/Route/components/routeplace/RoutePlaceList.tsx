@@ -1,6 +1,7 @@
 'use client'
 
 import { StatLabel } from '@/share/components/Text'
+import { useRoutePathStore } from '@/stores/useRouteStore'
 import { placeType } from '@/types/placeType'
 import { getHourTimeMinTimeFormat } from '@/util/common/common'
 import { Clock, MapPin, Phone } from 'lucide-react'
@@ -11,6 +12,20 @@ export default function RoutePlaceList(props: {
   routePlaceIdxList: number
 }) {
   const { place, routeArrSize, routePlaceIdxList } = props
+  const placeDistance = useRoutePathStore(
+    state => state.path?.summary.properties,
+  )?.totalDistance
+
+  // console.log('RoutePlaceList - totalDistance:', totalDistance)
+
+  const time =
+    getHourTimeMinTimeFormat(Number(place.list?.radius)).hours > 0
+      ? `${getHourTimeMinTimeFormat(
+          Number(placeDistance),
+        ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
+          Number(placeDistance),
+        ).minutes.toString()}분`
+      : `${getHourTimeMinTimeFormat(Number(placeDistance)).minutes.toString()}분`
 
   const listNum = routePlaceIdxList <= routeArrSize ? routePlaceIdxList + 1 : 1
 
@@ -45,18 +60,12 @@ export default function RoutePlaceList(props: {
             </span>
           </div>
           <div className="flex items-center gap-1">
+            <MapPin className="w-4 h-4 text-indigo-500" />
+            <span>도보 거리 {placeDistance?.toLocaleString()}m</span>
+          </div>
+          <div className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            <span>
-              {getHourTimeMinTimeFormat(Number(place.list?.radius)).hours > 0
-                ? `${getHourTimeMinTimeFormat(
-                    Number(place.list?.radius),
-                  ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
-                    Number(place.list?.radius),
-                  ).minutes.toString()}분`
-                : `${getHourTimeMinTimeFormat(
-                    Number(place.list?.radius),
-                  ).minutes.toString()}분`}{' '}
-            </span>
+            <span>{time}</span>
           </div>
         </div>
       </div>

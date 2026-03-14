@@ -1,10 +1,13 @@
 import { initialPlaceObj } from '@/data/constant'
-import { useRoutePlaceIdxStore } from '@/stores/useRouteStore'
+import {
+  useRoutePathStore,
+  useRoutePlaceIdxStore,
+} from '@/stores/useRouteStore'
 import { placeType } from '@/types/placeType'
 import {
   goalRouteType,
   startRouteType,
-  tmapRoutePathType,
+  tmapWalkingRouteResponseType,
 } from '@/types/routeType'
 import {
   getCurrentPositionPromise,
@@ -13,27 +16,35 @@ import {
   setWalkPolyLine,
   startMarker,
 } from '@/util/map/mapFunctions'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export default function RoutePlaceBottom(props: {
   place: { key: string; list: placeType | null }
+  placeList: placeType[]
+  currentIdx: number
   isDisabled: boolean
   toggleDisabled: (state: boolean) => void
 }) {
-  const { isDisabled, place, toggleDisabled } = props
+  const { currentIdx, isDisabled, place, placeList, toggleDisabled } = props
+  const routePath = useRoutePathStore(state => state.setPath)
+  const [searchErrorMessage, setSearchErrorMessage] = useState('')
+  const hasNoMorePlaces =
+    placeList.length === 0 || currentIdx + 1 >= placeList.length
 
   function drawPolyLine(
     map: naver.maps.Map,
-    path: tmapRoutePathType,
-    polyLine: (map: naver.maps.Map, path: [[number, number]]) => void,
+    path: tmapWalkingRouteResponseType,
+    polyLine: (map: naver.maps.Map, path: [number, number][]) => void,
   ) {
     polyLine(map, path.path)
   }
 
-  const requestIdRef = useRef(0) // 요청 번호 발급기
-  const latestRequestIdRef = useRef(0) // 마지막 요청 번호
+  const requestIdRef = useRef(0)
+  const latestRequestIdRef = useRef(0)
+  const prevPathRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  const hasRequestedInitialDrawRef = useRef(false)
 
-  function onDrawMarkerLine(
+  async function onDrawMarkerLine(
     requestId: number,
     lat: number,
     lon: number,
@@ -47,18 +58,14 @@ export default function RoutePlaceBottom(props: {
     const mapStartSignal = startMarker(map, { x: currentX, y: currentY })
     const mapResultSignal = goalMarker(map, { x: lon, y: lat })
 
-    const mapPolyLine = getPathWalk(
+    await getPathWalk(
       map,
       { x: currentX, y: currentY },
       { x: lon, y: lat },
       placeName || initialPlaceObj.name,
     )
 
-    const mapLoadCheck =
-      mapStartSignal !== null &&
-      mapResultSignal !== null &&
-      mapPolyLine !== null
-
+    const mapLoadCheck = mapStartSignal !== null && mapResultSignal !== null
     if (mapLoadCheck) toggleDisabled(false)
   }
 
@@ -73,11 +80,9 @@ export default function RoutePlaceBottom(props: {
       startY: startInfoState.y,
       endX: goalInfoState.x,
       endY: goalInfoState.y,
-      // passList: '경도,위도_경도,위도_경도,위도',
       reqCoordType: 'WGS84GEO',
       resCoordType: 'WGS84GEO',
       startName: encodeURIComponent('내 위치'),
-      // startName: startInfoState.start.name,
       endName: encodeURIComponent(placeName),
     }
 
@@ -88,12 +93,16 @@ export default function RoutePlaceBottom(props: {
       },
       body: JSON.stringify(requestData),
     })
-    const path = await res.json()
 
+    if (!res.ok) {
+      throw new Error('failed to fetch walking path')
+    }
+
+    const path = (await res.json()) as tmapWalkingRouteResponseType
+    routePath(path)
     drawPolyLine(map, path, setWalkPolyLine)
   }
 
-  // localStorage 값이 GeolocationPosition 형태인지 최소 필드만 검증한다.
   function isValidPositionData(
     value: unknown,
   ): value is { coords: { latitude: number; longitude: number } } {
@@ -108,15 +117,14 @@ export default function RoutePlaceBottom(props: {
     return typeof latitude === 'number' && typeof longitude === 'number'
   }
 
-  // 저장된 position를 안전하게 파싱하고, 유효하지 않으면 null을 반환한다.
   const getPositionFromStorage = (): GeolocationPosition | null => {
     if (typeof window === 'undefined') return null
 
     try {
-      const v = localStorage.getItem('position')
-      if (!v) return null
+      const value = localStorage.getItem('position')
+      if (!value) return null
 
-      const parsedValue: unknown = JSON.parse(v)
+      const parsedValue: unknown = JSON.parse(value)
       if (!isValidPositionData(parsedValue)) return null
 
       return parsedValue as GeolocationPosition
@@ -125,7 +133,6 @@ export default function RoutePlaceBottom(props: {
     }
   }
 
-  // 캐시 우선 사용, 실패 시 현재 위치를 조회해 캐시를 복구한다.
   async function getPositionWithFallback(): Promise<GeolocationPosition | null> {
     const cachedPosition = getPositionFromStorage()
     if (cachedPosition) return cachedPosition
@@ -134,15 +141,12 @@ export default function RoutePlaceBottom(props: {
 
     try {
       const currentPosition = await getCurrentPositionPromise()
-      // 이후 경로 탐색에서 동일 값을 재사용할 수 있도록 캐시에 저장한다.
       localStorage.setItem('position', JSON.stringify(currentPosition))
       return currentPosition
     } catch {
       return null
     }
   }
-
-  const prevPathRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
   function validatePath(lat: number, lon: number) {
     const prev = prevPathRef.current
@@ -158,64 +162,124 @@ export default function RoutePlaceBottom(props: {
     lon: number,
     placeName: string | undefined,
   ) {
-    // 캐시 누락/오염을 fallback으로 복구한 뒤에만 좌표 접근한다.
     const position = await getPositionWithFallback()
-    if (!position) return
+    if (!position) {
+      throw new Error('position is empty')
+    }
 
     const currentX = position.coords.longitude
     const currentY = position.coords.latitude
 
     const requestId = ++requestIdRef.current
     latestRequestIdRef.current = requestId
-    if (!validatePath(lat, lon)) return
-    if (isDisabled) return
-    toggleDisabled(true)
-    setTimeout(() => {
-      onDrawMarkerLine(requestId, lat, lon, currentX, currentY, placeName)
-    }, 1000)
-  }
-  const { incMealIdx, incCoffeeIdx, incPharmacyIdx, incShoppingIdx } =
-    useRoutePlaceIdxStore()
+    if (!validatePath(lat, lon)) {
+      throw new Error('same path request')
+    }
+    if (isDisabled) {
+      throw new Error('search is disabled')
+    }
 
-  function changeRoutePlaceIdx(list: string) {
+    toggleDisabled(true)
+
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        onDrawMarkerLine(requestId, lat, lon, currentX, currentY, placeName)
+          .then(resolve)
+          .catch(reject)
+      }, 1000)
+    })
+  }
+
+  const {
+    setMealIdx,
+    setCoffeeIdx,
+    setPharmacyIdx,
+    setShoppingIdx,
+    setKaraokeIdx,
+    setTouristSpotIdx,
+  } = useRoutePlaceIdxStore()
+
+  function setRoutePlaceIdx(list: string, nextIdx: number) {
     switch (list) {
       case 'meal':
-        incMealIdx()
+        setMealIdx(nextIdx)
         break
       case 'coffee':
-        incCoffeeIdx()
+        setCoffeeIdx(nextIdx)
         break
       case 'pharmacy':
-        incPharmacyIdx()
+        setPharmacyIdx(nextIdx)
         break
       case 'shopping':
-        incShoppingIdx()
+        setShoppingIdx(nextIdx)
+        break
+      case 'karaoke':
+        setKaraokeIdx(nextIdx)
+        break
+      case 'touristSpot':
+        setTouristSpotIdx(nextIdx)
         break
       default:
         break
     }
   }
 
+  async function handleSearchOtherPlace() {
+    if (hasNoMorePlaces) {
+      setSearchErrorMessage('불러올 장소가 없습니다.')
+      return
+    }
+
+    setSearchErrorMessage('')
+
+    for (const [offset, nextPlace] of placeList
+      .slice(currentIdx + 1)
+      .entries()) {
+      if (!nextPlace) continue
+
+      try {
+        await drawMarker(
+          Number(nextPlace.pnsLat),
+          Number(nextPlace.pnsLon),
+          nextPlace.name,
+        )
+
+        setRoutePlaceIdx(place.key, currentIdx + offset + 1)
+        return
+      } catch {
+        toggleDisabled(false)
+      }
+    }
+
+    setSearchErrorMessage('불러올 장소가 없습니다.')
+  }
+
+  useEffect(() => {
+    if (hasRequestedInitialDrawRef.current) return
+    if (!place.list) return
+
+    hasRequestedInitialDrawRef.current = true
+    drawMarker(
+      Number(placeList[0].pnsLat),
+      Number(placeList[0].pnsLon),
+      placeList[0].name,
+    )
+  }, [place.list])
+
   return (
-    <div className="w-1/4 grid  ">
+    <div className="w-1/4 grid">
       <button
-        className="h-full  w-full bg-slate-200"
+        className="h-full w-full bg-amber-200"
         disabled={isDisabled}
-        onClick={() =>
-          drawMarker(
-            Number(place.list?.pnsLat),
-            Number(place.list?.pnsLon),
-            place.list?.name,
-          )
-        }
+        onClick={() => {
+          void handleSearchOtherPlace()
+        }}
       >
-        <div className="text-indigo-600 font-semibold">경로 찾기</div>
-      </button>
-      <button
-        onClick={() => changeRoutePlaceIdx(place.key)}
-        className="h-full  w-full bg-amber-200"
-      >
-        <div className="text-amber-600 font-semibold">다른 장소</div>
+        <div
+          className={`px-3 py-2 font-semibold ${searchErrorMessage ? 'text-red-500' : 'text-amber-600'}`}
+        >
+          {searchErrorMessage ? searchErrorMessage : '다른 장소 검색'}
+        </div>
       </button>
     </div>
   )

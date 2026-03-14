@@ -5,6 +5,8 @@ import {
   Utensils,
   ShoppingBag,
   BriefcaseMedicalIcon,
+  Music4,
+  MapPinned,
 } from 'lucide-react'
 import { SectionTitle } from '@/share/components/Text'
 import { PurposeCard, TimeCard } from '@/share/components/Card'
@@ -41,6 +43,20 @@ export default function PlanMain() {
       icon: ShoppingBag,
       label: '편의점',
       color: 'bg-blue-500',
+    },
+    {
+      id: '노래방',
+      key: 'karaoke',
+      icon: Music4,
+      label: '노래방',
+      color: 'bg-fuchsia-500',
+    },
+    {
+      id: '관광지',
+      key: 'touristSpot',
+      icon: MapPinned,
+      label: '관광지',
+      color: 'bg-orange-500',
     },
   ]
 

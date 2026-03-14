@@ -1,4 +1,6 @@
 'use client'
+import LoadingScreen from '@/features/loading/components/LoadingScreen'
+import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 import { placeType, RouteApiDataType, TmapPoiItem } from '@/types/placeType'
 import {
   addValueByCategory,
@@ -7,12 +9,10 @@ import {
   formatStringToArray,
 } from '@/util/common/common'
 
+import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { getMyRouteList } from '../../containers/RouteMainContainer'
-import LoadingScreen from '@/features/loading/components/LoadingScreen'
-import { usePositionStore, useRoutePlaceIdxStore } from '@/stores/useRouteStore'
-import { useQuery } from '@tanstack/react-query'
 
 import LoadingSpin from '../LoadingSpin'
 import RoutePlaceBottom from './RoutePlaceBottom'
@@ -29,10 +29,19 @@ export default function RoutePlace() {
     coffee: [],
     pharmacy: [],
     shopping: [],
+    karaoke: [],
+    touristSpot: [],
   })
 
-  const { mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx, initialIdx } =
-    useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+  const {
+    mealIdx,
+    coffeeIdx,
+    pharmacyIdx,
+    shoppingIdx,
+    karaokeIdx,
+    touristSpotIdx,
+    initialIdx,
+  } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
 
   // 전역으로 가져오는 좌표값에 문제가 생길 때, localStorage에서 좌표값을 가져와 fallback으로 사용한다.
   const position =
@@ -55,27 +64,15 @@ export default function RoutePlace() {
     placeholderData: prev => prev,
   })
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!position) return
-    if (data === undefined) return
-
-    const getData = () => {
-      const purposesArr = formatStringToArray(queryPurposes)
-      const filterApiArr = filterApiData(data)
-
-      const formatApiData = formatResult(purposesArr, filterApiArr)
-      const listArr = { meal: [], coffee: [], pharmacy: [], shopping: [] }
-      addValueByCategory(listArr, formatApiData)
-
-      setRouteList(listArr)
-    }
-    initialIdx()
-    getData()
-  }, [data, initialIdx, position, queryPurposes])
-
   // 각 장소별 인덱스를 배열로 관리
-  const routePlaceIdxList = [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx]
+  const routePlaceIdxList = [
+    mealIdx,
+    coffeeIdx,
+    pharmacyIdx,
+    shoppingIdx,
+    karaokeIdx,
+    touristSpotIdx,
+  ]
 
   const routeArr = [
     { key: 'meal', list: routeList.meal[mealIdx] ?? routeList.meal[0] },
@@ -91,6 +88,14 @@ export default function RoutePlace() {
       key: 'shopping',
       list: routeList.shopping[shoppingIdx] ?? routeList.shopping[0],
     },
+    {
+      key: 'karaoke',
+      list: routeList.karaoke[karaokeIdx] ?? routeList.karaoke[0],
+    },
+    {
+      key: 'touristSpot',
+      list: routeList.touristSpot[touristSpotIdx] ?? routeList.touristSpot[0],
+    },
   ].filter(Boolean) // undefined 제거
 
   const routeArrInitial = [
@@ -98,6 +103,8 @@ export default function RoutePlace() {
     routeList.coffee[0],
     routeList.pharmacy[0],
     routeList.shopping[0],
+    routeList.karaoke[0],
+    routeList.touristSpot[0],
   ].filter(Boolean) // undefined 제거
 
   const routeArrSize = [
@@ -105,27 +112,56 @@ export default function RoutePlace() {
     routeList.coffee.length,
     routeList.pharmacy.length,
     routeList.shopping.length,
+    routeList.karaoke.length,
+    routeList.touristSpot.length,
   ]
 
   const resultRouteArrSize = routeArrInitial.length
 
-  const [isDisabled, setIsDisabled] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   function toggleDisabled(state: boolean) {
-    setIsDisabled(state)
+    setIsLoading(state)
   }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!position) return
+    if (data === undefined) return
+
+    const getData = () => {
+      const purposesArr = formatStringToArray(queryPurposes)
+      const filterApiArr = filterApiData(data)
+
+      const formatApiData = formatResult(purposesArr, filterApiArr)
+      const listArr = {
+        meal: [],
+        coffee: [],
+        pharmacy: [],
+        shopping: [],
+        karaoke: [],
+        touristSpot: [],
+      }
+      addValueByCategory(listArr, formatApiData)
+
+      setRouteList(listArr)
+    }
+
+    initialIdx()
+    getData()
+  }, [data, initialIdx, position, queryPurposes])
 
   return (
     <React.Fragment>
       {/* <div> */}
-      <LoadingSpin isDisabled={isDisabled} />
+      <LoadingSpin isLoading={isLoading} />
       {resultRouteArrSize > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
           {routeArr.map(
             (place: { key: string; list: placeType | null }, index: number) => (
               <>
                 {place.list?.name !== undefined && (
-                  <section key={index + 1} className="w-full">
+                  <section key={place.key} className="w-full">
                     <div
                       className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
                         routeArrSize[index] <= routePlaceIdxList[index] &&
@@ -139,7 +175,9 @@ export default function RoutePlace() {
                       />
                       <RoutePlaceBottom
                         place={place}
-                        isDisabled={isDisabled}
+                        placeList={routeList[place.key] ?? []}
+                        currentIdx={routePlaceIdxList[index]}
+                        isDisabled={isLoading}
                         toggleDisabled={toggleDisabled}
                       />
                     </div>

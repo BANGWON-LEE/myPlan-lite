@@ -2,6 +2,7 @@ import { PositionState } from '@/types/placeType'
 import {
   markerState,
   RouteCategoryIdxState,
+  RoutePathState,
 } from '@/types/storeType'
 import { create } from 'zustand'
 
@@ -17,24 +18,22 @@ export const useRoutePlaceIdxStore = create<RouteCategoryIdxState>(set => ({
   coffeeIdx: 0,
   pharmacyIdx: 0,
   shoppingIdx: 0,
-  incMealIdx: () =>
-    set((state: { mealIdx: number }) => ({ mealIdx: state.mealIdx + 1 })),
-  incCoffeeIdx: () =>
-    set((state: { coffeeIdx: number }) => ({ coffeeIdx: state.coffeeIdx + 1 })),
-  incPharmacyIdx: () =>
-    set((state: { pharmacyIdx: number }) => ({
-      pharmacyIdx: state.pharmacyIdx + 1,
-    })),
-  incShoppingIdx: () =>
-    set((state: { shoppingIdx: number }) => ({
-      shoppingIdx: state.shoppingIdx + 1,
-    })),
+  karaokeIdx: 0,
+  touristSpotIdx: 0,
+  setMealIdx: value => set({ mealIdx: value }),
+  setCoffeeIdx: value => set({ coffeeIdx: value }),
+  setPharmacyIdx: value => set({ pharmacyIdx: value }),
+  setShoppingIdx: value => set({ shoppingIdx: value }),
+  setKaraokeIdx: value => set({ karaokeIdx: value }),
+  setTouristSpotIdx: value => set({ touristSpotIdx: value }),
   initialIdx: () =>
     set({
       mealIdx: 0,
       coffeeIdx: 0,
       pharmacyIdx: 0,
       shoppingIdx: 0,
+      karaokeIdx: 0,
+      touristSpotIdx: 0,
     }),
 }))
 
@@ -48,4 +47,9 @@ export const useLoadingMarkerStore = create<markerState>(set => ({
   state: false,
   setLoadingMaker: () => set({ state: true }),
   setCompleteMarker: () => set({ state: false }),
+}))
+
+export const useRoutePathStore = create<RoutePathState>(set => ({
+  path: null,
+  setPath: path => set({ path }),
 }))
