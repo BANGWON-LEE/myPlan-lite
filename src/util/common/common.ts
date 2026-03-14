@@ -6,6 +6,13 @@ export function checkEmptyString(text: string) {
   if (textStatus) return alert('검색어를 입력해주세요')
 }
 
+export function handleMissingQueryPurposes() {
+  if (typeof window === 'undefined') return
+
+  alert('목적을 다시 선택해주세요.')
+  window.history.back()
+}
+
 export const formatMyLocation = (value: number): number => value / 1e7
 export const formatTmapPath = (value: number): number => value * 0.00001
 
@@ -32,6 +39,16 @@ export function convertGetKm(meter: number): number {
   return Math.round(meter / 1000)
 }
 
+export function filterPlaceList(places: TmapPoiItem[]) {
+  return places.filter(place => {
+    return (
+      !place.name.includes('주차장') &&
+      !place.name.includes('정문') &&
+      !place.name.includes('후문')
+    )
+  })
+}
+
 // 장소 데이터 중, 불필요한 데이터를 필터링 처리하는 함
 export function filterApiData(
   data: RouteApiDataType[] | undefined,
@@ -42,15 +59,7 @@ export function filterApiData(
     return el.data.searchPoiInfo.pois.poi
   })
 
-  const result = placeNameArr.map(place =>
-    place.filter(place => {
-      return (
-        !place.name.includes('주차장') &&
-        !place.name.includes('정문') &&
-        !place.name.includes('후문')
-      )
-    }),
-  )
+  const result = placeNameArr.map(filterPlaceList)
 
   return result
 }

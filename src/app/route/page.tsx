@@ -1,5 +1,5 @@
-import RouteHeader from '@/features/Route/components/RouteHeader'
-import RouteMain from '@/features/Route/components/RouteMain'
+import RouteHeader from '@/features/route/components/RouteHeader'
+import RouteMain from '@/features/route/components/RouteMain'
 
 export default function RoutePage() {
   // console.log('qqqqq ')

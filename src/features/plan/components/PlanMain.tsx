@@ -82,26 +82,32 @@ export default function PlanMain() {
 
   return (
     <React.Fragment>
-      {/* 헤더 */}
-
-      {/* 목적 선택 - PurposeCard 컴포넌트 사용 */}
       <div className="mb-8">
         <SectionTitle className="mb-4">어떤 장소를 찾고 싶으세요?</SectionTitle>
         <div className="grid grid-cols-2 gap-4">
-          {purposes.map(({ id, icon, label, color }) => (
-            <PurposeCard
-              key={id}
-              icon={icon}
-              label={label}
-              color={color}
-              isActive={selectedPurpose.includes(id)}
-              onClick={() => togglePurpose(id)}
-            />
-          ))}
+          {purposes.map(({ id, icon, label, color }) => {
+            const selectedIndex = selectedPurpose.indexOf(id)
+
+            return (
+              <div key={id} className="relative">
+                {selectedIndex !== -1 ? (
+                  <div className="pointer-events-none absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-bold text-gray-900 shadow-sm">
+                    {selectedIndex + 1}
+                  </div>
+                ) : null}
+                <PurposeCard
+                  icon={icon}
+                  label={label}
+                  color={color}
+                  isActive={selectedIndex !== -1}
+                  onClick={() => togglePurpose(id)}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* 시간 선택 - TimeCard 컴포넌트 사용 */}
       <div className="mb-8">
         <SectionTitle className="mb-4">
           몇 분 거리까지의 장소를 원하시나요?
@@ -118,16 +124,12 @@ export default function PlanMain() {
         </div>
       </div>
 
-      {/* 시작 버튼 - PrimaryButtonText 컴포넌트 사용 */}
       <Link
         href={`/route?purposes=${selectedPurpose.join(
           ',',
         )}&time=${selectedTime}`}
       >
-        <PrimaryButtonText
-          disabled={selectedPurpose.length === 0}
-          //   onClick={() => console.log('Start')}
-        >
+        <PrimaryButtonText disabled={selectedPurpose.length === 0}>
           장소 찾기
         </PrimaryButtonText>
       </Link>
