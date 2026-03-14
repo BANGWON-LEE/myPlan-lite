@@ -2,12 +2,12 @@
 import FindingPlaceSpinner from '@/share/components/FindingPlaceSpinner'
 import React from 'react'
 
-export default function LoadingSpin(props: { isDisabled: boolean }) {
-  const { isDisabled } = props
+export default function LoadingSpin(props: { isLoading: boolean }) {
+  const { isLoading } = props
 
   return (
     <React.Fragment>
-      {isDisabled && (
+      {isLoading && (
         <div className="absolute top-0 w-full ">
           <div className=" grid  h-64 bg-gradient-to-br from-blue-100 to-indigo-100">
             <FindingPlaceSpinner />
