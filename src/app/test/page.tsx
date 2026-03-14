@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Test from '@/test/Test'
+
 import { Navigation } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -21,9 +21,7 @@ export default function TestPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">마이 플랜</h1>
           <p className="text-gray-600">목적에 맞는 최적 루트를 1초 만에</p>
         </header>
-        <section aria-label="루트 추천">
-          <Test />
-        </section>
+        <section aria-label="루트 추천">{/* <Test /> */}</section>
       </div>
     </main>
   )
