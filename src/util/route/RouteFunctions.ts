@@ -1,3 +1,5 @@
+import { AVERAGE_WALKING_SPEED_KM_PER_MINUTE } from '@/data/constant'
+
 const stayTimeByPurpose: Record<string, number> = {
   meal: 40, // 식사
   coffee: 60, // 카페
@@ -6,18 +8,18 @@ const stayTimeByPurpose: Record<string, number> = {
   walk: 10, // 산책
   longWalk: 20, // 긴 산책
   shopping: 20, // 휴식
+  karaoke: 60, // 노래방
+  touristSpot: 90, // 관광지
 }
 
 export function calculateRadius(time: string, purpose: string): number {
-  const WALK_SPEED_KM_PER_MIN = 0.066 // 평균 도보 속도: 4.5km/h
-
   const stayTime = stayTimeByPurpose[purpose] ?? 10 // default 10분
   const movingTime = Number(time) - stayTime
 
   if (movingTime <= 0) return 50 // 체류시간이 전체 시간을 넘으면 최소 반경
 
   const oneWayTime = movingTime / 2 // 왕복 고려하여 편도 시간 계산
-  const distanceKm = oneWayTime * WALK_SPEED_KM_PER_MIN
+  const distanceKm = oneWayTime * AVERAGE_WALKING_SPEED_KM_PER_MINUTE
   const radiusM = Math.floor(distanceKm * 1000)
 
   return Math.max(radiusM, 80) // 최소 80m는 확보
