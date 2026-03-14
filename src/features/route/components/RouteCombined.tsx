@@ -5,7 +5,7 @@ import React, { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
-const RouteMap = dynamic(() => import('../components/RouteMap'), {
+const RouteMap = dynamic(() => import('./RouteMap'), {
   ssr: false,
 })
 

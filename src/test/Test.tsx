@@ -1,113 +1,49 @@
-import { placeType } from '@/types/placeType'
+'use client'
 
-type RoutePlaceBottomSnippetState = {
-  place: { key: string; list: placeType | null }
-  placeList: placeType[]
-  currentIdx: number
-  isDisabled: boolean
-}
-
-type RoutePlaceBottomViewState = {
-  hasNoMorePlaces: boolean
-  isSearchButtonDisabled: boolean
-  errorMessage: string
-}
-
-type SearchOtherPlaceResult =
-  | {
-      nextPlaceName: string
-      errorMessage: ''
-    }
-  | {
-      nextPlaceName?: undefined
-      errorMessage: string
-    }
-
-function getRoutePlaceBottomState({
-  placeList,
-  currentIdx,
-  isDisabled,
-}: RoutePlaceBottomSnippetState): RoutePlaceBottomViewState {
-  const hasNoMorePlaces =
-    placeList.length === 0 || currentIdx + 1 >= placeList.length
-
-  return {
-    hasNoMorePlaces,
-    isSearchButtonDisabled: isDisabled,
-    errorMessage: '',
-  }
-}
-
-function setRoutePlaceIdx(list: string, nextIdx: number): { list: string; nextIdx: number } {
-  return { list, nextIdx }
-}
-
-function toggleDisabled(state: boolean): boolean {
-  return state
-}
-
-async function drawMarker(
-  lat: number,
-  lon: number,
-  placeName: string | undefined,
-): Promise<{ lat: number; lon: number; placeName: string | undefined }> {
-  return {
-    lat,
-    lon,
-    placeName,
-  }
-}
-
-async function handleSearchOtherPlace({
-  place,
-  placeList,
-  currentIdx,
-  isDisabled,
-}: RoutePlaceBottomSnippetState): Promise<SearchOtherPlaceResult> {
-  const { hasNoMorePlaces } = getRoutePlaceBottomState({
-    place,
-    placeList,
-    currentIdx,
-    isDisabled,
-  })
-
-  if (hasNoMorePlaces) {
-    return {
-      errorMessage: '다른 장소를 불러오지 못했습니다.',
-    }
-  }
-
-  for (const [offset, nextPlace] of placeList.slice(currentIdx + 1).entries()) {
-    if (!nextPlace) continue
-
-    try {
-      await drawMarker(
-        Number(nextPlace.pnsLat),
-        Number(nextPlace.pnsLon),
-        nextPlace.name,
-      )
-
-      setRoutePlaceIdx(place.key, currentIdx + offset + 1)
-
-      return {
-        nextPlaceName: nextPlace.name,
-        errorMessage: '',
-      }
-    } catch {
-      toggleDisabled(false)
-    }
-  }
-
-  return {
-    errorMessage: '다른 장소를 불러오지 못했습니다.',
-  }
-}
+import MapScript from '@/components/MapScript'
+import {
+  drawOrderedRouteMain,
+  normalizePurpose,
+} from '@/features/route/containers/drawRouteContainer'
+import { formatStringToArray } from '@/util/common/common'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useRef } from 'react'
 
 export default function Test() {
-  return null
-}
+  const searchParams = useSearchParams()
+  const mapRef = useRef<naver.maps.Map | null>(null)
 
-export {
-  getRoutePlaceBottomState,
-  handleSearchOtherPlace,
+  const purposes = useMemo(() => {
+    return formatStringToArray(searchParams?.get('purposes') ?? '')
+      .map(normalizePurpose)
+      .filter(Boolean)
+  }, [searchParams])
+
+  const time = searchParams?.get('time') ?? '1'
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (typeof naver === 'undefined') return
+    if (purposes.length === 0) return
+
+    let cancelled = false
+
+    const run = async () => {
+      if (cancelled) return
+      await drawOrderedRouteMain(mapRef, purposes, time)
+    }
+
+    void run()
+
+    return () => {
+      cancelled = true
+    }
+  }, [purposes, time])
+
+  return (
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <MapScript />
+      <div id="map" className="h-80 w-full bg-slate-100" />
+    </div>
+  )
 }
