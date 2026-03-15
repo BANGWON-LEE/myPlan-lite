@@ -1,7 +1,9 @@
 'use client'
 
-import { ReactNode, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
 
 type LocationPermissionState =
   | 'checking'
@@ -13,11 +15,26 @@ type LocationPermissionState =
 export default function RoutePermissionGate({
   children,
 }: {
-  children: ReactNode
+  children: (position: GeolocationPosition) => React.ReactNode
 }) {
   const router = useRouter()
   const [permission, setPermission] =
     useState<LocationPermissionState>('checking')
+
+  const getPosition = (): Promise<GeolocationPosition> =>
+    new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        position => resolve(position),
+        error => reject(error),
+      )
+    })
+
+  const { data: position } = useQuery<GeolocationPosition>({
+    queryKey: POSITION_QUERY_KEY,
+    queryFn: async () => await getPosition(),
+    staleTime: 1000 * 60 * 5,
+    enabled: permission === 'granted',
+  })
 
   useEffect(() => {
     let cancelled = false
@@ -38,29 +55,27 @@ export default function RoutePermissionGate({
 
           if (cancelled) return
 
-          setPermission(result.state as LocationPermissionState)
+          if (result.state === 'denied') {
+            setPermission('denied')
+          } else {
+            setPermission('granted')
+          }
 
           result.onchange = () => {
             if (!cancelled) {
-              setPermission(result.state as LocationPermissionState)
+              if (result.state === 'denied') {
+                setPermission('denied')
+                return
+              }
+
+              setPermission('granted')
             }
           }
 
           return
         }
 
-        navigator.geolocation.getCurrentPosition(
-          () => {
-            if (!cancelled) {
-              setPermission('granted')
-            }
-          },
-          () => {
-            if (!cancelled) {
-              setPermission('denied')
-            }
-          },
-        )
+        setPermission('granted')
       } catch {
         if (!cancelled) {
           setPermission('error')
@@ -76,11 +91,7 @@ export default function RoutePermissionGate({
   }, [])
 
   useEffect(() => {
-    if (
-      permission === 'checking' ||
-      permission === 'granted' ||
-      permission === 'prompt'
-    ) {
+    if (permission === 'checking' || permission === 'granted') {
       return
     }
 
@@ -93,8 +104,8 @@ export default function RoutePermissionGate({
     router.replace('/')
   }, [permission, router])
 
-  if (permission === 'granted' || permission === 'prompt') {
-    return <>{children}</>
+  if (permission === 'granted' && position) {
+    return <>{children(position)}</>
   }
 
   return null
