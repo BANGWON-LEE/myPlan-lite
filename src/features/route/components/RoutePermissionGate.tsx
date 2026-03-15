@@ -2,14 +2,12 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
 
 type LocationPermissionState =
   | 'checking'
   | 'granted'
-  | 'denied'
-  | 'prompt'
   | 'error'
 
 export default function RoutePermissionGate({
@@ -18,91 +16,58 @@ export default function RoutePermissionGate({
   children: (position: GeolocationPosition) => React.ReactNode
 }) {
   const router = useRouter()
-  const [permission, setPermission] =
-    useState<LocationPermissionState>('checking')
+
+  const isGeolocationError = (
+    value: unknown,
+  ): value is Pick<GeolocationPositionError, 'code'> =>
+    typeof value === 'object' &&
+    value !== null &&
+    'code' in value &&
+    typeof value.code === 'number'
 
   const getPosition = (): Promise<GeolocationPosition> =>
     new Promise((resolve, reject) => {
+      if (typeof window === 'undefined' || !navigator.geolocation) {
+        reject(new Error('Geolocation is not supported'))
+        return
+      }
+
       navigator.geolocation.getCurrentPosition(
         position => resolve(position),
         error => reject(error),
       )
     })
 
-  const { data: position } = useQuery<GeolocationPosition>({
+  const {
+    data: position,
+    error,
+    isLoading,
+  } = useQuery<GeolocationPosition, Error | GeolocationPositionError>({
     queryKey: POSITION_QUERY_KEY,
     queryFn: async () => await getPosition(),
     staleTime: 1000 * 60 * 5,
-    enabled: permission === 'granted',
+    retry: false,
   })
 
   useEffect(() => {
-    let cancelled = false
-
-    async function checkPermission() {
-      if (typeof window === 'undefined' || !navigator.geolocation) {
-        if (!cancelled) {
-          setPermission('error')
-        }
-        return
-      }
-
-      try {
-        if (navigator.permissions?.query) {
-          const result = await navigator.permissions.query({
-            name: 'geolocation',
-          })
-
-          if (cancelled) return
-
-          if (result.state === 'denied') {
-            setPermission('denied')
-          } else {
-            setPermission('granted')
-          }
-
-          result.onchange = () => {
-            if (!cancelled) {
-              if (result.state === 'denied') {
-                setPermission('denied')
-                return
-              }
-
-              setPermission('granted')
-            }
-          }
-
-          return
-        }
-
-        setPermission('granted')
-      } catch {
-        if (!cancelled) {
-          setPermission('error')
-        }
-      }
-    }
-
-    checkPermission()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  useEffect(() => {
-    if (permission === 'checking' || permission === 'granted') {
+    if (!error) {
       return
     }
 
     const message =
-      permission === 'denied'
+      isGeolocationError(error) && error.code === 1
         ? '브라우저에서 위치 권한을 허용해주세요.'
         : '위치 정보를 사용할 수 없습니다.'
 
     window.alert(message)
     router.replace('/')
-  }, [permission, router])
+  }, [error, router])
+
+  const permission: LocationPermissionState = isLoading
+    ? 'checking'
+    : position
+      ? 'granted'
+      : 'error'
 
   if (permission === 'granted' && position) {
     return <>{children(position)}</>
