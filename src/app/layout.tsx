@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Analytics } from '@vercel/analytics/react'
 import { GeistMono, GeistSans } from 'geist/font'
-import IndexRedirectGuard from '@/components/IndexRedirectGuard'
 
 export const metadata: Metadata = {
   title: '마이 플랜',
@@ -27,7 +26,6 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <IndexRedirectGuard />
         <Analytics />
         {children}
       </body>
