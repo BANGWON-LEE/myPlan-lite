@@ -5,6 +5,7 @@ import React, { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
+import RoutePermissionGate from './RoutePermissionGate'
 const RouteMap = dynamic(() => import('./RouteMap'), {
   ssr: false,
 })
@@ -27,13 +28,15 @@ export default function RouteCombined() {
   })
 
   return (
-    <React.Fragment>
-      <div className="relative w-full">
-        <RouteMap position={position} />
-        <Suspense fallback={<div></div>}>
-          <RoutePlace />
-        </Suspense>
-      </div>
-    </React.Fragment>
+    <RoutePermissionGate>
+      <React.Fragment>
+        <div className="relative w-full">
+          <RouteMap position={position} />
+          <Suspense fallback={<div></div>}>
+            <RoutePlace />
+          </Suspense>
+        </div>
+      </React.Fragment>
+    </RoutePermissionGate>
   )
 }
