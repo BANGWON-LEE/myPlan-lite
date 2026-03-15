@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { POSITION_STORAGE_KEY } from '@/data/constant'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
 
 type LocationPermissionState =
@@ -38,6 +39,47 @@ export default function RoutePermissionGate({
       )
     })
 
+  const getStoredPosition = (): GeolocationPosition | null => {
+    if (typeof window === 'undefined') return null
+
+    const raw = localStorage.getItem(POSITION_STORAGE_KEY)
+    if (!raw) return null
+
+    try {
+      const parsed = JSON.parse(raw) as {
+        coords?: { latitude?: number; longitude?: number }
+        timestamp?: number
+      }
+
+      if (
+        typeof parsed?.coords?.latitude !== 'number' ||
+        typeof parsed?.coords?.longitude !== 'number' ||
+        typeof parsed?.timestamp !== 'number'
+      ) {
+        return null
+      }
+
+      return {
+        coords: {
+          accuracy: 0,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          latitude: parsed.coords.latitude,
+          longitude: parsed.coords.longitude,
+          speed: null,
+          toJSON: () => parsed.coords as GeolocationCoordinates,
+        },
+        timestamp: parsed.timestamp,
+        toJSON: () => parsed as GeolocationPosition,
+      }
+    } catch {
+      return null
+    }
+  }
+
+  const storedPosition = getStoredPosition()
+
   const {
     data: position,
     error,
@@ -50,6 +92,10 @@ export default function RoutePermissionGate({
   })
 
   useEffect(() => {
+    if (storedPosition) {
+      return
+    }
+
     if (!error) {
       return
     }
@@ -61,16 +107,16 @@ export default function RoutePermissionGate({
 
     window.alert(message)
     router.replace('/')
-  }, [error, router])
+  }, [error, router, storedPosition])
 
   const permission: LocationPermissionState = isLoading
     ? 'checking'
-    : position
+    : position || storedPosition
       ? 'granted'
       : 'error'
 
-  if (permission === 'granted' && position) {
-    return <>{children(position)}</>
+  if (permission === 'granted' && (position || storedPosition)) {
+    return <>{children(position ?? storedPosition!)}</>
   }
 
   return null
