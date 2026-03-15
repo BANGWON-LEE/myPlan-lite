@@ -1,18 +1,21 @@
+import { setResListCnt } from '@/util/route/RouteFunctions'
 import axios from 'axios'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function getSearchLoc(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { latitude, longitude, purpose, time } = req.query
 
   const headers = { appkey: process.env.TMAP_APP_KEY }
 
-  const result = await axios.get(
-    `https://apis.openapi.sk.com/tmap/pois?searchKeyword=${purpose}&searchType=all&centerLon=${longitude}&centerLat=${latitude}&radius=${time}&count=15&searchtypCd=R`,
+  const resCnt = setResListCnt(time as string)
 
-    { headers: headers }
+  const result = await axios.get(
+    `https://apis.openapi.sk.com/tmap/pois?searchKeyword=${purpose}&searchType=all&centerLon=${longitude}&centerLat=${latitude}&radius=${time}&count=${resCnt}&searchtypCd=R`,
+
+    { headers: headers },
   )
 
   // console.log('result@', result.data)
