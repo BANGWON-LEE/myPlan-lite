@@ -1,12 +1,6 @@
 import { CSSProperties } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { MarkerVariant } from '@/types/marker'
-
-type RouteMarkerProps = {
-  variant: MarkerVariant
-  index?: number
-  color?: string
-}
+import { RouteMarkerProps } from '@/types/marker'
 
 const currentWrapperStyle: CSSProperties = {
   position: 'relative',

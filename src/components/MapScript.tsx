@@ -1,7 +1,7 @@
 'use client'
 
 import { usePositionStore } from '@/stores/useRouteStore'
-import { onLoadRouteMap } from '@/util/map/mapFunctions'
+import { DEFAULT_MAP_ZOOM, onLoadRouteMap } from '@/util/map/mapFunctions'
 import Script from 'next/script'
 import { useEffect } from 'react'
 
@@ -17,7 +17,7 @@ export default function MapScript() {
             pos?.coords.latitude ?? 37.5665,
             pos?.coords.longitude ?? 126.978,
           ),
-          zoom: 14,
+          zoom: DEFAULT_MAP_ZOOM,
           mapTypeId: naver.maps.MapTypeId.NORMAL,
         }),
       )
@@ -31,7 +31,7 @@ export default function MapScript() {
             pos ? JSON.parse(pos).coords.latitude : 37.5665,
             pos ? JSON.parse(pos).coords.longitude : 126.978,
           ),
-          zoom: 14,
+          zoom: DEFAULT_MAP_ZOOM,
           mapTypeId: naver.maps.MapTypeId.NORMAL,
         }),
       )
