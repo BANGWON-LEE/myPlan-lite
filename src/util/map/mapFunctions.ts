@@ -7,34 +7,23 @@ export const ROUTE_MAP_ZOOM = 16
 export const MARKER_MAP_ZOOM = 17
 
 export const getMapOptions = (position: GeolocationPosition) => {
-  // console.log('posi', position)
-  // const checkPositionType = 'coords' in position
-
   const x = position.coords.latitude
   const y = position.coords.longitude
 
   return {
     center: new naver.maps.LatLng(x, y),
     zoom: DEFAULT_MAP_ZOOM,
-    // mapTypeId: naver.maps.MapTypeId.NORMAL,s
   }
 }
 
 export const getMarkerMapOptions = (x: number, y: number) => {
-  // console.log('posi', position)
-  // const checkPositionType = 'coords' in position
-
   return {
     center: new naver.maps.LatLng(x, y),
     zoom: MARKER_MAP_ZOOM,
-    // mapTypeId: naver.maps.MapTypeId.NORMAL,s
   }
 }
 
 export const getMapOptionsRoute = (position: PositionType) => {
-  // console.log('posi', position)
-  // const checkPositionType = 'coords' in position
-
   const x = position.coords.latitude
   const y = position.coords.longitude
 
@@ -46,7 +35,6 @@ export const getMapOptionsRoute = (position: PositionType) => {
 }
 
 export const getSearchMapOptions = (position: simplePosition) => {
-  // console.log('검색 후', position)
   const x = Number(position.x)
   const y = Number(position.y)
 
@@ -58,7 +46,6 @@ export const getSearchMapOptions = (position: simplePosition) => {
 }
 
 export const getRouteMapOptions = (position: simplePosition) => {
-  // console.log('검색 후', position)
   const x = Number(position.x)
   const y = Number(position.y)
 
@@ -81,30 +68,20 @@ export const onLoadInitialRouteMap = () =>
       center: new naver.maps.LatLng(
         37.5665, // 서울
         126.978,
-        // pos ? pos.coords.latitude : 37.5665,
-        // pos ? pos.coords.longitude : 126.978,
       ),
       zoom: DEFAULT_MAP_ZOOM,
       mapTypeId: naver.maps.MapTypeId.NORMAL,
     }),
   )
 
-export const onLoadRouteMap = (
-  // position: GeolocationPosition,
-  position: naver.maps.Map,
-) => (typeof position === 'undefined' ? onLoadInitialRouteMap : position)
+export const onLoadRouteMap = (position: naver.maps.Map) =>
+  typeof position === 'undefined' ? onLoadInitialRouteMap : position
 
 export const onLoadMap = (position: GeolocationPosition) =>
   new naver.maps.Map('map', getMapOptions(position))
 
 export const onLoadMarkerMap = ({ x, y }: { x: number; y: number }) =>
   new naver.maps.Map('map', getMarkerMapOptions(x, y))
-
-// export const onSearchLoadMap = (position: simplePosition) =>
-//   new naver.maps.Map('map', getSearchMapOptions(position))
-
-// export const onLoadRouteMap = (position: simplePosition) =>
-//   new naver.maps.Map('map', getRouteMapOptions(position))
 
 export const myMarker = (
   map: naver.maps.Map,
@@ -126,12 +103,9 @@ export const startMarker = (
   const position = new naver.maps.LatLng(startPosition.y, startPosition.x)
 
   return new naver.maps.Marker({
-    // position: position.destinationPoint(90, 15),
     position: position,
     icon: {
       url: '../../assets/start.png',
-      // size: new naver.maps.Size(128, 128),
-      // scaledSize: new naver.maps.Size(32, 32),
       size: new naver.maps.Size(128, 128),
       origin: new naver.maps.Point(0, 0),
       scaledSize: new naver.maps.Size(32, 32),
@@ -200,7 +174,6 @@ function onSuccessGeolocation(position: GeolocationPosition) {
   )
 
   const map = onLoadMap(position)
-  // const infoMark = infowindow()
 
   map.setCenter(location) // 얻은 좌표를 지도의 중심으로 설정합니다.
   map.setZoom(DEFAULT_MAP_ZOOM) // 지도의 줌 레벨을 변경합니다.
