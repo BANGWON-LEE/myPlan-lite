@@ -81,3 +81,16 @@ export function tMapFormatSpreadPath(path: number[]) {
 
   return resultArr
 }
+
+export function setResListCnt(time: string): string {
+  switch (time) {
+    case '1':
+      return '20'
+    case '5':
+      return '40'
+    case '10':
+      return '60'
+    default:
+      return '15'
+  }
+}
