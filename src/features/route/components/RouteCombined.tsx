@@ -15,7 +15,7 @@ export default function RouteCombined() {
         <div className="relative w-full">
           <RouteMap position={position} />
           <Suspense fallback={<div></div>}>
-            <RoutePlace />
+            <RoutePlace position={position} />
           </Suspense>
         </div>
       )}

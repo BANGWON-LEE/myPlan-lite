@@ -5,7 +5,6 @@ import {
 } from '@/features/route/containers/drawRouteContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import {
-  usePositionStore,
   useRoutePathStore,
   useRoutePlaceIdxStore,
 } from '@/stores/useRouteStore'
@@ -30,7 +29,11 @@ import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
-export default function RoutePlace() {
+export default function RoutePlace({
+  position,
+}: {
+  position: GeolocationPosition
+}) {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
@@ -55,12 +58,6 @@ export default function RoutePlace() {
     initialIdx,
   } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
   const setRoutePath = useRoutePathStore(state => state.setPath)
-
-  // 전역으로 가져오는 좌표값에 문제가 생길 때, localStorage에서 좌표값을 가져와 fallback으로 사용한다.
-  const position =
-    usePositionStore(state => state.position) ??
-    (typeof window !== 'undefined' &&
-      JSON.parse(localStorage.getItem('position') as string))
 
   // 장소 데이터 가져와 캐싱처리하기
   const { data } = useQuery<RouteApiDataType[]>({
