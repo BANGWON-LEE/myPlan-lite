@@ -4,7 +4,12 @@ import { renderRouteMarker } from '@/features/route/components/RouteMarker'
 import { MarkerVariant } from '@/types/marker'
 import { TmapPoiItem } from '@/types/placeType'
 import { RoutePoint, tmapWalkingRouteResponseType } from '@/types/routeType'
-import { createLatLng, ROUTE_MAP_ZOOM } from '@/util/map/mapFunctions'
+import {
+  createLatLng,
+  getRouteMapInstance,
+  ROUTE_MAP_ZOOM,
+  setRouteMapInstance,
+} from '@/util/map/mapFunctions'
 
 type RouteOverlay = naver.maps.Marker | naver.maps.Polyline
 
@@ -86,6 +91,12 @@ function createRouteMap(
   mapRef: React.MutableRefObject<naver.maps.Map | null>,
   startPoint: RoutePoint,
 ) {
+  const existingMap = getRouteMapInstance()
+  if (existingMap) {
+    mapRef.current = existingMap
+    return existingMap
+  }
+
   const map = new naver.maps.Map('map', {
     center: createLatLng(startPoint.y, startPoint.x),
     zoom: ROUTE_MAP_ZOOM,
@@ -93,6 +104,7 @@ function createRouteMap(
   })
 
   mapRef.current = map
+  setRouteMapInstance(map)
   return map
 }
 

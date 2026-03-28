@@ -2,8 +2,18 @@ export const DEFAULT_MAP_ZOOM = 15
 export const ROUTE_MAP_ZOOM = 16
 export const MARKER_MAP_ZOOM = 17
 
+let routeMapInstance: naver.maps.Map | null = null
+
 export function createLatLng(latitude: number, longitude: number) {
   return new naver.maps.LatLng(latitude, longitude)
+}
+
+export function getRouteMapInstance() {
+  return routeMapInstance
+}
+
+export function setRouteMapInstance(map: naver.maps.Map) {
+  routeMapInstance = map
 }
 
 export const onLoadInitialRouteMap = () =>
