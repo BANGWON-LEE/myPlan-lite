@@ -20,6 +20,7 @@ import {
 } from '@/util/common/common'
 import { PURPOSE_TO_CATEGORY_KEY } from '@/data/constant'
 import { RouteCategoryKey } from '@/types/routeType'
+import { createLatLng } from '@/util/map/mapFunctions'
 
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDown } from 'lucide-react'
@@ -33,20 +34,40 @@ import RoutePlaceList from './RoutePlaceList'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 const ROUTE_SIGNATURE_COORD_PRECISION = 5
+const ROUTE_REDRAW_MIN_DISTANCE_METERS = 120
 
 function toRouteSignatureCoord(value: number) {
   return value.toFixed(ROUTE_SIGNATURE_COORD_PRECISION)
 }
 
 function createRouteRequestSignature(
-  startPoint: { x: number; y: number },
   routePoints: { x: number; y: number }[],
 ) {
   const pointsSignature = routePoints
     .map(point => `${toRouteSignatureCoord(point.x)},${toRouteSignatureCoord(point.y)}`)
     .join('|')
 
-  return `${toRouteSignatureCoord(startPoint.x)},${toRouteSignatureCoord(startPoint.y)}->${pointsSignature}`
+  return pointsSignature
+}
+
+function getDistanceMeters(
+  prev: { x: number; y: number },
+  next: { x: number; y: number },
+) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const earthRadiusMeters = 6371000
+  const dLat = toRad(next.y - prev.y)
+  const dLon = toRad(next.x - prev.x)
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(prev.y)) *
+      Math.cos(toRad(next.y)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return earthRadiusMeters * c
 }
 
 export default function RoutePlace({
@@ -105,6 +126,7 @@ export default function RoutePlace({
   const hasDrawnInitialRouteRef = useRef(false)
   const showSpinnerOnNextDrawRef = useRef(false)
   const lastRouteRequestSignatureRef = useRef<string | null>(null)
+  const lastRouteStartPointRef = useRef<{ x: number; y: number } | null>(null)
   const purposesArr = useMemo(
     () => formatStringToArray(queryPurposes).filter(Boolean),
     [queryPurposes],
@@ -196,6 +218,21 @@ export default function RoutePlace({
   }, [currentPosition])
 
   useEffect(() => {
+    if (!currentPosition) return
+    if (typeof naver === 'undefined') return
+
+    const currentMarker = routeOverlaysRef.current[0]
+    if (!(currentMarker instanceof naver.maps.Marker)) return
+
+    currentMarker.setPosition(
+      createLatLng(
+        currentPosition.coords.latitude,
+        currentPosition.coords.longitude,
+      ),
+    )
+  }, [currentPosition])
+
+  useEffect(() => {
     if (typeof window === 'undefined') return
     // Naver Map SDK는 Script로 비동기 로드되므로, 전역 객체가 준비된 뒤에만 경로를 그린다.
     if (typeof naver !== 'undefined') {
@@ -235,17 +272,18 @@ export default function RoutePlace({
     if (selectedRoutePoints.length === 0) return
     if (!currentPosition) return
 
-    const routeRequestSignature = createRouteRequestSignature(
-      routeStartPointRef.current,
-      selectedRoutePoints,
-    )
+    const routeRequestSignature = createRouteRequestSignature(selectedRoutePoints)
     const shouldForceDraw = showSpinnerOnNextDrawRef.current
+    const nextStartPoint = routeStartPointRef.current
+    const lastStartPoint = lastRouteStartPointRef.current
 
     if (
       !shouldForceDraw &&
       routeRequestSignature === lastRouteRequestSignatureRef.current
     ) {
-      return
+      if (!lastStartPoint) return
+      const movedDistanceMeters = getDistanceMeters(lastStartPoint, nextStartPoint)
+      if (movedDistanceMeters < ROUTE_REDRAW_MIN_DISTANCE_METERS) return
     }
 
     // effect가 정리(cleanup)된 뒤에는 비동기 결과를 무시하기 위한 플래그다.
@@ -274,6 +312,10 @@ export default function RoutePlace({
         if (!cancelled && path) {
           setRoutePath(path)
           lastRouteRequestSignatureRef.current = routeRequestSignature
+          lastRouteStartPointRef.current = {
+            x: routeStartPointRef.current.x,
+            y: routeStartPointRef.current.y,
+          }
         }
       } finally {
         // cleanup 이후가 아니라면 비활성화 상태를 원복한다.
