@@ -12,37 +12,99 @@ import {
 } from '@/util/map/mapFunctions'
 
 type RouteOverlay = naver.maps.Marker | naver.maps.Polyline
+type WalkingCacheEntry = {
+  expiresAt: number
+  value: tmapWalkingRouteResponseType
+}
+
+const WALKING_CACHE_TTL_MS = 1000 * 60 * 15
+const ROUTE_COORD_PRECISION = 3
+const WALKING_CACHE_MAX_SIZE = 500
+const walkingPathCache = new Map<string, WalkingCacheEntry>()
+const walkingPathInFlight = new Map<string, Promise<tmapWalkingRouteResponseType>>()
 
 function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
   //at(-1)은 배열의 마지막 요소를 반환하는 방법, 기존에 [arr.length-1]로 했던 것을 더 간결하게 표현
 }
 
-async function getWalkingPath(startPoint: RoutePoint, goalPoint: RoutePoint) {
-  const response = await fetch('/api/walking', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      startX: startPoint.x,
-      startY: startPoint.y,
-      endX: goalPoint.x,
-      endY: goalPoint.y,
-      reqCoordType: 'WGS84GEO',
-      resCoordType: 'WGS84GEO',
-      startName: encodeURIComponent(startPoint.name),
-      endName: encodeURIComponent(goalPoint.name),
-    }),
-  })
+function toRoundedCoord(value: number) {
+  return value.toFixed(ROUTE_COORD_PRECISION)
+}
 
-  if (!response.ok) {
-    throw new Error(
-      `${startPoint.name}에서 ${goalPoint.name}까지 경로를 그리지 못했습니다.`,
-    )
+function getWalkingPathCacheKey(startPoint: RoutePoint, goalPoint: RoutePoint) {
+  return [
+    toRoundedCoord(startPoint.x),
+    toRoundedCoord(startPoint.y),
+    toRoundedCoord(goalPoint.x),
+    toRoundedCoord(goalPoint.y),
+  ].join(':')
+}
+
+function cleanupWalkingPathCache(now: number) {
+  if (walkingPathCache.size <= WALKING_CACHE_MAX_SIZE) return
+
+  for (const [key, entry] of walkingPathCache.entries()) {
+    if (entry.expiresAt <= now) {
+      walkingPathCache.delete(key)
+    }
+  }
+}
+
+async function getWalkingPath(startPoint: RoutePoint, goalPoint: RoutePoint) {
+  const cacheKey = getWalkingPathCacheKey(startPoint, goalPoint)
+  const now = Date.now()
+  const cached = walkingPathCache.get(cacheKey)
+
+  if (cached && cached.expiresAt > now) {
+    return cached.value
   }
 
-  return (await response.json()) as tmapWalkingRouteResponseType
+  const pending = walkingPathInFlight.get(cacheKey)
+  if (pending) {
+    return await pending
+  }
+
+  const request = (async () => {
+    const response = await fetch('/api/walking', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        startX: startPoint.x,
+        startY: startPoint.y,
+        endX: goalPoint.x,
+        endY: goalPoint.y,
+        reqCoordType: 'WGS84GEO',
+        resCoordType: 'WGS84GEO',
+        startName: encodeURIComponent(startPoint.name),
+        endName: encodeURIComponent(goalPoint.name),
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(
+        `${startPoint.name}에서 ${goalPoint.name}까지 경로를 그리지 못했습니다.`,
+      )
+    }
+
+    const path = (await response.json()) as tmapWalkingRouteResponseType
+    walkingPathCache.set(cacheKey, {
+      expiresAt: Date.now() + WALKING_CACHE_TTL_MS,
+      value: path,
+    })
+    cleanupWalkingPathCache(Date.now())
+    return path
+  })()
+
+  walkingPathInFlight.set(cacheKey, request)
+
+  try {
+    return await request
+  } finally {
+    walkingPathInFlight.delete(cacheKey)
+  }
 }
 
 function drawPolyline(

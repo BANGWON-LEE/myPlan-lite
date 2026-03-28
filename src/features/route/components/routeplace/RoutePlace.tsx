@@ -32,6 +32,23 @@ import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
+const ROUTE_SIGNATURE_COORD_PRECISION = 3
+
+function toRouteSignatureCoord(value: number) {
+  return value.toFixed(ROUTE_SIGNATURE_COORD_PRECISION)
+}
+
+function createRouteRequestSignature(
+  startPoint: { x: number; y: number },
+  routePoints: { x: number; y: number }[],
+) {
+  const pointsSignature = routePoints
+    .map(point => `${toRouteSignatureCoord(point.x)},${toRouteSignatureCoord(point.y)}`)
+    .join('|')
+
+  return `${toRouteSignatureCoord(startPoint.x)},${toRouteSignatureCoord(startPoint.y)}->${pointsSignature}`
+}
+
 export default function RoutePlace({
   position,
 }: {
@@ -88,6 +105,7 @@ export default function RoutePlace({
   const [isMapReady, setIsMapReady] = useState(false)
   const hasDrawnInitialRouteRef = useRef(false)
   const showSpinnerOnNextDrawRef = useRef(false)
+  const lastRouteRequestSignatureRef = useRef<string | null>(null)
   const purposesArr = useMemo(
     () => formatStringToArray(queryPurposes).filter(Boolean),
     [queryPurposes],
@@ -219,6 +237,19 @@ export default function RoutePlace({
     if (selectedRoutePoints.length === 0) return
     if (!currentPosition) return
 
+    const routeRequestSignature = createRouteRequestSignature(
+      routeStartPointRef.current,
+      selectedRoutePoints,
+    )
+    const shouldForceDraw = showSpinnerOnNextDrawRef.current
+
+    if (
+      !shouldForceDraw &&
+      routeRequestSignature === lastRouteRequestSignatureRef.current
+    ) {
+      return
+    }
+
     // effect가 정리(cleanup)된 뒤에는 비동기 결과를 무시하기 위한 플래그다.
     let cancelled = false
 
@@ -244,6 +275,7 @@ export default function RoutePlace({
         // effect가 아직 유효하고 경로가 있으면 상태에 반영한다.
         if (!cancelled && path) {
           setRoutePath(path)
+          lastRouteRequestSignatureRef.current = routeRequestSignature
         }
       } finally {
         // cleanup 이후가 아니라면 비활성화 상태를 원복한다.
