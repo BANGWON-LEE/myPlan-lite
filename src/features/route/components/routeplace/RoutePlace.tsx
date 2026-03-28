@@ -7,6 +7,7 @@ import {
 } from '@/features/route/containers/drawRouteContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import {
+  usePositionStore,
   useRoutePathStore,
   useRoutePlaceIdxStore,
 } from '@/stores/useRouteStore'
@@ -36,12 +37,16 @@ export default function RoutePlace({
 }: {
   position: GeolocationPosition
 }) {
+  const livePosition = usePositionStore(state => state.position)
+  const currentPosition = livePosition ?? position
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const mapRef = useRef<naver.maps.Map | null>(null)
   const routeOverlaysRef = useRef<(naver.maps.Marker | naver.maps.Polyline)[]>([])
-  const routeStartPointRef = useRef(getRouteStartPointFromPosition(position))
+  const routeStartPointRef = useRef(
+    getRouteStartPointFromPosition(currentPosition),
+  )
 
   const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
     meal: [],
@@ -137,7 +142,7 @@ export default function RoutePlace({
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    if (!position) return
+    if (!currentPosition) return
     if (data === undefined) return
 
     const getData = () => {
@@ -160,7 +165,12 @@ export default function RoutePlace({
 
     initialIdx()
     getData()
-  }, [data, initialIdx, position, queryPurposes])
+  }, [currentPosition, data, initialIdx, queryPurposes])
+
+  useEffect(() => {
+    if (!currentPosition) return
+    routeStartPointRef.current = getRouteStartPointFromPosition(currentPosition)
+  }, [currentPosition])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -200,6 +210,7 @@ export default function RoutePlace({
     if (!isMapReady) return
     // 선택된 장소가 없으면 그릴 경로도 없다.
     if (selectedRoutePoints.length === 0) return
+    if (!currentPosition) return
 
     // effect가 정리(cleanup)된 뒤에는 비동기 결과를 무시하기 위한 플래그다.
     let cancelled = false
@@ -237,7 +248,7 @@ export default function RoutePlace({
       cancelled = true
       window.clearTimeout(drawTimerId)
     }
-  }, [isMapReady, selectedRoutePoints, setRoutePath])
+  }, [currentPosition, isMapReady, selectedRoutePoints, setRoutePath])
 
   return (
     <React.Fragment>
