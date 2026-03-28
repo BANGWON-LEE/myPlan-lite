@@ -53,7 +53,7 @@ export const AVERAGE_WALKING_SPEED_KM_PER_MINUTE =
 export const GEOLOCATION_WATCH_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
   maximumAge: 5000,
-  timeout: 10000,
+  timeout: 0,
 }
 
 // gps 이동을 위한 상수
