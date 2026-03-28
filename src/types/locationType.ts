@@ -14,6 +14,7 @@ export type GpsWatchCallbacks = {
   onCoordinateUpdate: (coordinate: GpsCoordinate, timestamp: number) => void
   onRawPosition?: (position: GeolocationPosition) => void
   onError?: (error: GeolocationPositionError) => void
+  throttleIntervalMs?: number
 }
 
 export type GpsWatchState = {

@@ -7,12 +7,14 @@ import {
   onLoadRouteMap,
 } from '@/util/map/mapFunctions'
 import Script from 'next/script'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function MapScript() {
-  const position = usePositionStore(state => state.position)
+  const isMapInitializedRef = useRef(false)
 
   function handleMapLoad() {
+    if (isMapInitializedRef.current) return
+
     try {
       const pos = usePositionStore.getState().position
       onLoadRouteMap(
@@ -25,6 +27,7 @@ export default function MapScript() {
           mapTypeId: naver.maps.MapTypeId.NORMAL,
         }),
       )
+      isMapInitializedRef.current = true
     } catch (error) {
       // 전역으로 가져오는 좌표값에 문제가 생길 때, localStorage에서 좌표값을 가져와 fallback으로 사용한다.
       console.error('Error loading Naver Map:', error)
@@ -39,13 +42,14 @@ export default function MapScript() {
           mapTypeId: naver.maps.MapTypeId.NORMAL,
         }),
       )
+      isMapInitializedRef.current = true
     }
   }
 
   useEffect(() => {
     if (typeof naver === 'undefined') return
     handleMapLoad()
-  }, [position])
+  }, [])
 
   return (
     <>

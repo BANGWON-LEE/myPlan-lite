@@ -1,39 +1,84 @@
 'use client'
 import MapScript from '@/components/MapScript'
-import {
-  startGpsWatch,
-  toGeolocationPosition,
-} from '@/features/route/containers/gpsMoveContainer'
 import { usePositionStore } from '@/stores/useRouteStore'
 import { MapScriptProps } from '@/types/placeType'
+import { throttle } from '@/util/common/throttle'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef } from 'react'
+
+const UPDATE_THROTTLE_MS = 3000
 
 export default function RouteMap(props: MapScriptProps) {
   const { position } = props
 
   const setPosition = usePositionStore(state => state.setPosition)
-  const stopGpsWatchRef = useRef<(() => void) | null>(null)
+  const watchIdRef = useRef<number | null>(null)
+  const lastAcceptedPositionRef = useRef<GeolocationPosition | null>(null)
+
+  const setGpsStatusMessage = (message: string) => {
+    const messageContainer = document.getElementById('gps-status-message')
+    if (!messageContainer) return
+    messageContainer.innerHTML = message
+  }
 
   useEffect(() => {
     if (!position) return
     setPosition(position)
     savePositionToStorage(position)
+    lastAcceptedPositionRef.current = position
   }, [position, setPosition])
 
   useEffect(() => {
-    stopGpsWatchRef.current?.()
-    stopGpsWatchRef.current = startGpsWatch({
-      onCoordinateUpdate: (coordinate, timestamp) => {
-        const nextPosition = toGeolocationPosition(coordinate, timestamp)
-        setPosition(nextPosition)
-        savePositionToStorage(nextPosition)
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      setGpsStatusMessage('gps를 지원하지 않는 환경입니다.')
+      return
+    }
+
+    const commitPosition = (nextPosition: GeolocationPosition) => {
+      setPosition(nextPosition)
+      savePositionToStorage(nextPosition)
+      lastAcceptedPositionRef.current = nextPosition
+      setGpsStatusMessage('')
+    }
+
+    const throttledCommitPosition = throttle(
+      (nextPosition: GeolocationPosition) => {
+        const prevPosition = lastAcceptedPositionRef.current
+        if (!prevPosition) {
+          commitPosition(nextPosition)
+          return
+        }
+
+        commitPosition(nextPosition)
       },
-    })
+      UPDATE_THROTTLE_MS,
+    )
+
+    const onPositionUpdate = (nextPosition: GeolocationPosition) => {
+      throttledCommitPosition(nextPosition)
+    }
+
+    const onPositionError = () => {
+      setGpsStatusMessage('gps가 불안정하여 위치가 변화되지 않습니다.')
+    }
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      onPositionUpdate,
+      onPositionError,
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 5000,
+      },
+    )
 
     return () => {
-      stopGpsWatchRef.current?.()
-      stopGpsWatchRef.current = null
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current)
+        watchIdRef.current = null
+      }
+
+      throttledCommitPosition.cancel()
     }
   }, [setPosition])
 

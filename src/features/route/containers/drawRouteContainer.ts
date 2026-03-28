@@ -4,11 +4,9 @@ import { renderRouteMarker } from '@/features/route/components/RouteMarker'
 import { MarkerVariant } from '@/types/marker'
 import { TmapPoiItem } from '@/types/placeType'
 import { RoutePoint, tmapWalkingRouteResponseType } from '@/types/routeType'
-import {
-  createLatLng,
-  getCurrentPositionPromise,
-  ROUTE_MAP_ZOOM,
-} from '@/util/map/mapFunctions'
+import { createLatLng, ROUTE_MAP_ZOOM } from '@/util/map/mapFunctions'
+
+type RouteOverlay = naver.maps.Marker | naver.maps.Polyline
 
 function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
@@ -102,6 +100,7 @@ async function drawRouteByPoints(
   map: naver.maps.Map,
   routePoints: RoutePoint[],
   startPoint: RoutePoint,
+  routeOverlays: RouteOverlay[],
 ) {
   let currentPoint = startPoint
   let latestPath: tmapWalkingRouteResponseType | null = null
@@ -109,19 +108,36 @@ async function drawRouteByPoints(
   for (const [index, goalPoint] of routePoints.entries()) {
     const path = await getWalkingPath(currentPoint, goalPoint)
 
-    drawPolyline(map, path.path, getOrderedRouteColor(index))
-    drawMarker(
+    routeOverlays.push(drawPolyline(map, path.path, getOrderedRouteColor(index)))
+    routeOverlays.push(
+      drawMarker(
       map,
       goalPoint,
       `${index + 1}. ${goalPoint.name}`,
       'ordered',
       index + 1,
+      ),
     )
     currentPoint = goalPoint
     latestPath = path
   }
 
   return latestPath
+}
+
+export function clearRouteOverlays(routeOverlays: RouteOverlay[]) {
+  routeOverlays.forEach(overlay => overlay.setMap(null))
+  routeOverlays.length = 0
+}
+
+export function getRouteStartPointFromPosition(
+  position: GeolocationPosition,
+): RoutePoint {
+  return {
+    x: position.coords.longitude,
+    y: position.coords.latitude,
+    name: '현재 위치',
+  }
 }
 
 export function getRoutePointFromPlace(
@@ -157,18 +173,15 @@ export function getSelectedRoutePoints(
 export async function drawOrderedRouteByPlacesMain(
   mapRef: React.MutableRefObject<naver.maps.Map | null>,
   routePoints: RoutePoint[],
+  startPoint: RoutePoint,
+  routeOverlays: RouteOverlay[],
 ) {
   if (routePoints.length === 0) return
 
-  const currentPosition = await getCurrentPositionPromise()
-  const startPoint = {
-    x: currentPosition.coords.longitude,
-    y: currentPosition.coords.latitude,
-    name: '현재 위치',
-  }
+  clearRouteOverlays(routeOverlays)
+  const map = mapRef.current ?? createRouteMap(mapRef, startPoint)
+  map.setCenter(createLatLng(startPoint.y, startPoint.x))
 
-  const map = createRouteMap(mapRef, startPoint)
-
-  drawMarker(map, startPoint, startPoint.name, 'current')
-  return await drawRouteByPoints(map, routePoints, startPoint)
+  routeOverlays.push(drawMarker(map, startPoint, startPoint.name, 'current'))
+  return await drawRouteByPoints(map, routePoints, startPoint, routeOverlays)
 }
