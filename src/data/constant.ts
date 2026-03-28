@@ -48,3 +48,19 @@ export const AVERAGE_WALKING_SPEED_METERS_PER_SECOND =
 // 거리를 분 단위 시간으로 환산할 때 사용하는 평균 도보 속도 (km/min)
 export const AVERAGE_WALKING_SPEED_KM_PER_MINUTE =
   AVERAGE_WALKING_SPEED_KM_PER_HOUR / 60
+
+// gps 이동을 위한 상수
+export const GEOLOCATION_WATCH_OPTIONS: PositionOptions = {
+  enableHighAccuracy: true,
+  maximumAge: 5000,
+  timeout: 10000,
+}
+
+// gps 이동을 위한 상수
+export const EARTH_RADIUS_METER = 6371000
+
+// gps 이동을 위한 상수
+export const MIN_DISTANCE_METER = 5
+
+// gps 이동을 위한 상수
+export const MIN_UPDATE_INTERVAL_MS = 4000
