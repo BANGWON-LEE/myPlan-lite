@@ -6,8 +6,8 @@ import { throttle } from '@/util/common/throttle'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef } from 'react'
 
-const UPDATE_THROTTLE_MS = 5000
-const MIN_POSITION_UPDATE_DISTANCE_METERS = 20
+const UPDATE_THROTTLE_MS = 4000
+const MIN_POSITION_UPDATE_DISTANCE_METERS = 10
 
 function getDistanceMeters(
   prev: GeolocationPosition,
