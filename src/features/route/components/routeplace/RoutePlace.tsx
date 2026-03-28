@@ -81,7 +81,6 @@ export default function RoutePlace({
     shoppingIdx,
     karaokeIdx,
     touristSpotIdx,
-    initialIdx,
   } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
   const setRoutePath = useRoutePathStore(state => state.setPath)
 
@@ -188,9 +187,8 @@ export default function RoutePlace({
       setRouteList(listArr)
     }
 
-    initialIdx()
     getData()
-  }, [currentPosition, data, initialIdx, queryPurposes])
+  }, [currentPosition, data, queryPurposes])
 
   useEffect(() => {
     if (!currentPosition) return

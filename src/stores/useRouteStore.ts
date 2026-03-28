@@ -5,6 +5,7 @@ import {
   RoutePathState,
 } from '@/types/storeType'
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 //장소 전체를 인덱스 증가
 // export const useRoutePlaceIdxStore = create<RouteIdxState>(set => ({
@@ -13,29 +14,34 @@ import { create } from 'zustand'
 //   initialIdx: () => set((state: { idx: number }) => ({ idx: (state.idx = 0) })),
 // }))
 
-export const useRoutePlaceIdxStore = create<RouteCategoryIdxState>(set => ({
-  mealIdx: 0,
-  coffeeIdx: 0,
-  pharmacyIdx: 0,
-  shoppingIdx: 0,
-  karaokeIdx: 0,
-  touristSpotIdx: 0,
-  setMealIdx: value => set({ mealIdx: value }),
-  setCoffeeIdx: value => set({ coffeeIdx: value }),
-  setPharmacyIdx: value => set({ pharmacyIdx: value }),
-  setShoppingIdx: value => set({ shoppingIdx: value }),
-  setKaraokeIdx: value => set({ karaokeIdx: value }),
-  setTouristSpotIdx: value => set({ touristSpotIdx: value }),
-  initialIdx: () =>
-    set({
+export const useRoutePlaceIdxStore = create<RouteCategoryIdxState>()(
+  persist(
+    set => ({
       mealIdx: 0,
       coffeeIdx: 0,
       pharmacyIdx: 0,
       shoppingIdx: 0,
       karaokeIdx: 0,
       touristSpotIdx: 0,
+      setMealIdx: value => set({ mealIdx: value }),
+      setCoffeeIdx: value => set({ coffeeIdx: value }),
+      setPharmacyIdx: value => set({ pharmacyIdx: value }),
+      setShoppingIdx: value => set({ shoppingIdx: value }),
+      setKaraokeIdx: value => set({ karaokeIdx: value }),
+      setTouristSpotIdx: value => set({ touristSpotIdx: value }),
+      initialIdx: () =>
+        set({
+          mealIdx: 0,
+          coffeeIdx: 0,
+          pharmacyIdx: 0,
+          shoppingIdx: 0,
+          karaokeIdx: 0,
+          touristSpotIdx: 0,
+        }),
     }),
-}))
+    { name: 'route-place-idx-store' },
+  ),
+)
 
 export const usePositionStore = create<PositionState>(set => ({
   position: null,
