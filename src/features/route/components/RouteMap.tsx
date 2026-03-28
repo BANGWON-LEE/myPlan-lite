@@ -7,6 +7,31 @@ import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef } from 'react'
 
 const UPDATE_THROTTLE_MS = 3000
+const MIN_POSITION_UPDATE_DISTANCE_METERS = 20
+
+function getDistanceMeters(
+  prev: GeolocationPosition,
+  next: GeolocationPosition,
+) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const earthRadiusMeters = 6371000
+  const lat1 = prev.coords.latitude
+  const lon1 = prev.coords.longitude
+  const lat2 = next.coords.latitude
+  const lon2 = next.coords.longitude
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return earthRadiusMeters * c
+}
 
 export default function RouteMap(props: MapScriptProps) {
   const { position } = props
@@ -46,6 +71,11 @@ export default function RouteMap(props: MapScriptProps) {
         const prevPosition = lastAcceptedPositionRef.current
         if (!prevPosition) {
           commitPosition(nextPosition)
+          return
+        }
+
+        const distanceMeters = getDistanceMeters(prevPosition, nextPosition)
+        if (distanceMeters < MIN_POSITION_UPDATE_DISTANCE_METERS) {
           return
         }
 

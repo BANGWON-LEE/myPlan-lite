@@ -10,9 +10,35 @@ import {
 import Script from 'next/script'
 import { useEffect, useRef } from 'react'
 
+const MIN_MAP_PAN_DISTANCE_METERS = 20
+
+function getDistanceMeters(
+  prev: { latitude: number; longitude: number },
+  next: { latitude: number; longitude: number },
+) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const earthRadiusMeters = 6371000
+  const dLat = toRad(next.latitude - prev.latitude)
+  const dLon = toRad(next.longitude - prev.longitude)
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(prev.latitude)) *
+      Math.cos(toRad(next.latitude)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return earthRadiusMeters * c
+}
+
 export default function MapScript() {
   const position = usePositionStore(state => state.position)
   const isMapInitializedRef = useRef(false)
+  const lastPannedCoordsRef = useRef<{
+    latitude: number
+    longitude: number
+  } | null>(null)
 
   function handleMapLoad() {
     if (isMapInitializedRef.current) return
@@ -63,7 +89,20 @@ export default function MapScript() {
     const map = getRouteMapInstance()
     if (!map) return
 
+    const nextCoords = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    }
+    const prevCoords = lastPannedCoordsRef.current
+    if (prevCoords) {
+      const distanceMeters = getDistanceMeters(prevCoords, nextCoords)
+      if (distanceMeters < MIN_MAP_PAN_DISTANCE_METERS) {
+        return
+      }
+    }
+
     map.panTo(createLatLng(position.coords.latitude, position.coords.longitude))
+    lastPannedCoordsRef.current = nextCoords
   }, [position])
 
   return (
