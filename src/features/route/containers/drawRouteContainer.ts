@@ -5,6 +5,7 @@ import { MarkerVariant } from '@/types/marker'
 import { TmapPoiItem } from '@/types/placeType'
 import { RoutePoint, tmapWalkingRouteResponseType } from '@/types/routeType'
 import {
+  createLatLng,
   getCurrentPositionPromise,
   ROUTE_MAP_ZOOM,
 } from '@/util/map/mapFunctions'
@@ -46,7 +47,7 @@ function drawPolyline(
   path: [number, number][],
   color: string,
 ) {
-  const polylinePath = path.map(([x, y]) => new naver.maps.LatLng(y, x))
+  const polylinePath = path.map(([x, y]) => createLatLng(y, x))
 
   return new naver.maps.Polyline({
     path: polylinePath,
@@ -70,7 +71,7 @@ function drawMarker(
       : '#2563eb'
 
   return new naver.maps.Marker({
-    position: new naver.maps.LatLng(point.y, point.x),
+    position: createLatLng(point.y, point.x),
     map,
     title,
     icon: {
@@ -88,7 +89,7 @@ function createRouteMap(
   startPoint: RoutePoint,
 ) {
   const map = new naver.maps.Map('map', {
-    center: new naver.maps.LatLng(startPoint.y, startPoint.x),
+    center: createLatLng(startPoint.y, startPoint.x),
     zoom: ROUTE_MAP_ZOOM,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   })
