@@ -179,34 +179,45 @@ export default function RoutePlace({
   }, [])
 
   useEffect(() => {
+    // 브라우저 환경에서만 지도 관련 로직을 실행한다.
     if (typeof window === 'undefined') return
+    // 지도가 아직 준비되지 않았다면 경로를 그릴 수 없다.
     if (!isMapReady) return
+    // 현재 위치가 없으면 경로 계산의 기준점이 없으므로 중단한다.
     if (!position) return
+    // 선택된 장소가 없으면 그릴 경로도 없다.
     if (selectedRoutePoints.length === 0) return
 
+    // effect가 정리(cleanup)된 뒤에는 비동기 결과를 무시하기 위한 플래그다.
     let cancelled = false
 
     const drawRoute = async () => {
+      // 경로 계산이 진행되는 동안 관련 UI를 비활성화 처리한다.
       toggleDisabled(true)
 
       try {
+        // 선택된 장소 순서대로 실제 지도 경로를 계산한다.
         const path = await drawOrderedRouteByPlacesMain(
           mapRef,
           selectedRoutePoints,
         )
+        // effect가 아직 유효하고 경로가 있으면 상태에 반영한다.
         if (!cancelled && path) {
           setRoutePath(path)
         }
       } finally {
+        // cleanup 이후가 아니라면 비활성화 상태를 원복한다.
         if (!cancelled) {
           toggleDisabled(false)
         }
       }
     }
 
+    // 비동기 경로 계산을 시작한다.
     drawRoute()
 
     return () => {
+      // 의존성이 바뀌거나 언마운트되면 이후 비동기 결과를 무시한다.
       cancelled = true
     }
   }, [isMapReady, position, selectedRoutePoints, setRoutePath])
