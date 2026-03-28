@@ -84,7 +84,10 @@ export default function RoutePlace({
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [shouldShowFindingSpinner, setShouldShowFindingSpinner] = useState(true)
   const [isMapReady, setIsMapReady] = useState(false)
+  const hasDrawnInitialRouteRef = useRef(false)
+  const showSpinnerOnNextDrawRef = useRef(false)
   const purposesArr = useMemo(
     () => formatStringToArray(queryPurposes).filter(Boolean),
     [queryPurposes],
@@ -138,6 +141,10 @@ export default function RoutePlace({
 
   function toggleDisabled(state: boolean) {
     setIsLoading(state)
+  }
+
+  function handleSearchOtherPlace() {
+    showSpinnerOnNextDrawRef.current = true
   }
 
   useEffect(() => {
@@ -216,6 +223,13 @@ export default function RoutePlace({
     let cancelled = false
 
     const drawRoute = async () => {
+      const shouldShowSpinner =
+        !hasDrawnInitialRouteRef.current || showSpinnerOnNextDrawRef.current
+
+      if (shouldShowSpinner) {
+        setShouldShowFindingSpinner(true)
+      }
+
       // 경로 계산이 진행되는 동안 관련 UI를 비활성화 처리한다.
       toggleDisabled(true)
 
@@ -235,6 +249,11 @@ export default function RoutePlace({
         // cleanup 이후가 아니라면 비활성화 상태를 원복한다.
         if (!cancelled) {
           toggleDisabled(false)
+          hasDrawnInitialRouteRef.current = true
+          if (shouldShowSpinner) {
+            setShouldShowFindingSpinner(false)
+            showSpinnerOnNextDrawRef.current = false
+          }
         }
       }
     }
@@ -253,7 +272,7 @@ export default function RoutePlace({
   return (
     <React.Fragment>
       {/* <div> */}
-      <LoadingSpin isLoading={isLoading} />
+      <LoadingSpin isLoading={isLoading && shouldShowFindingSpinner} />
       {routeArr.length > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
           {routeArr.map((place, index) => (
@@ -274,6 +293,7 @@ export default function RoutePlace({
                     placeList={place.placeList}
                     currentIdx={place.currentIdx}
                     isDisabled={isLoading}
+                    onSearchOtherPlace={handleSearchOtherPlace}
                   />
                 </div>
               </section>

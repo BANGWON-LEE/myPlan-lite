@@ -7,8 +7,9 @@ export default function RoutePlaceBottom(props: {
   placeList: placeType[]
   currentIdx: number
   isDisabled: boolean
+  onSearchOtherPlace: () => void
 }) {
-  const { currentIdx, isDisabled, place, placeList } = props
+  const { currentIdx, isDisabled, onSearchOtherPlace, place, placeList } = props
   const [searchErrorMessage, setSearchErrorMessage] = useState('')
   const hasNoMorePlaces =
     placeList.length === 0 || currentIdx + 1 >= placeList.length
@@ -54,6 +55,7 @@ export default function RoutePlaceBottom(props: {
     }
 
     setSearchErrorMessage('')
+    onSearchOtherPlace()
     setRoutePlaceIdx(place.key, currentIdx + 1)
   }
 
