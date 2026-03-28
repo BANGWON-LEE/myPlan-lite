@@ -32,7 +32,7 @@ import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
 // import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
-const ROUTE_SIGNATURE_COORD_PRECISION = 3
+const ROUTE_SIGNATURE_COORD_PRECISION = 5
 
 function toRouteSignatureCoord(value: number) {
   return value.toFixed(ROUTE_SIGNATURE_COORD_PRECISION)

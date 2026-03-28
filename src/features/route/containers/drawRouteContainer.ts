@@ -18,7 +18,7 @@ type WalkingCacheEntry = {
 }
 
 const WALKING_CACHE_TTL_MS = 1000 * 60 * 15
-const ROUTE_COORD_PRECISION = 3
+const ROUTE_COORD_PRECISION = 5
 const WALKING_CACHE_MAX_SIZE = 500
 const walkingPathCache = new Map<string, WalkingCacheEntry>()
 const walkingPathInFlight = new Map<string, Promise<tmapWalkingRouteResponseType>>()

@@ -1,5 +1,5 @@
-export const DEFAULT_MAP_ZOOM = 15
-export const ROUTE_MAP_ZOOM = 16
+export const DEFAULT_MAP_ZOOM = 18
+export const ROUTE_MAP_ZOOM = 17
 export const MARKER_MAP_ZOOM = 17
 
 let routeMapInstance: naver.maps.Map | null = null
