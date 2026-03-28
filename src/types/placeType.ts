@@ -1,4 +1,5 @@
 import { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { GpsCoordinate } from '@/types/locationType'
 
 export type placeType = {
   name: string
@@ -57,10 +58,7 @@ export type RoutePlaceType = {
 }
 
 export type PositionType = {
-  coords: {
-    latitude: number
-    longitude: number
-  }
+  coords: GpsCoordinate
 }
 
 // export interface GeolocationPositionType {

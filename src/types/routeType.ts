@@ -1,4 +1,5 @@
 import { TmapPoiResponse } from '@/types/placeType'
+import { GpsCoordinate } from '@/types/locationType'
 
 export interface tmapResponseWalk {
   geometry: {
@@ -100,9 +101,6 @@ export type goalInfoType = {
 }
 
 export type StoredPosition = {
-  coords: {
-    latitude: number
-    longitude: number
-  }
+  coords: GpsCoordinate
   timestamp: number
 }
