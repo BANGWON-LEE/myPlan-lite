@@ -7,7 +7,7 @@ import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef } from 'react'
 
 const UPDATE_THROTTLE_MS = 4000
-const MIN_POSITION_UPDATE_DISTANCE_METERS = 10
+const MIN_POSITION_UPDATE_DISTANCE_METERS = 4
 
 function getDistanceMeters(
   prev: GeolocationPosition,

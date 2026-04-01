@@ -50,13 +50,6 @@ export const AVERAGE_WALKING_SPEED_KM_PER_MINUTE =
   AVERAGE_WALKING_SPEED_KM_PER_HOUR / 60
 
 // gps 이동을 위한 상수
-export const GEOLOCATION_WATCH_OPTIONS: PositionOptions = {
-  enableHighAccuracy: true,
-  maximumAge: 5000,
-  timeout: 0,
-}
-
-// gps 이동을 위한 상수
 export const EARTH_RADIUS_METER = 6371000
 
 // gps 이동을 위한 상수
