@@ -1,61 +1,29 @@
-import { CSSProperties } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { RouteMarkerProps } from '@/types/marker'
 
-const currentWrapperStyle: CSSProperties = {
-  position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '24px',
-  height: '24px',
-}
-
-const currentHaloStyle: CSSProperties = {
-  position: 'absolute',
-  width: '24px',
-  height: '24px',
-  borderRadius: '9999px',
-  background: 'rgba(37,99,235,0.2)',
-}
-
-const currentDotStyle: CSSProperties = {
-  width: '14px',
-  height: '14px',
-  borderRadius: '9999px',
-  background: '#2563eb',
-  border: '3px solid #ffffff',
-  boxShadow: '0 2px 8px rgba(37,99,235,0.35)',
-}
-
-function getOrderedMarkerStyle(color?: string): CSSProperties {
-  return {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '30px',
-    height: '30px',
-    borderRadius: '9999px',
-    background: color ?? '#1d4ed8',
-    color: '#ffffff',
-    fontSize: '14px',
-    fontWeight: 700,
-    border: '2px solid #ffffff',
-    boxShadow: '0 4px 12px rgba(15,23,42,0.25)',
-  }
-}
-
 export function RouteMarker({ variant, index, color }: RouteMarkerProps) {
   if (variant === 'current') {
+    const currentWrapperStyle =
+      'relative flex items-center justify-center w-6 h-6'
+
+    const currrentDotStyle = `absolute w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-md`
+
+    const currentHaloStyle =
+      'absolute w-6 h-6 rounded-full bg-blue-200 opacity-50 animate-ping'
+
     return (
-      <div style={currentWrapperStyle}>
-        <span style={currentHaloStyle} />
-        <span style={currentDotStyle} />
+      <div className={currentWrapperStyle}>
+        <span className={currentHaloStyle} />
+        <span className={currrentDotStyle} />
       </div>
     )
   }
 
-  return <div style={getOrderedMarkerStyle(color)}>{index ?? ''}</div>
+  console.log('color', color)
+
+  const orderedMarkerStyle = `flex items-center justify-center w-8 h-8 rounded-full ${color}  text-white text-sm font-bold border-2 border-white shadow-md`
+
+  return <div className={orderedMarkerStyle}>{index ?? ''}</div>
 }
 
 export function renderRouteMarker(props: RouteMarkerProps) {
