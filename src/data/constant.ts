@@ -20,6 +20,15 @@ export const PURPOSE_TO_CATEGORY_KEY: Record<string, RouteCategoryKey> = {
   관광지: 'touristSpot',
 }
 
+export const ORDERED_MARKER_COLORS = [
+  'bg-green-500',
+  'bg-teal-500',
+  'bg-cyan-500',
+  'bg-blue-500',
+  'bg-blue-600',
+  'bg-blue-700',
+] as const
+
 export const ORDERED_ROUTE_COLORS = [
   '#22c55e',
   '#14b8a6',
