@@ -1,5 +1,9 @@
 import React from 'react'
-import { ORDERED_ROUTE_COLORS, PURPOSE_TO_CATEGORY_KEY } from '@/data/constant'
+import {
+  ORDERED_MARKER_COLORS,
+  ORDERED_ROUTE_COLORS,
+  PURPOSE_TO_CATEGORY_KEY,
+} from '@/data/constant'
 import { renderRouteMarker } from '@/features/route/components/RouteMarker'
 import { MarkerVariant } from '@/types/marker'
 import { TmapPoiItem } from '@/types/placeType'
@@ -11,6 +15,15 @@ import {
 
 function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
+  //at(-1)은 배열의 마지막 요소를 반환하는 방법, 기존에 [arr.length-1]로 했던 것을 더 간결하게 표현
+}
+
+function getOrderedMarkerColor(index: number) {
+  return (
+    ORDERED_MARKER_COLORS[index] ??
+    ORDERED_MARKER_COLORS.at(-1) ??
+    'bg-blue-500'
+  )
   //at(-1)은 배열의 마지막 요소를 반환하는 방법, 기존에 [arr.length-1]로 했던 것을 더 간결하게 표현
 }
 
@@ -66,7 +79,7 @@ function drawMarker(
 ) {
   const markerColor =
     variant === 'ordered' && typeof order === 'number'
-      ? getOrderedRouteColor(order - 1)
+      ? getOrderedMarkerColor(order - 1)
       : '#2563eb'
 
   return new naver.maps.Marker({
