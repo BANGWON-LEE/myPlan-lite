@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { POSITION_STORAGE_KEY } from '@/data/constant'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
+import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 
-type LocationPermissionState =
-  | 'checking'
-  | 'granted'
-  | 'error'
+type LocationPermissionState = 'checking' | 'granted' | 'error'
 
 export default function RoutePermissionGate({
   children,
@@ -25,19 +23,6 @@ export default function RoutePermissionGate({
     value !== null &&
     'code' in value &&
     typeof value.code === 'number'
-
-  const getPosition = (): Promise<GeolocationPosition> =>
-    new Promise((resolve, reject) => {
-      if (typeof window === 'undefined' || !navigator.geolocation) {
-        reject(new Error('Geolocation is not supported'))
-        return
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        position => resolve(position),
-        error => reject(error),
-      )
-    })
 
   const getStoredPosition = (): GeolocationPosition | null => {
     if (typeof window === 'undefined') return null
@@ -86,7 +71,7 @@ export default function RoutePermissionGate({
     isLoading,
   } = useQuery<GeolocationPosition, Error | GeolocationPositionError>({
     queryKey: POSITION_QUERY_KEY,
-    queryFn: async () => await getPosition(),
+    queryFn: async () => await getCurrentPositionPromise(),
     staleTime: 1000 * 60 * 5,
     retry: false,
   })
