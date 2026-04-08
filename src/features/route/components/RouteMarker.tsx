@@ -19,8 +19,6 @@ export function RouteMarker({ variant, index, color }: RouteMarkerProps) {
     )
   }
 
-  console.log('color', color)
-
   const orderedMarkerStyle = `flex items-center justify-center w-8 h-8 rounded-full ${color}  text-white text-sm font-bold border-2 border-white shadow-md`
 
   return <div className={orderedMarkerStyle}>{index ?? ''}</div>
