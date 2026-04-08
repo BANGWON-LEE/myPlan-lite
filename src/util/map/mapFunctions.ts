@@ -1,5 +1,4 @@
 import { simplePosition } from '@/types/marker'
-import { checkEmptyString } from '../common/common'
 import { PositionType } from '@/types/placeType'
 
 export const DEFAULT_MAP_ZOOM = 15
@@ -55,11 +54,6 @@ export const getRouteMapOptions = (position: simplePosition) => {
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   }
 }
-
-export const infowindow = () =>
-  new naver.maps.InfoWindow({
-    content: '<div style="padding:10px;">i am here</div>',
-  })
 
 export const onLoadInitialRouteMap = () =>
   new naver.maps.Map(
@@ -135,6 +129,11 @@ export const goalMarker = (
 
 export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject)
+    if (typeof window === 'undefined' || !navigator.geolocation)
+      reject(new Error('Geolocation is not supported'))
+    navigator.geolocation.getCurrentPosition(
+      position => resolve(position),
+      error => reject(error),
+    )
   })
 }

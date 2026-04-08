@@ -27,7 +27,6 @@ import { getMyRouteList } from '../../containers/RouteMainContainer'
 import LoadingSpin from '../LoadingSpin'
 import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
-// import LoadingScreen from '@/features/loading/components/LoadingScreen'
 
 export default function RoutePlace({
   position,
@@ -136,11 +135,16 @@ export default function RoutePlace({
     if (!position) return
     if (data === undefined) return
 
-    const getData = () => {
+    const getData = (data: RouteApiDataType[]) => {
+      // 쿼리 파라미터로 전달된 목적(purposes)을 배열로 변환
       const purposesArr = formatStringToArray(queryPurposes)
+      // API 응답에서 장소 데이터만 추출
       const filterApiArr = filterApiData(data)
 
+      // 카테고리 키에 맞게 데이터를 각 객체 형태로 매핑하여 상태 업데이트
+      // 요청한 카테고리의 값만 응답으로 옴
       const formatApiData = formatResult(purposesArr, filterApiArr)
+
       const listArr = {
         meal: [],
         coffee: [],
@@ -149,13 +153,15 @@ export default function RoutePlace({
         karaoke: [],
         touristSpot: [],
       }
+
+      //listArr 객체에 키에 맞게 formatApiData의 데이터가 들어가도록 처리하는 함수
       addValueByCategory(listArr, formatApiData)
 
       setRouteList(listArr)
     }
 
     initialIdx()
-    getData()
+    getData(data)
   }, [data, initialIdx, position, queryPurposes])
 
   useEffect(() => {

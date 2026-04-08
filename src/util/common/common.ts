@@ -49,16 +49,16 @@ export function filterPlaceList(places: TmapPoiItem[]) {
   })
 }
 
-// 장소 데이터 중, 불필요한 데이터를 필터링 처리하는 함
+// 장소 데이터 중, 불필요한 데이터를 필터링 처리하는 함수
 export function filterApiData(
   data: RouteApiDataType[] | undefined,
 ): TmapPoiItem[][] {
-  // alert('qqqq222' + data)
   if (data === undefined) return []
   const placeNameArr = data.map(el => {
     return el.data.searchPoiInfo.pois.poi
   })
 
+  // 주차장 및 정문, 후문이 포함된 장소는 필터링 처리
   const result = placeNameArr.map(filterPlaceList)
 
   return result
