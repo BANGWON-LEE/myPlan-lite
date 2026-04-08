@@ -55,11 +55,6 @@ export const getRouteMapOptions = (position: simplePosition) => {
   }
 }
 
-export const infowindow = () =>
-  new naver.maps.InfoWindow({
-    content: '<div style="padding:10px;">i am here</div>',
-  })
-
 export const onLoadInitialRouteMap = () =>
   new naver.maps.Map(
     'map',
