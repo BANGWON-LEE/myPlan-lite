@@ -28,7 +28,6 @@ import { getMyRouteList } from '../../containers/RouteMainContainer'
 import LoadingSpin from '../LoadingSpin'
 import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
-import { moveMyMarkerPosition } from '@/util/map/mapFunctions'
 
 export default function RoutePlace({
   position,
@@ -58,7 +57,6 @@ export default function RoutePlace({
     touristSpotIdx,
     initialIdx,
   } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
-  const routePath = useRoutePathStore(state => state.path)
   const setRoutePath = useRoutePathStore(state => state.setPath)
   const isMapReady = useMapReadyStore(state => state.isMapReady)
   const setIsMapReady = useMapReadyStore(state => state.setIsMapReady)
