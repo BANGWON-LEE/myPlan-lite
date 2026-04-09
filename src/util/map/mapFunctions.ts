@@ -1,3 +1,7 @@
+import {
+  createRouteMap,
+  getDrawMyMarker,
+} from '@/features/route/containers/drawRouteContainer'
 import { simplePosition } from '@/types/marker'
 import { PositionType } from '@/types/placeType'
 
@@ -90,43 +94,6 @@ export const myMarker = (
   })
 }
 
-export const startMarker = (
-  map: naver.maps.Map,
-  startPosition: { x: number; y: number },
-) => {
-  const position = new naver.maps.LatLng(startPosition.y, startPosition.x)
-
-  return new naver.maps.Marker({
-    position: position,
-    icon: {
-      url: '../../assets/start.png',
-      size: new naver.maps.Size(128, 128),
-      origin: new naver.maps.Point(0, 0),
-      scaledSize: new naver.maps.Size(32, 32),
-      anchor: new naver.maps.Point(16, 32),
-    },
-    map: map,
-  })
-}
-export const goalMarker = (
-  map: naver.maps.Map,
-  goalPosition: { x: number; y: number },
-) => {
-  const position = new naver.maps.LatLng(goalPosition.y, goalPosition.x)
-
-  return new naver.maps.Marker({
-    position: position,
-    icon: {
-      url: '/assets/goal.png', // ✅ 여기 절대 경로
-      size: new naver.maps.Size(128, 128),
-      origin: new naver.maps.Point(0, 0),
-      scaledSize: new naver.maps.Size(32, 32),
-      anchor: new naver.maps.Point(16, 32),
-    },
-    map: map,
-  })
-}
-
 export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined' || !navigator.geolocation)
@@ -136,4 +103,36 @@ export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
       error => reject(error),
     )
   })
+}
+
+export function getMovePositionPromise(): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined' || !navigator.geolocation)
+      reject(new Error('Geolocation is not supported'))
+    navigator.geolocation.watchPosition(
+      position => resolve(position),
+      error => reject(error),
+      {
+        enableHighAccuracy: true, // GPS 정확도 (true = GPS 사용)
+        maximumAge: 8000, // 캐시된 위치 사용 안함
+        timeout: 500, // 5초 안에 못 받으면 에러
+      },
+    )
+  })
+}
+
+export async function moveMyMarkerPosition(
+  mapRef: React.MutableRefObject<naver.maps.Map | null>,
+  routePoints: GeolocationPosition,
+) {
+  const startPoint = {
+    x: routePoints.coords.longitude,
+    y: routePoints.coords.latitude,
+    name: '현재 위치',
+  }
+
+  const map = createRouteMap(mapRef, startPoint)
+
+  getDrawMyMarker(map, startPoint, startPoint.name)
+  // return await drawRouteByPoints(map, routePoints, startPoint)
 }
