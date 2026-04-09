@@ -32,3 +32,8 @@ export type RoutePathState = {
   path: tmapWalkingRouteResponseType | null
   setPath: (path: tmapWalkingRouteResponseType) => void
 }
+
+export type MapReadyState = {
+  isMapReady: boolean
+  setIsMapReady: (isMapReady: boolean) => void
+}
