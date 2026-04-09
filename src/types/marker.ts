@@ -1,7 +1,6 @@
 export type MarkerVariant = 'current' | 'ordered'
 
 export type RouteMarkerProps = {
-  variant: MarkerVariant
   index?: number
   color?: string
 }
