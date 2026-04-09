@@ -1,14 +1,9 @@
 'use client'
 import MapScript from '@/components/MapScript'
-import {
-  useMapReadyStore,
-  usePositionStore,
-  useRoutePathStore,
-} from '@/stores/useRouteStore'
+import { usePositionStore } from '@/stores/useRouteStore'
 import { MapScriptProps } from '@/types/placeType'
-import { moveMyMarkerPosition } from '@/util/map/mapFunctions'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 
 export default function RouteMap(props: MapScriptProps) {
   const { position } = props

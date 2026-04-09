@@ -1,5 +1,6 @@
 import { PositionState } from '@/types/placeType'
 import {
+  MapReadyState,
   markerState,
   RouteCategoryIdxState,
   RoutePathState,
@@ -52,4 +53,9 @@ export const useLoadingMarkerStore = create<markerState>(set => ({
 export const useRoutePathStore = create<RoutePathState>(set => ({
   path: null,
   setPath: path => set({ path }),
+}))
+
+export const useMapReadyStore = create<MapReadyState>(set => ({
+  isMapReady: false,
+  setIsMapReady: isMapReady => set({ isMapReady }),
 }))
