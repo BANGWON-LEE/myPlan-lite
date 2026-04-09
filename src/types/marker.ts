@@ -1,3 +1,10 @@
+export type MarkerVariant = 'current' | 'ordered'
+
+export type RouteMarkerProps = {
+  index?: number
+  color?: string
+}
+
 export type simplePosition = {
   x: number | string
   y: number | string

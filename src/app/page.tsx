@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import PlanMain from '@/features/plan/components/PlanMain'
 import { Navigation } from 'lucide-react'
+import PwaInstallNotice from '@/components/PwaInstallNotice'
 
 export const metadata: Metadata = {
   title: '마이 플랜 | 목적에 맞는 최적 루트',
@@ -40,6 +41,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="max-w-md mx-auto">
+        <PwaInstallNotice />
         <header className="text-center mb-12 mt-8">
           <div className="inline-block p-3 bg-indigo-600 rounded-2xl mb-4 animate-bounce">
             <Navigation className="w-8 h-8 text-white" />

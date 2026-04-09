@@ -3,10 +3,10 @@ import React, { useState } from 'react'
 import {
   Coffee,
   Utensils,
-  TreePine,
-  Navigation,
   ShoppingBag,
   BriefcaseMedicalIcon,
+  Music4,
+  MapPinned,
 } from 'lucide-react'
 import { SectionTitle } from '@/share/components/Text'
 import { PurposeCard, TimeCard } from '@/share/components/Card'
@@ -44,6 +44,20 @@ export default function PlanMain() {
       label: '편의점',
       color: 'bg-blue-500',
     },
+    {
+      id: '노래방',
+      key: 'karaoke',
+      icon: Music4,
+      label: '노래방',
+      color: 'bg-fuchsia-500',
+    },
+    {
+      id: '관광지',
+      key: 'touristSpot',
+      icon: MapPinned,
+      label: '관광지',
+      color: 'bg-orange-500',
+    },
   ]
 
   // 선택된 목적과 시간 상태값
@@ -68,31 +82,35 @@ export default function PlanMain() {
 
   return (
     <React.Fragment>
-      {/* 헤더 */}
-
-      {/* 목적 선택 - PurposeCard 컴포넌트 사용 */}
       <div className="mb-8">
-        <SectionTitle className="mb-4">
-          어떤 시간을 보내고 싶으세요?
-        </SectionTitle>
+        <SectionTitle className="mb-4">어떤 장소를 찾고 싶으세요?</SectionTitle>
         <div className="grid grid-cols-2 gap-4">
-          {purposes.map(({ id, icon, label, color }) => (
-            <PurposeCard
-              key={id}
-              icon={icon}
-              label={label}
-              color={color}
-              isActive={selectedPurpose.includes(id)}
-              onClick={() => togglePurpose(id)}
-            />
-          ))}
+          {purposes.map(({ id, icon, label, color }) => {
+            const selectedIndex = selectedPurpose.indexOf(id)
+
+            return (
+              <div key={id} className="relative">
+                {selectedIndex !== -1 ? (
+                  <div className="pointer-events-none absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-bold text-gray-900 shadow-sm">
+                    {selectedIndex + 1}
+                  </div>
+                ) : null}
+                <PurposeCard
+                  icon={icon}
+                  label={label}
+                  color={color}
+                  isActive={selectedIndex !== -1}
+                  onClick={() => togglePurpose(id)}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* 시간 선택 - TimeCard 컴포넌트 사용 */}
       <div className="mb-8">
         <SectionTitle className="mb-4">
-          얼마나 시간을 보내실 건가요?
+          몇 분 거리까지의 장소를 원하시나요?
         </SectionTitle>
         <div className="flex gap-3">
           {timeOptionsArr.map(li => (
@@ -106,17 +124,13 @@ export default function PlanMain() {
         </div>
       </div>
 
-      {/* 시작 버튼 - PrimaryButtonText 컴포넌트 사용 */}
       <Link
         href={`/route?purposes=${selectedPurpose.join(
           ',',
         )}&time=${selectedTime}`}
       >
-        <PrimaryButtonText
-          disabled={selectedPurpose.length === 0}
-          //   onClick={() => console.log('Start')}
-        >
-          루트 추천받기
+        <PrimaryButtonText disabled={selectedPurpose.length === 0}>
+          장소 찾기
         </PrimaryButtonText>
       </Link>
     </React.Fragment>

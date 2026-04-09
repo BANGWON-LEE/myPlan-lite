@@ -1,3 +1,5 @@
+import { TmapPoiResponse } from '@/types/placeType'
+
 export interface tmapResponseWalk {
   geometry: {
     type: string
@@ -5,9 +7,8 @@ export interface tmapResponseWalk {
   }
 }
 
-export type tmapRoutePathType = {
-  path: [[number, number]]
-  summary: {
+export type tmapDistanceType = {
+  properties: {
     description: string
     index: number
     name: string
@@ -20,6 +21,31 @@ export type tmapRoutePathType = {
     totalTime: number
     turnType: number
   }
+}
+
+export type tmapRoutePathType = [number, number][]
+
+export type tmapWalkingRouteResponseType = {
+  path: tmapRoutePathType
+  summary: tmapDistanceType
+}
+
+export type RouteCategoryKey =
+  | 'meal'
+  | 'coffee'
+  | 'pharmacy'
+  | 'shopping'
+  | 'karaoke'
+  | 'touristSpot'
+
+export type RoutePoint = {
+  x: number
+  y: number
+  name: string
+}
+
+export type SearchLocResponse = {
+  searchPoiInfo: TmapPoiResponse
 }
 
 // export type startInfoType = {
@@ -71,4 +97,12 @@ export type goalInfoType = {
     roadAddress: string
     category: string
   }
+}
+
+export type StoredPosition = {
+  coords: {
+    latitude: number
+    longitude: number
+  }
+  timestamp: number
 }
