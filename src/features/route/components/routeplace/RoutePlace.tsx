@@ -5,6 +5,7 @@ import {
 } from '@/features/route/containers/drawRouteContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import {
+  useMapReadyStore,
   useRoutePathStore,
   useRoutePlaceIdxStore,
 } from '@/stores/useRouteStore'
@@ -27,6 +28,7 @@ import { getMyRouteList } from '../../containers/RouteMainContainer'
 import LoadingSpin from '../LoadingSpin'
 import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
+import { moveMyMarkerPosition } from '@/util/map/mapFunctions'
 
 export default function RoutePlace({
   position,
@@ -56,7 +58,10 @@ export default function RoutePlace({
     touristSpotIdx,
     initialIdx,
   } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+  const routePath = useRoutePathStore(state => state.path)
   const setRoutePath = useRoutePathStore(state => state.setPath)
+  const isMapReady = useMapReadyStore(state => state.isMapReady)
+  const setIsMapReady = useMapReadyStore(state => state.setIsMapReady)
 
   // 장소 데이터 가져와 캐싱처리하기
   const { data } = useQuery<RouteApiDataType[]>({
@@ -74,7 +79,6 @@ export default function RoutePlace({
   })
 
   const [isLoading, setIsLoading] = useState(false)
-  const [isMapReady, setIsMapReady] = useState(false)
   const purposesArr = useMemo(
     () => formatStringToArray(queryPurposes).filter(Boolean),
     [queryPurposes],
@@ -196,10 +200,12 @@ export default function RoutePlace({
       toggleDisabled(true)
 
       try {
+        console.log('selectedRoutePoints', selectedRoutePoints)
         const path = await drawOrderedRouteByPlacesMain(
           mapRef,
           selectedRoutePoints,
         )
+        console.log('selectedRoutePoints2', selectedRoutePoints)
         if (!cancelled && path) {
           setRoutePath(path)
         }
@@ -216,6 +222,67 @@ export default function RoutePlace({
       cancelled = true
     }
   }, [isMapReady, position, selectedRoutePoints, setRoutePath])
+
+  // useEffect(() => {
+  //   if (typeof window === 'undefined') return
+  //   if (!position) return
+  //   if (!navigator.geolocation) return
+  //   if (!isMapReady) return
+  //   // console.log('routePath', routePath)
+  //   if (!routePath) return // 경로가 아직 없으면 watch 시작 안 함
+  //   const watchId = navigator.geolocation.watchPosition(
+  //     pos => moveMyMarkerPosition(mapRef, pos),
+  //     err => {
+  //       // if (err)
+  //       //   setMovePositionError('위치 정보를 가져오는 중 오류가 발생했습니다.')
+  //     },
+  //     {
+  //       enableHighAccuracy: true,
+  //       maximumAge: 0,
+  //       timeout: 5000,
+  //     },
+  //   )
+
+  //   return () => {
+  //     navigator.geolocation.clearWatch(watchId)
+  //   }
+  // }, [])
+
+  // const watchIdRef = useRef<number | null>(null)
+
+  // useEffect(() => {
+  //   console.log('first', position, routePath, isMapReady)
+
+  //   if (typeof window === 'undefined') return
+  //   if (!navigator.geolocation) return
+  //   if (!position) return
+  //   if (!isMapReady) return
+  //   if (routePath === null || routePath === undefined) return
+
+  //   // 이미 watch 중이면 다시 생성 안 함
+  //   if (watchIdRef.current !== null) return
+
+  //   watchIdRef.current = navigator.geolocation.watchPosition(
+  //     // pos => moveMyMarkerPosition(mapRef, pos),
+  //     pos => {
+  //       console.log('position changed', pos)
+  //       // moveMyMarkerPosition(mapRef, pos)
+  //     },
+  //     err => {},
+  //     {
+  //       enableHighAccuracy: true,
+  //       maximumAge: 0,
+  //       timeout: 1000,
+  //     },
+  //   )
+
+  //   return () => {
+  //     if (watchIdRef.current !== null) {
+  //       navigator.geolocation.clearWatch(watchIdRef.current)
+  //       watchIdRef.current = null
+  //     }
+  //   }
+  // }, [routePath])
 
   return (
     <React.Fragment>
