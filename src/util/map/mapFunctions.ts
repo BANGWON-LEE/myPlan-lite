@@ -106,7 +106,7 @@ export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
 }
 
 export async function moveMyMarkerPosition(
-  mapRef: React.MutableRefObject<naver.maps.Map | null>,
+  map: naver.maps.Map,
   routePoints: GeolocationPosition,
 ) {
   const startPoint = {
@@ -114,8 +114,6 @@ export async function moveMyMarkerPosition(
     y: routePoints.coords.latitude,
     name: '현재 위치',
   }
-
-  const map = createRouteMap(mapRef, startPoint)
 
   getDrawMyMarker(map, startPoint, startPoint.name)
   // return await drawRouteByPoints(map, routePoints, startPoint)
