@@ -183,7 +183,7 @@ export async function drawOrderedRouteByPlacesMain(
 ) {
   if (routePoints.length === 0) return
 
-  const currentPosition = await getMovePositionPromise()
+  const currentPosition = await getCurrentPositionPromise()
   const startPoint = {
     x: currentPosition.coords.longitude,
     y: currentPosition.coords.latitude,
