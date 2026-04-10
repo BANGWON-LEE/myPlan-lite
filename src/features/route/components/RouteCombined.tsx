@@ -1,7 +1,7 @@
 'use client'
 
 import RoutePlace from './routeplace/RoutePlace'
-import React, { Suspense, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import RoutePermissionGate from './RoutePermissionGate'
 import { TmapPoiItem } from '@/types/placeType'
@@ -16,7 +16,9 @@ const RouteMap = dynamic(() => import('./RouteMap'), {
 })
 
 export default function RouteCombined() {
-  const [routeList, setRouteList] = useState<Record<RouteCategoryKey, TmapPoiItem[]>>({
+  const [routeList, setRouteList] = useState<
+    Record<RouteCategoryKey, TmapPoiItem[]>
+  >({
     meal: [],
     coffee: [],
     pharmacy: [],
@@ -65,15 +67,13 @@ export default function RouteCombined() {
             position={position}
             selectedRoutePoints={selectedRoutePoints}
           />
-          <Suspense fallback={<div></div>}>
-            <RoutePlace
-              position={position}
-              routeList={routeList}
-              setRouteList={setRouteList}
-              routePlaceIndexes={routePlaceIndexes}
-              selectedRoutePoints={selectedRoutePoints}
-            />
-          </Suspense>
+          <RoutePlace
+            position={position}
+            routeList={routeList}
+            setRouteList={setRouteList}
+            routePlaceIndexes={routePlaceIndexes}
+            selectedRoutePoints={selectedRoutePoints}
+          />
         </div>
       )}
     </RoutePermissionGate>
