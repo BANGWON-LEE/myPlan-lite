@@ -105,22 +105,6 @@ export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
   })
 }
 
-export function getMovePositionPromise(): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    if (typeof window === 'undefined' || !navigator.geolocation)
-      reject(new Error('Geolocation is not supported'))
-    navigator.geolocation.watchPosition(
-      position => resolve(position),
-      error => reject(error),
-      {
-        enableHighAccuracy: true, // GPS 정확도 (true = GPS 사용)
-        maximumAge: 8000, // 캐시된 위치 사용 안함
-        timeout: 500, // 5초 안에 못 받으면 에러
-      },
-    )
-  })
-}
-
 export async function moveMyMarkerPosition(
   mapRef: React.MutableRefObject<naver.maps.Map | null>,
   routePoints: GeolocationPosition,
