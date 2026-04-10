@@ -1,9 +1,11 @@
 import { PositionState } from '@/types/placeType'
 import {
+  MapState,
   MapReadyState,
   markerState,
   RouteCategoryIdxState,
   RoutePathState,
+  StartPointState,
 } from '@/types/storeType'
 import { create } from 'zustand'
 
@@ -55,7 +57,17 @@ export const useRoutePathStore = create<RoutePathState>(set => ({
   setPath: path => set({ path }),
 }))
 
+export const useStartPointStore = create<StartPointState>(set => ({
+  startPoint: null,
+  setStartPoint: startPoint => set({ startPoint }),
+}))
+
 export const useMapReadyStore = create<MapReadyState>(set => ({
   isMapReady: false,
   setIsMapReady: isMapReady => set({ isMapReady }),
+}))
+
+export const useMapStore = create<MapState>(set => ({
+  map: null,
+  setMap: map => set({ map }),
 }))
