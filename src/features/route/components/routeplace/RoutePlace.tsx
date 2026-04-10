@@ -9,7 +9,12 @@ import {
   useRoutePathStore,
   useRoutePlaceIdxStore,
 } from '@/stores/useRouteStore'
-import { placeType, RouteApiDataType, TmapPoiItem } from '@/types/placeType'
+import {
+  MapScriptProps,
+  placeType,
+  RouteApiDataType,
+  TmapPoiItem,
+} from '@/types/placeType'
 import {
   addValueByCategory,
   filterApiData,
@@ -22,22 +27,17 @@ import { RouteCategoryKey } from '@/types/routeType'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDown } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { getMyRouteList } from '../../containers/RouteMainContainer'
 
 import LoadingSpin from '../LoadingSpin'
 import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
 
-export default function RoutePlace({
-  position,
-}: {
-  position: GeolocationPosition
-}) {
+export default function RoutePlace({ position, mapRef }: MapScriptProps) {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
   const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
-  const mapRef = useRef<naver.maps.Map | null>(null)
 
   const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
     meal: [],
@@ -184,7 +184,7 @@ export default function RoutePlace({
     return () => {
       window.clearInterval(timer)
     }
-  }, [])
+  }, [setIsMapReady])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -198,12 +198,10 @@ export default function RoutePlace({
       toggleDisabled(true)
 
       try {
-        console.log('selectedRoutePoints', selectedRoutePoints)
         const path = await drawOrderedRouteByPlacesMain(
           mapRef,
           selectedRoutePoints,
         )
-        console.log('selectedRoutePoints2', selectedRoutePoints)
         if (!cancelled && path) {
           setRoutePath(path)
         }
@@ -219,68 +217,7 @@ export default function RoutePlace({
     return () => {
       cancelled = true
     }
-  }, [isMapReady, position, selectedRoutePoints, setRoutePath])
-
-  // useEffect(() => {
-  //   if (typeof window === 'undefined') return
-  //   if (!position) return
-  //   if (!navigator.geolocation) return
-  //   if (!isMapReady) return
-  //   // console.log('routePath', routePath)
-  //   if (!routePath) return // 경로가 아직 없으면 watch 시작 안 함
-  //   const watchId = navigator.geolocation.watchPosition(
-  //     pos => moveMyMarkerPosition(mapRef, pos),
-  //     err => {
-  //       // if (err)
-  //       //   setMovePositionError('위치 정보를 가져오는 중 오류가 발생했습니다.')
-  //     },
-  //     {
-  //       enableHighAccuracy: true,
-  //       maximumAge: 0,
-  //       timeout: 5000,
-  //     },
-  //   )
-
-  //   return () => {
-  //     navigator.geolocation.clearWatch(watchId)
-  //   }
-  // }, [])
-
-  // const watchIdRef = useRef<number | null>(null)
-
-  // useEffect(() => {
-  //   console.log('first', position, routePath, isMapReady)
-
-  //   if (typeof window === 'undefined') return
-  //   if (!navigator.geolocation) return
-  //   if (!position) return
-  //   if (!isMapReady) return
-  //   if (routePath === null || routePath === undefined) return
-
-  //   // 이미 watch 중이면 다시 생성 안 함
-  //   if (watchIdRef.current !== null) return
-
-  //   watchIdRef.current = navigator.geolocation.watchPosition(
-  //     // pos => moveMyMarkerPosition(mapRef, pos),
-  //     pos => {
-  //       console.log('position changed', pos)
-  //       // moveMyMarkerPosition(mapRef, pos)
-  //     },
-  //     err => {},
-  //     {
-  //       enableHighAccuracy: true,
-  //       maximumAge: 0,
-  //       timeout: 1000,
-  //     },
-  //   )
-
-  //   return () => {
-  //     if (watchIdRef.current !== null) {
-  //       navigator.geolocation.clearWatch(watchIdRef.current)
-  //       watchIdRef.current = null
-  //     }
-  //   }
-  // }, [routePath])
+  }, [isMapReady, mapRef, position, selectedRoutePoints, setRoutePath])
 
   return (
     <React.Fragment>
