@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   ORDERED_MARKER_COLORS,
   ORDERED_ROUTE_COLORS,
@@ -10,11 +9,7 @@ import {
 } from '@/features/route/components/RouteMarker'
 import { TmapPoiItem } from '@/types/placeType'
 import { RoutePoint, tmapWalkingRouteResponseType } from '@/types/routeType'
-import {
-  getCurrentPositionPromise,
-  getMovePositionPromise,
-  ROUTE_MAP_ZOOM,
-} from '@/util/map/mapFunctions'
+import { ROUTE_MAP_ZOOM } from '@/util/map/mapFunctions'
 
 function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
@@ -108,17 +103,13 @@ export function getDrawMyMarker(
   })
 }
 
-export function createRouteMap(
-  mapRef: React.MutableRefObject<naver.maps.Map | null>,
-  startPoint: RoutePoint,
-) {
+export function createRouteMap(startPoint: RoutePoint) {
   const map = new naver.maps.Map('map', {
     center: new naver.maps.LatLng(startPoint.y, startPoint.x),
     zoom: ROUTE_MAP_ZOOM,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   })
 
-  mapRef.current = map
   return map
 }
 
@@ -177,21 +168,9 @@ export function getSelectedRoutePoints(
 
 // 현재 위치를 시작점으로 지도와 출발 마커를 만든 뒤,
 // 이미 선택된 장소 목록(routePoints)을 전달받은 순서대로 연결해 경로를 그린다.
-export async function drawOrderedRouteByPlacesMain(
-  mapRef: React.MutableRefObject<naver.maps.Map | null>,
-  routePoints: RoutePoint[],
-) {
+export async function getInitialMapPosition(routePoints: RoutePoint[]) {
   if (routePoints.length === 0) return
 
-  const currentPosition = await getCurrentPositionPromise()
-  const startPoint = {
-    x: currentPosition.coords.longitude,
-    y: currentPosition.coords.latitude,
-    name: '현재 위치',
-  }
-
-  const map = createRouteMap(mapRef, startPoint)
-
-  getDrawMyMarker(map, startPoint, startPoint.name)
-  return await drawRouteByPoints(map, routePoints, startPoint)
+  const map = createRouteMap(routePoints[0])
+  return map
 }
