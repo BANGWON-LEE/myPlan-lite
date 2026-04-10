@@ -1,7 +1,7 @@
 'use client'
 
 import RoutePlace from './routeplace/RoutePlace'
-import React, { Suspense } from 'react'
+import React, { Suspense, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import RoutePermissionGate from './RoutePermissionGate'
 const RouteMap = dynamic(() => import('./RouteMap'), {
@@ -9,13 +9,15 @@ const RouteMap = dynamic(() => import('./RouteMap'), {
 })
 
 export default function RouteCombined() {
+  const mapRef = useRef<naver.maps.Map | null>(null)
+
   return (
     <RoutePermissionGate>
       {position => (
         <div className="relative w-full">
-          <RouteMap position={position} />
+          <RouteMap position={position} mapRef={mapRef} />
           <Suspense fallback={<div></div>}>
-            <RoutePlace position={position} />
+            <RoutePlace position={position} mapRef={mapRef} />
           </Suspense>
         </div>
       )}
