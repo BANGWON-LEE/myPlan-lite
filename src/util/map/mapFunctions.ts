@@ -1,12 +1,9 @@
-import {
-  createRouteMap,
-  getDrawMyMarker,
-} from '@/features/route/containers/drawRouteContainer'
+import { getDrawMyMarker } from '@/features/route/containers/drawRouteContainer'
 import { simplePosition } from '@/types/marker'
 import { PositionType } from '@/types/placeType'
 
 export const DEFAULT_MAP_ZOOM = 15
-export const ROUTE_MAP_ZOOM = 16
+export const ROUTE_MAP_ZOOM = 18
 export const MARKER_MAP_ZOOM = 17
 
 export const getMapOptions = (position: GeolocationPosition) => {
