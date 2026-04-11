@@ -47,3 +47,10 @@ export type MapState = {
   map: naver.maps.Map | null
   setMap: (map: naver.maps.Map | null) => void
 }
+
+export type CurrentPosiMarkerState = {
+  currentPosiMarker: naver.maps.Marker | null
+  setCurrentPosiMarker: (
+    currentPosiMarker: naver.maps.Marker | null,
+  ) => void
+}

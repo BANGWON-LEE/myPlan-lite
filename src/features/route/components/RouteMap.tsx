@@ -1,6 +1,7 @@
 'use client'
 import MapScript from '@/components/MapScript'
 import {
+  useCurrentPosiMarkerStore,
   useMapStore,
   usePositionStore,
   useRoutePathStore,
@@ -9,17 +10,15 @@ import {
 import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
-import {
-  drawRouteByPoints,
-  getDrawMyMarker,
-} from '../containers/drawRouteContainer'
 
 export default function RouteMap({
   position,
   selectedRoutePoints,
 }: RouteMapProps) {
   const map = useMapStore(state => state.map)
-
+  const currentPosiMarker = useCurrentPosiMarkerStore(
+    state => state.currentPosiMarker,
+  )
   const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
@@ -40,7 +39,8 @@ export default function RouteMap({
     if (!map) return
     if (!routePath) return
     if (!startPoint) return
-    console.log('지도와 위치 준비 완료, 위치 추적 시작', map)
+    if (!currentPosiMarker)
+      console.log('지도와 위치 준비 완료, 위치 추적 시작', map)
     // console.log('현재 위치 업데이트:', latLng.toString())
 
     watchIdRef.current = navigator.geolocation.watchPosition(
@@ -50,7 +50,14 @@ export default function RouteMap({
           y: pos.coords.latitude,
           name: '현재 위치',
         }
-        getDrawMyMarker(map, movingPoint, movingPoint.name)
+
+        console.log('위치 업데이트:', movingPoint)
+
+        currentPosiMarker?.setPosition(
+          new naver.maps.LatLng(movingPoint.y, movingPoint.x),
+        )
+
+        // currentPosi.setPosition
       },
       err => {
         console.error(err)
@@ -61,15 +68,20 @@ export default function RouteMap({
       { enableHighAccuracy: true, maximumAge: 4000, timeout: 800 },
     )
 
-    // const path = await drawRouteByPoints(map, selectedRoutePoints, startPoint)
-    // setRoutePath(path)
     return () => {
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current)
         watchIdRef.current = null
       }
     }
-  }, [isMapReady, map, routePath, selectedRoutePoints, startPoint])
+  }, [
+    isMapReady,
+    map,
+    routePath,
+    selectedRoutePoints,
+    startPoint,
+    currentPosiMarker,
+  ])
 
   return (
     <>

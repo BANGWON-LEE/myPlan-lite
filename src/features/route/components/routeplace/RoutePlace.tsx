@@ -11,6 +11,7 @@ import {
   useRoutePathStore,
   useRoutePlaceIdxStore,
   useStartPointStore,
+  useCurrentPosiMarkerStore,
 } from '@/stores/useRouteStore'
 import {
   MapScriptProps,
@@ -60,6 +61,9 @@ export default function RoutePlace({
   const setRoutePath = useRoutePathStore(state => state.setPath)
   const setStartPoint = useStartPointStore(state => state.setStartPoint)
   const setMap = useMapStore(state => state.setMap)
+  const setCurrentPosiMarker = useCurrentPosiMarkerStore(
+    state => state.setCurrentPosiMarker,
+  )
   const isMapReady = useMapReadyStore(state => state.isMapReady)
   const setIsMapReady = useMapReadyStore(state => state.setIsMapReady)
 
@@ -175,7 +179,12 @@ export default function RoutePlace({
 
         const map = await getInitialMapPosition([startPoint])
         if (!cancelled && map) {
-          getDrawMyMarker(map, startPoint, startPoint.name)
+          const currentPosiMarker = getDrawMyMarker(
+            map,
+            startPoint,
+            startPoint.name,
+          )
+          setCurrentPosiMarker(currentPosiMarker)
           const path = await drawRouteByPoints(
             map,
             selectedRoutePoints,
@@ -199,6 +208,7 @@ export default function RoutePlace({
     position,
     selectedRoutePoints,
     setMap,
+    setCurrentPosiMarker,
     setRoutePath,
     setStartPoint,
   ])

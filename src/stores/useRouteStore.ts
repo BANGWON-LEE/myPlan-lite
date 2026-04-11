@@ -1,5 +1,6 @@
 import { PositionState } from '@/types/placeType'
 import {
+  CurrentPosiMarkerState,
   MapState,
   MapReadyState,
   markerState,
@@ -70,4 +71,9 @@ export const useMapReadyStore = create<MapReadyState>(set => ({
 export const useMapStore = create<MapState>(set => ({
   map: null,
   setMap: map => set({ map }),
+}))
+
+export const useCurrentPosiMarkerStore = create<CurrentPosiMarkerState>(set => ({
+  currentPosiMarker: null,
+  setCurrentPosiMarker: currentPosiMarker => set({ currentPosiMarker }),
 }))
