@@ -1,4 +1,4 @@
-import { TmapPoiResponse } from '@/types/placeType'
+import { MapScriptProps, TmapPoiResponse } from '@/types/placeType'
 
 export interface tmapResponseWalk {
   geometry: {
@@ -105,4 +105,8 @@ export type StoredPosition = {
     longitude: number
   }
   timestamp: number
+}
+
+export type RouteMapProps = MapScriptProps & {
+  selectedRoutePoints: RoutePoint[]
 }

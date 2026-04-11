@@ -69,7 +69,7 @@ export type PositionType = {
 // }
 
 export type MapScriptProps = {
-  position?: GeolocationPosition
+  position: GeolocationPosition
 }
 
 export type PositionState = {

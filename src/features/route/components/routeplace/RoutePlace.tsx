@@ -1,14 +1,25 @@
 'use client'
 import {
-  drawOrderedRouteByPlacesMain,
-  getSelectedRoutePoints,
+  drawRouteByPoints,
+  getDrawMyMarker,
+  getInitialMapPosition,
 } from '@/features/route/containers/drawRouteContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import {
+  useMapStore,
+  useMapReadyStore,
   useRoutePathStore,
   useRoutePlaceIdxStore,
+  useStartPointStore,
+  useCurrentPosiMarkerStore,
 } from '@/stores/useRouteStore'
-import { placeType, RouteApiDataType, TmapPoiItem } from '@/types/placeType'
+import {
+  MapScriptProps,
+  placeType,
+  RouteApiDataType,
+  TmapPoiItem,
+} from '@/types/placeType'
+import { RouteCategoryKey, RoutePoint } from '@/types/routeType'
 import {
   addValueByCategory,
   filterApiData,
@@ -16,85 +27,61 @@ import {
   formatStringToArray,
 } from '@/util/common/common'
 import { PURPOSE_TO_CATEGORY_KEY } from '@/data/constant'
-import { RouteCategoryKey } from '@/types/routeType'
-
+import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDown } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { getMyRouteList } from '../../containers/RouteMainContainer'
-
 import LoadingSpin from '../LoadingSpin'
 import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
 
+type RoutePlaceProps = MapScriptProps & {
+  routeList: Record<RouteCategoryKey, TmapPoiItem[]>
+  setRouteList: React.Dispatch<
+    React.SetStateAction<Record<RouteCategoryKey, TmapPoiItem[]>>
+  >
+  routePlaceIndexes: Record<RouteCategoryKey, number>
+  selectedRoutePoints: RoutePoint[]
+}
+
 export default function RoutePlace({
   position,
-}: {
-  position: GeolocationPosition
-}) {
+  routeList,
+  setRouteList,
+  routePlaceIndexes,
+  selectedRoutePoints,
+}: RoutePlaceProps) {
   const searchParams = useSearchParams()
-  const queryPurposes = searchParams?.get('purposes') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
-  const queryTime = searchParams?.get('time') ?? '' // ?text=카페 → "카페" (fallback to empty string if null)
-  const mapRef = useRef<naver.maps.Map | null>(null)
+  const queryPurposes = searchParams?.get('purposes') ?? ''
+  const queryTime = searchParams?.get('time') ?? ''
 
-  const [routeList, setRouteList] = useState<Record<string, TmapPoiItem[]>>({
-    meal: [],
-    coffee: [],
-    pharmacy: [],
-    shopping: [],
-    karaoke: [],
-    touristSpot: [],
-  })
-
-  const {
-    mealIdx,
-    coffeeIdx,
-    pharmacyIdx,
-    shoppingIdx,
-    karaokeIdx,
-    touristSpotIdx,
-    initialIdx,
-  } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+  const { initialIdx } = useRoutePlaceIdxStore()
   const setRoutePath = useRoutePathStore(state => state.setPath)
+  const setStartPoint = useStartPointStore(state => state.setStartPoint)
+  const setMap = useMapStore(state => state.setMap)
+  const setCurrentPosiMarker = useCurrentPosiMarkerStore(
+    state => state.setCurrentPosiMarker,
+  )
+  const isMapReady = useMapReadyStore(state => state.isMapReady)
+  const setIsMapReady = useMapReadyStore(state => state.setIsMapReady)
 
-  // 장소 데이터 가져와 캐싱처리하기
   const { data } = useQuery<RouteApiDataType[]>({
-    queryKey: ['place', position, queryPurposes, queryTime], // 검색어
+    queryKey: ['place', position, queryPurposes, queryTime],
     queryFn: async () => {
       const purposesArr = formatStringToArray(queryPurposes)
-      const res = await getMyRouteList(position, purposesArr, queryTime)
-
-      return res
+      return getMyRouteList(position, purposesArr, queryTime)
     },
     enabled: !!position && formatStringToArray(queryPurposes).length > 0,
-
-    staleTime: 1000 * 60 * 5, // 5분
+    staleTime: 1000 * 60 * 5,
     placeholderData: prev => prev,
   })
 
   const [isLoading, setIsLoading] = useState(false)
-  const [isMapReady, setIsMapReady] = useState(false)
   const purposesArr = useMemo(
     () => formatStringToArray(queryPurposes).filter(Boolean),
     [queryPurposes],
-  )
-
-  const routePlaceIndexes = useMemo(
-    () => ({
-      meal: mealIdx,
-      coffee: coffeeIdx,
-      pharmacy: pharmacyIdx,
-      shopping: shoppingIdx,
-      karaoke: karaokeIdx,
-      touristSpot: touristSpotIdx,
-    }),
-    [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx, karaokeIdx, touristSpotIdx],
-  )
-
-  const selectedRoutePoints = useMemo(
-    () => getSelectedRoutePoints(purposesArr, routeList, routePlaceIndexes),
-    [purposesArr, routeList, routePlaceIndexes],
   )
 
   const routeArr: {
@@ -135,38 +122,26 @@ export default function RoutePlace({
     if (!position) return
     if (data === undefined) return
 
-    const getData = (data: RouteApiDataType[]) => {
-      // 쿼리 파라미터로 전달된 목적(purposes)을 배열로 변환
-      const purposesArr = formatStringToArray(queryPurposes)
-      // API 응답에서 장소 데이터만 추출
-      const filterApiArr = filterApiData(data)
+    const purposes = formatStringToArray(queryPurposes)
+    const filterApiArr = filterApiData(data)
+    const formatApiData = formatResult(purposes, filterApiArr)
 
-      // 카테고리 키에 맞게 데이터를 각 객체 형태로 매핑하여 상태 업데이트
-      // 요청한 카테고리의 값만 응답으로 옴
-      const formatApiData = formatResult(purposesArr, filterApiArr)
-
-      const listArr = {
-        meal: [],
-        coffee: [],
-        pharmacy: [],
-        shopping: [],
-        karaoke: [],
-        touristSpot: [],
-      }
-
-      //listArr 객체에 키에 맞게 formatApiData의 데이터가 들어가도록 처리하는 함수
-      addValueByCategory(listArr, formatApiData)
-
-      setRouteList(listArr)
+    const listArr: Record<RouteCategoryKey, TmapPoiItem[]> = {
+      meal: [],
+      coffee: [],
+      pharmacy: [],
+      shopping: [],
+      karaoke: [],
+      touristSpot: [],
     }
 
+    addValueByCategory(listArr, formatApiData)
     initialIdx()
-    getData(data)
-  }, [data, initialIdx, position, queryPurposes])
+    setRouteList(listArr)
+  }, [data, initialIdx, position, queryPurposes, setRouteList])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    // Naver Map SDK는 Script로 비동기 로드되므로, 전역 객체가 준비된 뒤에만 경로를 그린다.
     if (typeof naver !== 'undefined') {
       setIsMapReady(true)
       return
@@ -182,7 +157,7 @@ export default function RoutePlace({
     return () => {
       window.clearInterval(timer)
     }
-  }, [])
+  }, [setIsMapReady])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -194,32 +169,52 @@ export default function RoutePlace({
 
     const drawRoute = async () => {
       toggleDisabled(true)
-
       try {
-        const path = await drawOrderedRouteByPlacesMain(
-          mapRef,
-          selectedRoutePoints,
-        )
-        if (!cancelled && path) {
+        const currentPosition = await getCurrentPositionPromise()
+        const startPoint = {
+          x: currentPosition.coords.longitude,
+          y: currentPosition.coords.latitude,
+          name: '현재 위치',
+        }
+
+        const map = await getInitialMapPosition([startPoint])
+        if (!cancelled && map) {
+          const currentPosiMarker = getDrawMyMarker(
+            map,
+            startPoint,
+            startPoint.name,
+          )
+          setCurrentPosiMarker(currentPosiMarker)
+          const path = await drawRouteByPoints(
+            map,
+            selectedRoutePoints,
+            startPoint,
+          )
+          setMap(map)
           setRoutePath(path)
+          setStartPoint(startPoint)
         }
       } finally {
-        if (!cancelled) {
-          toggleDisabled(false)
-        }
+        if (!cancelled) setIsLoading(false)
       }
     }
 
     drawRoute()
-
     return () => {
       cancelled = true
     }
-  }, [isMapReady, position, selectedRoutePoints, setRoutePath])
+  }, [
+    isMapReady,
+    position,
+    selectedRoutePoints,
+    setMap,
+    setCurrentPosiMarker,
+    setRoutePath,
+    setStartPoint,
+  ])
 
   return (
     <React.Fragment>
-      {/* <div> */}
       <LoadingSpin isLoading={isLoading} />
       {routeArr.length > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">

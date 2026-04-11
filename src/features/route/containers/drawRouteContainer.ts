@@ -1,17 +1,15 @@
-import React from 'react'
 import {
   ORDERED_MARKER_COLORS,
   ORDERED_ROUTE_COLORS,
   PURPOSE_TO_CATEGORY_KEY,
 } from '@/data/constant'
-import { renderRouteMarker } from '@/features/route/components/RouteMarker'
-import { MarkerVariant } from '@/types/marker'
+import {
+  renderMyMarker,
+  renderRouteMarker,
+} from '@/features/route/components/RouteMarker'
 import { TmapPoiItem } from '@/types/placeType'
 import { RoutePoint, tmapWalkingRouteResponseType } from '@/types/routeType'
-import {
-  getCurrentPositionPromise,
-  ROUTE_MAP_ZOOM,
-} from '@/util/map/mapFunctions'
+import { ROUTE_MAP_ZOOM } from '@/util/map/mapFunctions'
 
 function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
@@ -70,47 +68,52 @@ function drawPolyline(
   })
 }
 
-function drawMarker(
+function getDrawRouteMarker(
   map: naver.maps.Map,
   point: RoutePoint,
   title: string,
-  variant: MarkerVariant,
   order?: number,
 ) {
-  const markerColor =
-    variant === 'ordered' && typeof order === 'number'
-      ? getOrderedMarkerColor(order - 1)
-      : '#2563eb'
+  const markerColor = getOrderedMarkerColor(order! - 1)
 
   return new naver.maps.Marker({
     position: new naver.maps.LatLng(point.y, point.x),
     map,
     title,
     icon: {
-      content: renderRouteMarker({ variant, index: order, color: markerColor }),
-      anchor: new naver.maps.Point(
-        variant === 'current' ? 12 : 15,
-        variant === 'current' ? 12 : 15,
-      ),
+      content: renderRouteMarker({ index: order, color: markerColor }),
+      anchor: new naver.maps.Point(15, 15),
     },
   })
 }
 
-function createRouteMap(
-  mapRef: React.MutableRefObject<naver.maps.Map | null>,
-  startPoint: RoutePoint,
+export function getDrawMyMarker(
+  map: naver.maps.Map,
+  point: RoutePoint,
+  title: string,
 ) {
+  return new naver.maps.Marker({
+    position: new naver.maps.LatLng(point.y, point.x),
+    map,
+    title,
+    icon: {
+      content: renderMyMarker(),
+      anchor: new naver.maps.Point(12, 12),
+    },
+  })
+}
+
+export function createRouteMap(startPoint: RoutePoint) {
   const map = new naver.maps.Map('map', {
     center: new naver.maps.LatLng(startPoint.y, startPoint.x),
     zoom: ROUTE_MAP_ZOOM,
     mapTypeId: naver.maps.MapTypeId.NORMAL,
   })
 
-  mapRef.current = map
   return map
 }
 
-async function drawRouteByPoints(
+export async function drawRouteByPoints(
   map: naver.maps.Map,
   routePoints: RoutePoint[],
   startPoint: RoutePoint,
@@ -122,11 +125,10 @@ async function drawRouteByPoints(
     const path = await getWalkingPath(currentPoint, goalPoint)
 
     drawPolyline(map, path.path, getOrderedRouteColor(index))
-    drawMarker(
+    getDrawRouteMarker(
       map,
       goalPoint,
       `${index + 1}. ${goalPoint.name}`,
-      'ordered',
       index + 1,
     )
     currentPoint = goalPoint
@@ -166,21 +168,9 @@ export function getSelectedRoutePoints(
 
 // 현재 위치를 시작점으로 지도와 출발 마커를 만든 뒤,
 // 이미 선택된 장소 목록(routePoints)을 전달받은 순서대로 연결해 경로를 그린다.
-export async function drawOrderedRouteByPlacesMain(
-  mapRef: React.MutableRefObject<naver.maps.Map | null>,
-  routePoints: RoutePoint[],
-) {
+export async function getInitialMapPosition(routePoints: RoutePoint[]) {
   if (routePoints.length === 0) return
 
-  const currentPosition = await getCurrentPositionPromise()
-  const startPoint = {
-    x: currentPosition.coords.longitude,
-    y: currentPosition.coords.latitude,
-    name: '현재 위치',
-  }
-
-  const map = createRouteMap(mapRef, startPoint)
-
-  drawMarker(map, startPoint, startPoint.name, 'current')
-  return await drawRouteByPoints(map, routePoints, startPoint)
+  const map = createRouteMap(routePoints[0])
+  return map
 }

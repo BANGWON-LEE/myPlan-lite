@@ -1,8 +1,9 @@
+import { getDrawMyMarker } from '@/features/route/containers/drawRouteContainer'
 import { simplePosition } from '@/types/marker'
 import { PositionType } from '@/types/placeType'
 
 export const DEFAULT_MAP_ZOOM = 15
-export const ROUTE_MAP_ZOOM = 16
+export const ROUTE_MAP_ZOOM = 18
 export const MARKER_MAP_ZOOM = 17
 
 export const getMapOptions = (position: GeolocationPosition) => {
@@ -90,43 +91,6 @@ export const myMarker = (
   })
 }
 
-export const startMarker = (
-  map: naver.maps.Map,
-  startPosition: { x: number; y: number },
-) => {
-  const position = new naver.maps.LatLng(startPosition.y, startPosition.x)
-
-  return new naver.maps.Marker({
-    position: position,
-    icon: {
-      url: '../../assets/start.png',
-      size: new naver.maps.Size(128, 128),
-      origin: new naver.maps.Point(0, 0),
-      scaledSize: new naver.maps.Size(32, 32),
-      anchor: new naver.maps.Point(16, 32),
-    },
-    map: map,
-  })
-}
-export const goalMarker = (
-  map: naver.maps.Map,
-  goalPosition: { x: number; y: number },
-) => {
-  const position = new naver.maps.LatLng(goalPosition.y, goalPosition.x)
-
-  return new naver.maps.Marker({
-    position: position,
-    icon: {
-      url: '/assets/goal.png', // ✅ 여기 절대 경로
-      size: new naver.maps.Size(128, 128),
-      origin: new naver.maps.Point(0, 0),
-      scaledSize: new naver.maps.Size(32, 32),
-      anchor: new naver.maps.Point(16, 32),
-    },
-    map: map,
-  })
-}
-
 export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined' || !navigator.geolocation)
@@ -136,4 +100,18 @@ export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
       error => reject(error),
     )
   })
+}
+
+export async function moveMyMarkerPosition(
+  map: naver.maps.Map,
+  routePoints: GeolocationPosition,
+) {
+  const startPoint = {
+    x: routePoints.coords.longitude,
+    y: routePoints.coords.latitude,
+    name: '현재 위치',
+  }
+
+  getDrawMyMarker(map, startPoint, startPoint.name)
+  // return await drawRouteByPoints(map, routePoints, startPoint)
 }
