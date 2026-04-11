@@ -1,5 +1,4 @@
 import { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { MutableRefObject } from 'react'
 
 export type placeType = {
   name: string
@@ -71,7 +70,6 @@ export type PositionType = {
 
 export type MapScriptProps = {
   position: GeolocationPosition
-  mapRef: MutableRefObject<naver.maps.Map | null>
 }
 
 export type PositionState = {

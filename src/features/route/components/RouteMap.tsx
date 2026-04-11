@@ -1,13 +1,24 @@
 'use client'
 import MapScript from '@/components/MapScript'
-import { usePositionStore } from '@/stores/useRouteStore'
-import { MapScriptProps } from '@/types/placeType'
+import {
+  useCurrentPosiMarkerStore,
+  useMapStore,
+  usePositionStore,
+  useRoutePathStore,
+  useStartPointStore,
+} from '@/stores/useRouteStore'
+import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
 
-export default function RouteMap(props: MapScriptProps) {
-  const { position, mapRef } = props
-
+export default function RouteMap({
+  position,
+  selectedRoutePoints,
+}: RouteMapProps) {
+  const map = useMapStore(state => state.map)
+  const currentPosiMarker = useCurrentPosiMarkerStore(
+    state => state.currentPosiMarker,
+  )
   const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
@@ -15,74 +26,46 @@ export default function RouteMap(props: MapScriptProps) {
     savePositionToStorage(position)
   }, [position, setPosition])
 
+  const isMapReady = usePositionStore(state => state.position) !== null
+  const routePath = useRoutePathStore(state => state.path)
+  const startPoint = useStartPointStore(state => state.startPoint)
+
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
 
-  const isMapReady = usePositionStore(state => state.position) !== null
-
-  // useEffect(() => {
-  //   let watchId: number | null = null
-  //   try {
-  //     watchId = navigator.geolocation.watchPosition(
-  //       pos => {
-  //         const startPoint = {
-  //           x: pos.coords.longitude,
-  //           y: pos.coords.latitude,
-  //           name: '현재 위치',
-  //         }
-  //       },
-  //       error => {
-  //         console.error('Error getting current position:', error)
-  //         setErrorMessage(
-  //           '현재 위치를 가져오는 데 실패했습니다. 위치 권한을 확인해주세요.',
-  //         )
-  //       },
-  //     )
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-
-  //   return () => {
-  //     if (watchId !== null) {
-  //       navigator.geolocation.clearWatch(watchId)
-  //     }
-  //   }
-  // }, [mapRef])
-
-  const myMarkerRef = useRef<naver.maps.Marker | null>(null)
   const watchIdRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (!isMapReady) return
-    if (!mapRef.current) return
+    if (!map) return
+    if (!routePath) return
+    if (!startPoint) return
+    if (!currentPosiMarker)
+      console.log('지도와 위치 준비 완료, 위치 추적 시작', map)
+    // console.log('현재 위치 업데이트:', latLng.toString())
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       pos => {
-        if (!mapRef.current) return
-
-        const latLng = new naver.maps.LatLng(
-          pos.coords.latitude,
-          pos.coords.longitude,
-        )
-
-        // 최초 1회만 생성
-        if (!myMarkerRef.current) {
-          myMarkerRef.current = new naver.maps.Marker({
-            position: latLng,
-            map: mapRef.current,
-            title: '현재 위치',
-          })
-        } else {
-          // 이후에는 위치만 갱신
-          myMarkerRef.current.setPosition(latLng)
+        const movingPoint = {
+          x: pos.coords.longitude,
+          y: pos.coords.latitude,
+          name: '현재 위치',
         }
 
-        // 필요하면 지도 중심 이동
-        // mapRef.current.panTo(latLng)
+        console.log('위치 업데이트:', movingPoint)
+
+        currentPosiMarker?.setPosition(
+          new naver.maps.LatLng(movingPoint.y, movingPoint.x),
+        )
+
+        // currentPosi.setPosition
       },
       err => {
         console.error(err)
+        setErrorMessage(
+          '현재 위치를 가져오는 데 실패했습니다. 위치 권한을 확인해주세요.',
+        )
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 800 },
+      { enableHighAccuracy: true, maximumAge: 4000, timeout: 800 },
     )
 
     return () => {
@@ -91,7 +74,14 @@ export default function RouteMap(props: MapScriptProps) {
         watchIdRef.current = null
       }
     }
-  }, [isMapReady, mapRef])
+  }, [
+    isMapReady,
+    map,
+    routePath,
+    selectedRoutePoints,
+    startPoint,
+    currentPosiMarker,
+  ])
 
   return (
     <>
