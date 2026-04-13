@@ -51,18 +51,14 @@ export default function RouteMap({
           name: '현재 위치',
         }
 
-        console.log('위치 업데이트:', movingPoint)
-
         currentPosiMarker?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
         )
-
-        // currentPosi.setPosition
       },
       err => {
-        console.error(err)
         setErrorMessage(
-          '현재 위치를 가져오는 데 실패했습니다. 위치 권한을 확인해주세요.',
+          '현재 위치를 가져오는 데 실패했습니다. 위치 권한을 확인해주세요.' +
+            err.message,
         )
       },
       { enableHighAccuracy: true, maximumAge: 4000, timeout: 800 },
