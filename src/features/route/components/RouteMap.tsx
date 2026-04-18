@@ -39,9 +39,7 @@ export default function RouteMap({
     if (!map) return
     if (!routePath) return
     if (!startPoint) return
-    if (!currentPosiMarker)
-      console.log('지도와 위치 준비 완료, 위치 추적 시작', map)
-    // console.log('현재 위치 업데이트:', latLng.toString())
+    if (!currentPosiMarker) return
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       pos => {
