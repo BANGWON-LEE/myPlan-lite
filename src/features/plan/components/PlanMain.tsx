@@ -1,27 +1,20 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 
 import { SectionTitle } from '@/share/components/Text'
-import { TimeCard } from '@/share/components/Card'
 import { PrimaryButtonText } from '@/share/components/Button'
 import Link from 'next/link'
 import { usePurposeCardbtn } from './PurposeCard/PurposeCard.logic'
 import PurposeCard from './PurposeCard/PurposeCardView'
+import { useTimeCardBtn } from './TimeCard/TimeCard.logic'
+import { TimeCard } from './TimeCard/TimeCardView'
 
 export default function PlanMain() {
-  // 시간 선택 옵션 배열
-  const timeOptionsArr = [
-    { time: 10, radius: 1 },
-    { time: 20, radius: 5 },
-    { time: 30, radius: 10 },
-  ]
-
-  // 선택된 시간 상태값
-  const [selectedTime, setSelectedTime] = useState(1)
-
   const purposeCardBtn = usePurposeCardbtn()
   const { selectedPurpose } = purposeCardBtn
   const { purposes } = purposeCardBtn
+
+  const { timeOptionsArr, selectedTime, onClick } = useTimeCardBtn()
 
   return (
     <React.Fragment>
@@ -43,7 +36,7 @@ export default function PlanMain() {
               key={li.time}
               time={li.time}
               isActive={selectedTime === li.radius}
-              onClick={() => setSelectedTime(li.radius)}
+              onClick={() => onClick(li.radius)}
             />
           ))}
         </div>
