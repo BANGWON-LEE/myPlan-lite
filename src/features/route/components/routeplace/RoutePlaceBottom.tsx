@@ -1,8 +1,5 @@
-import { useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 import { placeType } from '@/types/placeType'
-import { useState } from 'react'
 import { useRoutePlaceBtn } from '../RoutePlaceBtn/RoutePlaceBtn.logic'
-import { Route } from 'lucide-react'
 import { RoutePlaceBtn } from '../RoutePlaceBtn/RoutePlaceBtnView'
 
 export default function RoutePlaceBottom(props: {

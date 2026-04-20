@@ -14,11 +14,11 @@ export function RoutePlaceBtn(props: {
         onClick()
       }}
     >
-      <div
+      <span
         className={`px-3 py-2 font-semibold ${searchErrorMessage ? 'text-red-500' : 'text-amber-600'}`}
       >
         {children}
-      </div>
+      </span>
     </button>
   )
 }
