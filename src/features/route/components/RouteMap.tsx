@@ -1,5 +1,5 @@
 'use client'
-import MapScript from '@/components/MapScript'
+import MapScript from '@/features/platform/map/MapScript'
 import {
   useCurrentPosiMarkerStore,
   useMapStore,
