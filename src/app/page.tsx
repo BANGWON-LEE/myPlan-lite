@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import PlanMain from '@/features/plan/components/PlanMain'
 import { Navigation } from 'lucide-react'
-import PwaInstallNotice from '@/components/PwaInstallNotice'
+import PwaInstallNotice from '@/features/platform/pwa/PwaInstallNotice'
 
 export const metadata: Metadata = {
   title: '마이 플랜 | 목적에 맞는 최적 루트',

@@ -1,11 +1,13 @@
 import { LucideIcon } from 'lucide-react'
 
 export type PurposeCardType = {
+  selectedIndex: number
+  id: string
   icon: LucideIcon
   label: string
-  isActive: boolean
-  onClick: () => void
   color: string
+  isActive: boolean
+  onClick: (id: string) => void
 }
 
 export type TimeCardType = {

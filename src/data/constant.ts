@@ -1,4 +1,12 @@
 import { RouteCategoryKey } from '@/types/routeType'
+import {
+  BriefcaseMedicalIcon,
+  Coffee,
+  MapPinned,
+  Music4,
+  ShoppingBag,
+  Utensils,
+} from 'lucide-react'
 
 export const initialPlaceObj = {
   name: '',
@@ -31,11 +39,11 @@ export const ORDERED_MARKER_COLORS = [
 
 export const ORDERED_ROUTE_COLORS = [
   '#22c55e',
-  '#14b8a6',
+  '#1d4ed8',
   '#06b6d4',
   '#3b82f6',
+  '#14b8a6',
   '#2563eb',
-  '#1d4ed8',
 ] as const
 
 // 위치 저장 payload를 localStorage에 보관할 때 사용하는 키 (src/util/storage/positionStorage.ts)
@@ -57,3 +65,48 @@ export const AVERAGE_WALKING_SPEED_METERS_PER_SECOND =
 // 거리를 분 단위 시간으로 환산할 때 사용하는 평균 도보 속도 (km/min)
 export const AVERAGE_WALKING_SPEED_KM_PER_MINUTE =
   AVERAGE_WALKING_SPEED_KM_PER_HOUR / 60
+
+export const purposes = [
+  {
+    id: '커피',
+    key: 'coffee',
+    icon: Coffee,
+    label: '카페',
+    color: 'bg-amber-500',
+  },
+  {
+    id: '음식점',
+    key: 'meal',
+    icon: Utensils,
+    label: '식사',
+    color: 'bg-rose-500',
+  },
+  {
+    id: '약국',
+    key: 'pharmacy',
+    icon: BriefcaseMedicalIcon,
+    label: '약국',
+    color: 'bg-emerald-500',
+  },
+  {
+    id: '편의점',
+    key: 'shopping',
+    icon: ShoppingBag,
+    label: '편의점',
+    color: 'bg-blue-500',
+  },
+  {
+    id: '노래방',
+    key: 'karaoke',
+    icon: Music4,
+    label: '노래방',
+    color: 'bg-fuchsia-500',
+  },
+  {
+    id: '관광지',
+    key: 'touristSpot',
+    icon: MapPinned,
+    label: '관광지',
+    color: 'bg-orange-500',
+  },
+]

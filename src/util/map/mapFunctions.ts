@@ -1,4 +1,3 @@
-import { getDrawMyMarker } from '@/features/route/containers/drawRouteContainer'
 import { simplePosition } from '@/types/marker'
 import { PositionType } from '@/types/placeType'
 
@@ -100,18 +99,4 @@ export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
       error => reject(error),
     )
   })
-}
-
-export async function moveMyMarkerPosition(
-  map: naver.maps.Map,
-  routePoints: GeolocationPosition,
-) {
-  const startPoint = {
-    x: routePoints.coords.longitude,
-    y: routePoints.coords.latitude,
-    name: '현재 위치',
-  }
-
-  getDrawMyMarker(map, startPoint, startPoint.name)
-  // return await drawRouteByPoints(map, routePoints, startPoint)
 }
