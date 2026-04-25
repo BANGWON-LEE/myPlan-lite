@@ -18,14 +18,15 @@ export default function PurposeCard({
       ) : null}
       <button
         onClick={() => onClick(id)}
-        className={`p-6 w-full rounded-2xl transition-all duration-300 ${
+        aria-pressed={isActive}
+        className={`p-6 w-full rounded-2xl transition-all duration-300 grid items-center ${
           isActive
             ? `${color} text-white shadow-lg scale-105 border-2 border-${color}`
             : 'bg-white text-gray-700 hover:shadow-md border-2 border-gray-100'
         }`}
       >
-        <Icon className="w-8 h-8 mx-auto mb-2" />
-        <p className="font-semibold text-sm">{label}</p>
+        <Icon className="w-8 h-8 mx-auto mb-2" aria-hidden="true" />
+        <span className="font-semibold text-sm">{label}</span>
       </button>
     </div>
   )
