@@ -1,6 +1,6 @@
 import { placeType } from '@/types/placeType'
-import { useRoutePlaceBtn } from '../RoutePlaceBtn/RoutePlaceBtn.logic'
-import { RoutePlaceBtn } from '../RoutePlaceBtn/RoutePlaceBtnView'
+import { useRoutePlaceBtn } from '../../../ui/RoutePlaceBtn/RoutePlaceBtn.logic'
+import { RoutePlaceBtn } from '../../../ui/RoutePlaceBtn/RoutePlaceBtn'
 
 export default function RoutePlaceBottom(props: {
   place: { key: string; list: placeType | null }

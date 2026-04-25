@@ -4,10 +4,10 @@ import React from 'react'
 import { SectionTitle } from '@/share/components/Text'
 import { PrimaryButtonText } from '@/share/components/Button'
 import Link from 'next/link'
-import { usePurposeCardbtn } from './PurposeCard/PurposeCard.logic'
-import PurposeCard from './PurposeCard/PurposeCardView'
-import { useTimeCardBtn } from './TimeCard/TimeCard.logic'
-import { TimeCard } from './TimeCard/TimeCardView'
+import { usePurposeCardbtn } from '../../ui/PurposeCard/PurposeCard.logic'
+import PurposeCard from '../../ui/PurposeCard/PurposeCard'
+import { useTimeCardBtn } from '../../ui/TimeCard/TimeCard.logic'
+import { TimeCard } from '../../ui/TimeCard/TimeCard'
 
 export default function PlanMain() {
   const purposeCardBtn = usePurposeCardbtn()
