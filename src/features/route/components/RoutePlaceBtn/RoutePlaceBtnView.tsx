@@ -15,7 +15,7 @@ export function RoutePlaceBtn(props: {
       }}
     >
       <span
-        className={`px-3 py-2 font-semibold ${searchErrorMessage ? 'text-red-500' : 'text-amber-600'}`}
+        className={`px-1 py-2 font-semibold w-full text-sm ${searchErrorMessage ? 'text-red-500' : 'text-amber-600'}`}
       >
         {children}
       </span>
