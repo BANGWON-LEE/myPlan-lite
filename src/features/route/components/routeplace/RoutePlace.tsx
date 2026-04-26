@@ -57,7 +57,7 @@ export default function RoutePlace({
   const queryPurposes = searchParams?.get('purposes') ?? ''
   const queryTime = searchParams?.get('time') ?? ''
 
-  const { initialIdx } = useRoutePlaceIdxStore()
+  const { resetAllCateIndex } = useRoutePlaceIdxStore()
   const setRoutePath = useRoutePathStore(state => state.setPath)
   const setStartPoint = useStartPointStore(state => state.setStartPoint)
   const setMap = useMapStore(state => state.setMap)
@@ -136,9 +136,9 @@ export default function RoutePlace({
     }
 
     addValueByCategory(listArr, formatApiData)
-    initialIdx()
+    resetAllCateIndex()
     setRouteList(listArr)
-  }, [data, initialIdx, position, queryPurposes, setRouteList])
+  }, [data, resetAllCateIndex, position, queryPurposes, setRouteList])
 
   useEffect(() => {
     if (typeof window === 'undefined') return

@@ -29,25 +29,18 @@ export default function RouteCombined() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? ''
 
-  const {
-    mealIdx,
-    coffeeIdx,
-    pharmacyIdx,
-    shoppingIdx,
-    karaokeIdx,
-    touristSpotIdx,
-  } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+  const { cateIndex } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
 
   const routePlaceIndexes = useMemo(
     () => ({
-      meal: mealIdx,
-      coffee: coffeeIdx,
-      pharmacy: pharmacyIdx,
-      shopping: shoppingIdx,
-      karaoke: karaokeIdx,
-      touristSpot: touristSpotIdx,
+      meal: cateIndex.meal,
+      coffee: cateIndex.coffee,
+      pharmacy: cateIndex.pharmacy,
+      shopping: cateIndex.shopping,
+      karaoke: cateIndex.karaoke,
+      touristSpot: cateIndex.touristSpot,
     }),
-    [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx, karaokeIdx, touristSpotIdx],
+    [cateIndex],
   )
 
   const purposesArr = useMemo(

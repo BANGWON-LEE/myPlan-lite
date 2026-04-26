@@ -12,34 +12,27 @@ export function useRoutePlaceBtn(
   const hasNoMorePlaces =
     placeList.length === 0 || currentIdx + 1 >= placeList.length
 
-  const {
-    setMealIdx,
-    setCoffeeIdx,
-    setPharmacyIdx,
-    setShoppingIdx,
-    setKaraokeIdx,
-    setTouristSpotIdx,
-  } = useRoutePlaceIdxStore()
+  const { setCateIndex } = useRoutePlaceIdxStore()
 
   function setRoutePlaceIdx(list: string, nextIdx: number) {
     switch (list) {
       case 'meal':
-        setMealIdx(nextIdx)
+        setCateIndex('meal', nextIdx)
         break
       case 'coffee':
-        setCoffeeIdx(nextIdx)
+        setCateIndex('coffee', nextIdx)
         break
       case 'pharmacy':
-        setPharmacyIdx(nextIdx)
+        setCateIndex('pharmacy', nextIdx)
         break
       case 'shopping':
-        setShoppingIdx(nextIdx)
+        setCateIndex('shopping', nextIdx)
         break
       case 'karaoke':
-        setKaraokeIdx(nextIdx)
+        setCateIndex('karaoke', nextIdx)
         break
       case 'touristSpot':
-        setTouristSpotIdx(nextIdx)
+        setCateIndex('touristSpot', nextIdx)
         break
       default:
         break

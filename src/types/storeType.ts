@@ -1,3 +1,4 @@
+import { Route } from 'next'
 import { RoutePoint, tmapWalkingRouteResponseType } from './routeType'
 
 export type RouteIdxState = {
@@ -6,20 +7,18 @@ export type RouteIdxState = {
   idx: number
 }
 
+type RouteCategoryKey =
+  | 'meal'
+  | 'coffee'
+  | 'pharmacy'
+  | 'shopping'
+  | 'karaoke'
+  | 'touristSpot'
+
 export type RouteCategoryIdxState = {
-  setMealIdx: (value: number) => void
-  setCoffeeIdx: (value: number) => void
-  setPharmacyIdx: (value: number) => void
-  setShoppingIdx: (value: number) => void
-  setKaraokeIdx: (value: number) => void
-  setTouristSpotIdx: (value: number) => void
-  initialIdx: () => void
-  mealIdx: number
-  coffeeIdx: number
-  pharmacyIdx: number
-  shoppingIdx: number
-  karaokeIdx: number
-  touristSpotIdx: number
+  cateIndex: Record<RouteCategoryKey, number>
+  setCateIndex: (key: RouteCategoryKey, value: number) => void
+  resetAllCateIndex: () => void
 }
 
 export type markerState = {
@@ -50,7 +49,5 @@ export type MapState = {
 
 export type CurrentPosiMarkerState = {
   currentPosiMarker: naver.maps.Marker | null
-  setCurrentPosiMarker: (
-    currentPosiMarker: naver.maps.Marker | null,
-  ) => void
+  setCurrentPosiMarker: (currentPosiMarker: naver.maps.Marker | null) => void
 }
