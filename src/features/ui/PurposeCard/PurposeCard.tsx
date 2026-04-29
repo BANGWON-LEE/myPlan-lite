@@ -21,7 +21,7 @@ export default function PurposeCard({
         aria-pressed={isActive}
         className={`p-6 w-full rounded-2xl transition-all duration-300 grid items-center ${
           isActive
-            ? `${color} text-white shadow-lg scale-105 border-2 border-${color}`
+            ? `${color} text-white shadow-lg scale-105 `
             : 'bg-white text-gray-700 hover:shadow-md border-2 border-gray-100'
         }`}
       >

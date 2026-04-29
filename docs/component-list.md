@@ -11,9 +11,9 @@
 - `FindingPlaceSpinner`  
   - `src/share/components/FindingPlaceSpinner.tsx`
 - `MapScript`  
-  - `src/components/MapScript.tsx`
+  - `src/features/platform/map/MapScript.tsx`
 - `PwaInstallNotice`  
-  - `src/components/PwaInstallNotice.tsx`
+  - `src/features/platform/pwa/PwaInstallNotice.tsx`
 
 ## 로딩/플랜 기능 컴포넌트
 
@@ -70,4 +70,3 @@
 
 - `src/test/Test.tsx`
 - `src/test/Test.backup.tsx`
-
