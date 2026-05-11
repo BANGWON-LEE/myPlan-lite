@@ -97,6 +97,11 @@ export function getCurrentPositionPromise(): Promise<GeolocationPosition> {
     navigator.geolocation.getCurrentPosition(
       position => resolve(position),
       error => reject(error),
+      {
+        enableHighAccuracy: false,
+        maximumAge: 15000,
+        timeout: 2000,
+      },
     )
   })
 }
