@@ -3,15 +3,11 @@ import { placeType } from '@/types/placeType'
 import { useState } from 'react'
 
 export function useRoutePlaceBtn(
-  placeList: placeType[],
+  // placeList: placeType[],
   currentIdx: number,
   place: { key: string; list: placeType | null },
   isDisabled: boolean,
 ) {
-  const [searchErrorMessage, setSearchErrorMessage] = useState('')
-  const hasNoMorePlaces =
-    placeList.length === 0 || currentIdx + 1 >= placeList.length
-
   const {
     setBankIdx,
     setHospitalIdx,
@@ -47,17 +43,10 @@ export function useRoutePlaceBtn(
   }
 
   function handleSearchOtherPlace() {
-    if (hasNoMorePlaces) {
-      setSearchErrorMessage('불러올 장소가 없습니다.')
-      return
-    }
-
-    setSearchErrorMessage('')
     setRoutePlaceIdx(place.key, currentIdx + 1)
   }
 
   return {
-    searchErrorMessage,
     onClick: () => handleSearchOtherPlace(),
     isDisabled,
   }
