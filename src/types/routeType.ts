@@ -31,12 +31,12 @@ export type tmapWalkingRouteResponseType = {
 }
 
 export type RouteCategoryKey =
-  | 'meal'
-  | 'coffee'
+  | 'bank'
+  | 'hospital'
   | 'pharmacy'
   | 'shopping'
   | 'karaoke'
-  | 'touristSpot'
+  | 'toilet'
 
 export type RoutePoint = {
   x: number

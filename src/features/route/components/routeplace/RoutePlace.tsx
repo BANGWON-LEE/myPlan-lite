@@ -86,8 +86,8 @@ export default function RoutePlace({
 
   const routeArr: {
     key: RouteCategoryKey
-    list: placeType
-    placeList: TmapPoiItem[]
+    list: TmapPoiItem[]
+    // placeList: TmapPoiItem[]
     currentIdx: number
     routeArrSize: number
     renderKey: string
@@ -99,14 +99,15 @@ export default function RoutePlace({
 
     const currentIdx = routePlaceIndexes[categoryKey] ?? 0
     const placeList = routeList[categoryKey] ?? []
-    const selectedPlace = placeList[currentIdx] ?? placeList[0]
+    // const selectedPlace = placeList[currentIdx] ?? placeList[0]
+    const selectedPlace = placeList
 
-    if (!selectedPlace) return
+    if (!selectedPlace || selectedPlace.length === 0) return
 
     routeArr.push({
       key: categoryKey,
       list: selectedPlace,
-      placeList,
+      // placeList,
       currentIdx,
       routeArrSize: placeList.length,
       renderKey: `${categoryKey}-${index}`,
@@ -127,12 +128,12 @@ export default function RoutePlace({
     const formatApiData = formatResult(purposes, filterApiArr)
 
     const listArr: Record<RouteCategoryKey, TmapPoiItem[]> = {
-      meal: [],
-      coffee: [],
+      bank: [],
+      hospital: [],
       pharmacy: [],
       shopping: [],
       karaoke: [],
-      touristSpot: [],
+      toilet: [],
     }
 
     addValueByCategory(listArr, formatApiData)
@@ -213,6 +214,8 @@ export default function RoutePlace({
     setStartPoint,
   ])
 
+  console.log('routeArr', routeArr)
+
   return (
     <React.Fragment>
       <LoadingSpin isLoading={isLoading} />
@@ -220,25 +223,33 @@ export default function RoutePlace({
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
           {routeArr.map((place, index) => (
             <React.Fragment key={place.renderKey}>
-              <section className="w-full">
-                <div
-                  className={`bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
-                    place.routeArrSize <= place.currentIdx && 'bg-slate-300'
-                  }`}
-                >
-                  <RoutePlaceList
-                    place={place}
-                    routeArrSize={place.routeArrSize}
-                    routePlaceIdxList={place.currentIdx}
-                  />
-                  <RoutePlaceBottom
-                    place={place}
-                    placeList={place.placeList}
-                    currentIdx={place.currentIdx}
-                    isDisabled={isLoading}
-                  />
-                </div>
+              <section className="w-full flex overflow-x-auto scrollbar-hide">
+                {place.list.map((item: TmapPoiItem, idx: number) => (
+                  <div
+                    key={`${place.key}-${idx}`}
+                    className="mb-2 w-full flex-shrink-0  items-center justify-center"
+                  >
+                    <div
+                      className={`bg-white h-full mr-4 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer flex ${
+                        place.routeArrSize <= place.currentIdx && 'bg-slate-300'
+                      }`}
+                    >
+                      <RoutePlaceList
+                        place={{ key: place.key, list: item }}
+                        routeArrSize={place.routeArrSize}
+                        routePlaceIdxList={place.currentIdx}
+                      />
+                      {/* <RoutePlaceBottom
+                        place={{ key: place.key, list: item }}
+                        placeList={place.placeList}
+                        currentIdx={place.currentIdx}
+                        isDisabled={isLoading}
+                      /> */}
+                    </div>
+                  </div>
+                ))}
               </section>
+
               {index < routeArr.length - 1 && (
                 <div className="flex justify-center py-1" aria-hidden="true">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm">

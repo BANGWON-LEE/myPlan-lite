@@ -19,35 +19,36 @@ export default function RouteCombined() {
   const [routeList, setRouteList] = useState<
     Record<RouteCategoryKey, TmapPoiItem[]>
   >({
-    meal: [],
-    coffee: [],
+    bank: [],
+    hospital: [],
     pharmacy: [],
     shopping: [],
     karaoke: [],
-    touristSpot: [],
+    toilet: [],
   })
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? ''
 
   const {
-    mealIdx,
-    coffeeIdx,
+    bankIdx,
+    hospitalIdx,
     pharmacyIdx,
     shoppingIdx,
     karaokeIdx,
-    touristSpotIdx,
+    toiletIdx,
   } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
 
   const routePlaceIndexes = useMemo(
     () => ({
-      meal: mealIdx,
-      coffee: coffeeIdx,
+      bank: bankIdx,
+      hospital: hospitalIdx,
       pharmacy: pharmacyIdx,
       shopping: shoppingIdx,
       karaoke: karaokeIdx,
-      touristSpot: touristSpotIdx,
+      // touristSpot: touristSpotIdx,
+      toilet: toiletIdx,
     }),
-    [mealIdx, coffeeIdx, pharmacyIdx, shoppingIdx, karaokeIdx, touristSpotIdx],
+    [bankIdx, hospitalIdx, pharmacyIdx, shoppingIdx, karaokeIdx, toiletIdx],
   )
 
   const purposesArr = useMemo(

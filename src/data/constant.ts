@@ -1,11 +1,10 @@
 import { RouteCategoryKey } from '@/types/routeType'
 import {
+  Banknote,
   BriefcaseMedicalIcon,
-  Coffee,
   MapPinned,
   Music4,
   ShoppingBag,
-  Utensils,
 } from 'lucide-react'
 
 export const initialPlaceObj = {
@@ -20,12 +19,13 @@ export const initialPlaceObj = {
 }
 
 export const PURPOSE_TO_CATEGORY_KEY: Record<string, RouteCategoryKey> = {
-  음식점: 'meal',
-  커피: 'coffee',
+  은행: 'bank',
+  병원: 'hospital',
   약국: 'pharmacy',
   편의점: 'shopping',
   노래방: 'karaoke',
-  관광지: 'touristSpot',
+  // 관광지: 'touristSpot',
+  공중화장실: 'toilet',
 }
 
 export const ORDERED_MARKER_COLORS = [
@@ -68,17 +68,17 @@ export const AVERAGE_WALKING_SPEED_KM_PER_MINUTE =
 
 export const purposes = [
   {
-    id: '커피',
-    key: 'coffee',
-    icon: Coffee,
-    label: '카페',
+    id: '은행',
+    key: 'bank',
+    icon: Banknote,
+    label: '은행',
     color: 'bg-amber-500',
   },
   {
-    id: '음식점',
-    key: 'meal',
-    icon: Utensils,
-    label: '식사',
+    id: '병원',
+    key: 'hospital',
+    icon: BriefcaseMedicalIcon,
+    label: '병원',
     color: 'bg-rose-500',
   },
   {
@@ -102,11 +102,18 @@ export const purposes = [
     label: '노래방',
     color: 'bg-fuchsia-500',
   },
+  // {
+  //   id: '관광지',
+  //   key: 'touristSpot',
+  //   icon: MapPinned,
+  //   label: '관광지',
+  //   color: 'bg-orange-500',
+  // },
   {
-    id: '관광지',
-    key: 'touristSpot',
+    id: '공중화장실',
+    key: 'toilet',
     icon: MapPinned,
-    label: '관광지',
+    label: '공중화장실',
     color: 'bg-orange-500',
   },
 ]

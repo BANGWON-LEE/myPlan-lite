@@ -7,19 +7,19 @@ export type RouteIdxState = {
 }
 
 export type RouteCategoryIdxState = {
-  setMealIdx: (value: number) => void
-  setCoffeeIdx: (value: number) => void
+  setBankIdx: (value: number) => void
+  setHospitalIdx: (value: number) => void
   setPharmacyIdx: (value: number) => void
   setShoppingIdx: (value: number) => void
   setKaraokeIdx: (value: number) => void
-  setTouristSpotIdx: (value: number) => void
+  setToiletIdx: (value: number) => void
   initialIdx: () => void
-  mealIdx: number
-  coffeeIdx: number
+  bankIdx: number
+  hospitalIdx: number
   pharmacyIdx: number
   shoppingIdx: number
   karaokeIdx: number
-  touristSpotIdx: number
+  toiletIdx: number
 }
 
 export type markerState = {
@@ -50,7 +50,5 @@ export type MapState = {
 
 export type CurrentPosiMarkerState = {
   currentPosiMarker: naver.maps.Marker | null
-  setCurrentPosiMarker: (
-    currentPosiMarker: naver.maps.Marker | null,
-  ) => void
+  setCurrentPosiMarker: (currentPosiMarker: naver.maps.Marker | null) => void
 }
