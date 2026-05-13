@@ -1,4 +1,3 @@
-import { Route } from 'next'
 import { RoutePoint, tmapWalkingRouteResponseType } from './routeType'
 
 export type RouteIdxState = {
@@ -7,18 +6,20 @@ export type RouteIdxState = {
   idx: number
 }
 
-type RouteCategoryKey =
-  | 'meal'
-  | 'coffee'
-  | 'pharmacy'
-  | 'shopping'
-  | 'karaoke'
-  | 'touristSpot'
-
 export type RouteCategoryIdxState = {
-  cateIndex: Record<RouteCategoryKey, number>
-  setCateIndex: (key: RouteCategoryKey, value: number) => void
-  resetAllCateIndex: () => void
+  setBankIdx: (value: number) => void
+  setHospitalIdx: (value: number) => void
+  setPharmacyIdx: (value: number) => void
+  setShoppingIdx: (value: number) => void
+  setKaraokeIdx: (value: number) => void
+  setToiletIdx: (value: number) => void
+  initialIdx: () => void
+  bankIdx: number
+  hospitalIdx: number
+  pharmacyIdx: number
+  shoppingIdx: number
+  karaokeIdx: number
+  toiletIdx: number
 }
 
 export type markerState = {

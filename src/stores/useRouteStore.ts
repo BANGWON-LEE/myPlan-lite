@@ -11,74 +11,34 @@ import {
 import { create } from 'zustand'
 
 //장소 전체를 인덱스 증가
-
-// export const useRoutePlaceIdxStore = create<RouteCategoryIdxState>(set => ({
-//   mealIdx: 0,
-//   coffeeIdx: 0,
-//   pharmacyIdx: 0,
-//   shoppingIdx: 0,
-//   karaokeIdx: 0,
-//   touristSpotIdx: 0,
-//   setMealIdx: value => set({ mealIdx: value }),
-//   setCoffeeIdx: value => set({ coffeeIdx: value }),
-//   setPharmacyIdx: value => set({ pharmacyIdx: value }),
-//   setShoppingIdx: value => set({ shoppingIdx: value }),
-//   setKaraokeIdx: value => set({ karaokeIdx: value }),
-//   setTouristSpotIdx: value => set({ touristSpotIdx: value }),
-//   initialIdx: () =>
-//     set({
-//       mealIdx: 0,
-//       coffeeIdx: 0,
-//       pharmacyIdx: 0,
-//       shoppingIdx: 0,
-//       karaokeIdx: 0,
-//       touristSpotIdx: 0,
-//     }),
+// export const useRoutePlaceIdxStore = create<RouteIdxState>(set => ({
+//   idx: 0,
+//   incIdx: () => set((state: { idx: number }) => ({ idx: state.idx + 1 })),
+//   initialIdx: () => set((state: { idx: number }) => ({ idx: (state.idx = 0) })),
 // }))
 
 export const useRoutePlaceIdxStore = create<RouteCategoryIdxState>(set => ({
-  cateIndex: {
-    meal: 0,
-    coffee: 0,
-    pharmacy: 0,
-    shopping: 0,
-    karaoke: 0,
-    touristSpot: 0,
-  },
-  setCateIndex: (key, value) =>
-    set(prev => ({
-      cateIndex: { ...prev.cateIndex, [key]: value },
-    })),
-
-  resetAllCateIndex: () =>
+  bankIdx: 0,
+  hospitalIdx: 0,
+  pharmacyIdx: 0,
+  shoppingIdx: 0,
+  karaokeIdx: 0,
+  toiletIdx: 0,
+  setBankIdx: value => set({ bankIdx: value }),
+  setHospitalIdx: value => set({ hospitalIdx: value }),
+  setPharmacyIdx: value => set({ pharmacyIdx: value }),
+  setShoppingIdx: value => set({ shoppingIdx: value }),
+  setKaraokeIdx: value => set({ karaokeIdx: value }),
+  setToiletIdx: value => set({ toiletIdx: value }),
+  initialIdx: () =>
     set({
-      cateIndex: {
-        meal: 0,
-        coffee: 0,
-        pharmacy: 0,
-        shopping: 0,
-        karaoke: 0,
-        touristSpot: 0,
-      },
+      bankIdx: 0,
+      hospitalIdx: 0,
+      pharmacyIdx: 0,
+      shoppingIdx: 0,
+      karaokeIdx: 0,
+      toiletIdx: 0,
     }),
-
-  // setCateIndex: {
-  //   cateIndex: (key, value) =>
-  //     set(prev => ({
-  //       cateIndex: { ...prev.cateIndex, [key]: value },
-  //     })),
-  // },
-
-  // resetAllCateIndex: () => set({{
-  //       cateIndex: {
-  //         meal: 0,
-  //         coffee: 0,
-  //         pharmacy: 0,
-  //         shopping: 0,
-  //         karaoke: 0,
-  //         touristSpot: 0,
-  //       },
-  //     }})
 }))
 
 export const usePositionStore = create<PositionState>(set => ({

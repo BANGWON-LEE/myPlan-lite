@@ -9,7 +9,7 @@ const stayTimeByPurpose: Record<string, number> = {
   longWalk: 20, // 긴 산책
   shopping: 20, // 휴식
   karaoke: 60, // 노래방
-  touristSpot: 90, // 관광지
+  toilet: 90, // 공중화장실
 }
 
 export function calculateRadius(time: string, purpose: string): number {
