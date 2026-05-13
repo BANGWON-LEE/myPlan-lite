@@ -15,7 +15,6 @@ import {
 } from '@/stores/useRouteStore'
 import {
   MapScriptProps,
-  placeType,
   RouteApiDataType,
   TmapPoiItem,
 } from '@/types/placeType'
@@ -34,7 +33,6 @@ import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
 import { getMyRouteList } from '../../containers/RouteMainContainer'
 import LoadingSpin from '../LoadingSpin'
-import RoutePlaceBottom from './RoutePlaceBottom'
 import RoutePlaceList from './RoutePlaceList'
 
 type RoutePlaceProps = MapScriptProps & {
@@ -87,7 +85,6 @@ export default function RoutePlace({
   const routeArr: {
     key: RouteCategoryKey
     list: TmapPoiItem[]
-    // placeList: TmapPoiItem[]
     currentIdx: number
     routeArrSize: number
     renderKey: string
@@ -99,7 +96,6 @@ export default function RoutePlace({
 
     const currentIdx = routePlaceIndexes[categoryKey] ?? 0
     const placeList = routeList[categoryKey] ?? []
-    // const selectedPlace = placeList[currentIdx] ?? placeList[0]
     const selectedPlace = placeList
 
     if (!selectedPlace || selectedPlace.length === 0) return
@@ -107,7 +103,6 @@ export default function RoutePlace({
     routeArr.push({
       key: categoryKey,
       list: selectedPlace,
-      // placeList,
       currentIdx,
       routeArrSize: placeList.length,
       renderKey: `${categoryKey}-${index}`,
@@ -239,17 +234,10 @@ export default function RoutePlace({
                         routeArrSize={place.routeArrSize}
                         routePlaceIdxList={place.currentIdx}
                       />
-                      {/* <RoutePlaceBottom
-                        place={{ key: place.key, list: item }}
-                        placeList={place.placeList}
-                        currentIdx={place.currentIdx}
-                        isDisabled={isLoading}
-                      /> */}
                     </div>
                   </div>
                 ))}
               </section>
-
               {index < routeArr.length - 1 && (
                 <div className="flex justify-center py-1" aria-hidden="true">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm">
