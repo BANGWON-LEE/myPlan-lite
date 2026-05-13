@@ -231,7 +231,6 @@ export default function RoutePlace({
                       <RoutePlaceList
                         index={idx}
                         place={{ key: place.key, list: item }}
-                        currentIdx={place.currentIdx}
                         isDisabled={place.routeArrSize <= place.currentIdx}
                         routeArrSize={place.routeArrSize}
                         routePlaceIdxList={place.currentIdx}

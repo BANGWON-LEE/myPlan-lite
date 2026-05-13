@@ -1,10 +1,8 @@
 import { useRoutePlaceIdxStore } from '@/stores/useRouteStore'
 import { placeType } from '@/types/placeType'
-import { useState } from 'react'
 
 export function useRoutePlaceBtn(
-  // placeList: placeType[],
-  currentIdx: number,
+  index: number,
   place: { key: string; list: placeType | null },
   isDisabled: boolean,
 ) {
@@ -43,7 +41,7 @@ export function useRoutePlaceBtn(
   }
 
   function handleSearchOtherPlace() {
-    setRoutePlaceIdx(place.key, currentIdx + 1)
+    setRoutePlaceIdx(place.key, index)
   }
 
   return {

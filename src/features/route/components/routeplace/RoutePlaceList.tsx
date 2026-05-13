@@ -11,19 +11,11 @@ import { Clock, MapPin, Phone } from 'lucide-react'
 export default function RoutePlaceList(props: {
   index: number
   place: { key: string; list: placeType | null }
-  currentIdx: number
   isDisabled: boolean
   routeArrSize: number
   routePlaceIdxList: number
 }) {
-  const {
-    index,
-    place,
-    currentIdx,
-    isDisabled,
-    routeArrSize,
-    routePlaceIdxList,
-  } = props
+  const { index, place, isDisabled, routeArrSize, routePlaceIdxList } = props
   const placeDistance = useRoutePathStore(
     state => state.path?.summary.properties,
   )?.totalDistance
@@ -37,7 +29,7 @@ export default function RoutePlaceList(props: {
         ).minutes.toString()}분`
       : `${getHourTimeMinTimeFormat(Number(placeDistance)).minutes.toString()}분`
 
-  const routePlaceBtn = useRoutePlaceBtn(currentIdx, place, isDisabled)
+  const routePlaceBtn = useRoutePlaceBtn(index, place, isDisabled)
 
   const cardNum = (index + 1).toString().padStart(2, '0') // 1 -> "01", 2 -> "02", ..., 10 -> "10"
 
