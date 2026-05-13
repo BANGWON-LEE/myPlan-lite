@@ -18,26 +18,26 @@ import { create } from 'zustand'
 // }))
 
 export const useRoutePlaceIdxStore = create<RouteCategoryIdxState>(set => ({
-  mealIdx: 0,
-  coffeeIdx: 0,
+  bankIdx: 0,
+  hospitalIdx: 0,
   pharmacyIdx: 0,
   shoppingIdx: 0,
   karaokeIdx: 0,
-  touristSpotIdx: 0,
-  setMealIdx: value => set({ mealIdx: value }),
-  setCoffeeIdx: value => set({ coffeeIdx: value }),
+  toiletIdx: 0,
+  setBankIdx: value => set({ bankIdx: value }),
+  setHospitalIdx: value => set({ hospitalIdx: value }),
   setPharmacyIdx: value => set({ pharmacyIdx: value }),
   setShoppingIdx: value => set({ shoppingIdx: value }),
   setKaraokeIdx: value => set({ karaokeIdx: value }),
-  setTouristSpotIdx: value => set({ touristSpotIdx: value }),
+  setToiletIdx: value => set({ toiletIdx: value }),
   initialIdx: () =>
     set({
-      mealIdx: 0,
-      coffeeIdx: 0,
+      bankIdx: 0,
+      hospitalIdx: 0,
       pharmacyIdx: 0,
       shoppingIdx: 0,
       karaokeIdx: 0,
-      touristSpotIdx: 0,
+      toiletIdx: 0,
     }),
 }))
 
@@ -73,7 +73,9 @@ export const useMapStore = create<MapState>(set => ({
   setMap: map => set({ map }),
 }))
 
-export const useCurrentPosiMarkerStore = create<CurrentPosiMarkerState>(set => ({
-  currentPosiMarker: null,
-  setCurrentPosiMarker: currentPosiMarker => set({ currentPosiMarker }),
-}))
+export const useCurrentPosiMarkerStore = create<CurrentPosiMarkerState>(
+  set => ({
+    currentPosiMarker: null,
+    setCurrentPosiMarker: currentPosiMarker => set({ currentPosiMarker }),
+  }),
+)

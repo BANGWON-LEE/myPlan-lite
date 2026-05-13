@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { POSITION_STORAGE_KEY } from '@/data/constant'
 import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
 import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
+import LocationError from '@/features/error/Error'
 
 type LocationPermissionState = 'checking' | 'granted' | 'error'
 
@@ -69,7 +70,10 @@ export default function RoutePermissionGate({
     data: position,
     error,
     isLoading,
-  } = useQuery<GeolocationPosition, Error | GeolocationPositionError>({
+  } = useQuery<
+    GeolocationPosition,
+    globalThis.Error | GeolocationPositionError
+  >({
     queryKey: POSITION_QUERY_KEY,
     queryFn: async () => await getCurrentPositionPromise(),
     staleTime: 1000 * 60 * 5,
@@ -102,6 +106,8 @@ export default function RoutePermissionGate({
 
   if (permission === 'granted' && (position || storedPosition)) {
     return <>{children(position ?? storedPosition!)}</>
+  } else if (permission === 'error') {
+    return <LocationError />
   }
 
   return null

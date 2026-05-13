@@ -44,7 +44,8 @@ export function filterPlaceList(places: TmapPoiItem[]) {
     return (
       !place.name.includes('주차장') &&
       !place.name.includes('정문') &&
-      !place.name.includes('후문')
+      !place.name.includes('후문') &&
+      (!place.name.includes('화장실') || !place.name.includes('은행'))
     )
   })
 }
@@ -97,18 +98,18 @@ export function addValueByCategory(
     // console.log('cateNAme', cateName)
 
     switch (cateName) {
-      case '음식점':
-        return (listArr.meal = placeArr[cateName])
-      case '커피':
-        return (listArr.coffee = placeArr[cateName])
+      case '은행':
+        return (listArr.bank = placeArr[cateName])
+      case '병원':
+        return (listArr.hospital = placeArr[cateName])
       case '약국':
         return (listArr.pharmacy = placeArr[cateName])
       case '편의점':
         return (listArr.shopping = placeArr[cateName])
       case '노래방':
         return (listArr.karaoke = placeArr[cateName])
-      case '관광지':
-        return (listArr.touristSpot = placeArr[cateName])
+      case '공중화장실':
+        return (listArr.toilet = placeArr[cateName])
       default:
         return
     }
