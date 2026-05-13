@@ -9,7 +9,6 @@ import {
   useMapStore,
   useMapReadyStore,
   useRoutePathStore,
-  useRoutePlaceIdxStore,
   useStartPointStore,
   useCurrentPosiMarkerStore,
 } from '@/stores/useRouteStore'
