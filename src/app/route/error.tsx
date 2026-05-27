@@ -12,7 +12,9 @@ export default function RouteError({
 
   useEffect(() => {
     console.error('Route page error:', error)
-    window.alert('오류가 발생해 처음 화면으로 이동합니다.')
+    window.alert(
+      '움직이는 차안이나 해외에서는 해당 서비스를 이용하기 어렵습니다',
+    )
     router.replace('/')
   }, [error, router])
 
