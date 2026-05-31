@@ -59,7 +59,6 @@ export default function RouteCombined() {
     [purposesArr, routeList, routePlaceIndexes],
   )
 
-  console.log('render')
   return (
     <RoutePermissionGate>
       {position => (

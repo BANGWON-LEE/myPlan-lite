@@ -167,7 +167,6 @@ export default function RoutePlace({
     const drawRoute = async () => {
       toggleDisabled(true)
       try {
-        console.log('2222')
         const currentPosition = await getCurrentPositionPromise()
         const startPoint = {
           x: currentPosition.coords.longitude,
