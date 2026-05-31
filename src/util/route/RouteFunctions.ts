@@ -1,4 +1,5 @@
 import { AVERAGE_WALKING_SPEED_KM_PER_MINUTE } from '@/data/constant'
+import { TmapCoordinate } from '@/types/routeType'
 
 const stayTimeByPurpose: Record<string, number> = {
   meal: 40, // 식사
@@ -68,14 +69,22 @@ function timeToMs(hour: number, minute: number) {
   return hour * 60 * 60 * 1000 + minute * 60 * 1000
 }
 
-export function tMapFormatSpreadPath(path: number[]) {
-  const resultArr: number[] = []
+type TmapGeometryCoordinates = TmapCoordinate | TmapCoordinate[]
+
+function isTmapCoordinate(
+  coordinates: TmapGeometryCoordinates,
+): coordinates is TmapCoordinate {
+  return typeof coordinates[0] === 'number'
+}
+
+export function tMapFormatSpreadPath(path: TmapGeometryCoordinates[]) {
+  const resultArr: TmapCoordinate[] = []
 
   path.forEach(el => {
-    if (Array.isArray(el) && Array.isArray(el[0])) {
-      resultArr.push(...el)
-    } else if (!Array.isArray(el)) {
+    if (isTmapCoordinate(el)) {
       resultArr.push(el)
+    } else {
+      resultArr.push(...el)
     }
   })
 
