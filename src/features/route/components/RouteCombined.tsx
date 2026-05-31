@@ -29,15 +29,6 @@ export default function RouteCombined() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? ''
 
-  // const {
-  //   bankIdx,
-  //   hospitalIdx,
-  //   pharmacyIdx,
-  //   shoppingIdx,
-  //   karaokeIdx,
-  //   toiletIdx,
-  // } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
-
   const bankIdx = useRoutePlaceIdxStore(state => state.bankIdx)
   const hospitalIdx = useRoutePlaceIdxStore(state => state.hospitalIdx)
   const pharmacyIdx = useRoutePlaceIdxStore(state => state.pharmacyIdx)
