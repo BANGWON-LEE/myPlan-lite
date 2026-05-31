@@ -1,9 +1,11 @@
 import { MapScriptProps, TmapPoiResponse } from '@/types/placeType'
 
+export type TmapCoordinate = [number, number]
+
 export interface tmapResponseWalk {
   geometry: {
     type: string
-    coordinates: [number, number]
+    coordinates: TmapCoordinate
   }
 }
 
@@ -23,11 +25,11 @@ export type tmapDistanceType = {
   }
 }
 
-export type tmapRoutePathType = [number, number][]
+export type tmapRoutePathType = TmapCoordinate[]
 
 export type tmapWalkingRouteResponseType = {
-  path: tmapRoutePathType
-  summary: tmapDistanceType
+  path: tmapRoutePathType[]
+  summary: tmapDistanceType[][]
 }
 
 export type RouteCategoryKey =
@@ -42,6 +44,11 @@ export type RoutePoint = {
   x: number
   y: number
   name: string
+}
+
+export type walkDataType = {
+  startPoint: RoutePoint
+  routePoints: RoutePoint[]
 }
 
 export type SearchLocResponse = {
@@ -109,4 +116,15 @@ export type StoredPosition = {
 
 export type RouteMapProps = MapScriptProps & {
   selectedRoutePoints: RoutePoint[]
+}
+
+export type WalkingApiType = {
+  startX: number
+  startY: number
+  endX: number
+  endY: number
+  reqCoordType: string
+  resCoordType: string
+  startName: string
+  endName: string
 }

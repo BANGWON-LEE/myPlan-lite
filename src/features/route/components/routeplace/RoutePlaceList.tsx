@@ -3,7 +3,6 @@
 import { RoutePlaceBtn } from '@/features/ui/RoutePlaceBtn/RoutePlaceBtn'
 import { useRoutePlaceBtn } from '@/features/ui/RoutePlaceBtn/RoutePlaceBtn.logic'
 import { StatLabel } from '@/share/components/Text'
-import { useRoutePathStore } from '@/stores/useRouteStore'
 import { placeType } from '@/types/placeType'
 import { getHourTimeMinTimeFormat } from '@/util/common/common'
 import { Clock, MapPin, Phone } from 'lucide-react'
@@ -16,22 +15,27 @@ export default function RoutePlaceList(props: {
   routePlaceIdxList: number
 }) {
   const { index, place, isDisabled, routeArrSize, routePlaceIdxList } = props
-  const placeDistance = useRoutePathStore(
-    state => state.path?.summary.properties,
-  )?.totalDistance
-
-  const time =
-    getHourTimeMinTimeFormat(Number(place.list?.radius)).hours > 0
-      ? `${getHourTimeMinTimeFormat(
-          Number(placeDistance),
-        ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
-          Number(placeDistance),
-        ).minutes.toString()}분`
-      : `${getHourTimeMinTimeFormat(Number(placeDistance)).minutes.toString()}분`
 
   const routePlaceBtn = useRoutePlaceBtn(index, place, isDisabled)
 
   const cardNum = (index + 1).toString().padStart(2, '0') // 1 -> "01", 2 -> "02", ..., 10 -> "10"
+
+  function convertRadiusToMeter(radius?: string | number) {
+    if (!radius) return 0
+
+    return Math.round(Number(radius) * 1000)
+  }
+
+  const formatRadius = convertRadiusToMeter(place.list?.radius)
+
+  const time =
+    getHourTimeMinTimeFormat(Number(formatRadius)).hours > 0
+      ? `${getHourTimeMinTimeFormat(
+          Number(formatRadius),
+        ).hours.toString()}시간 ${getHourTimeMinTimeFormat(
+          Number(formatRadius),
+        ).minutes.toString()}분`
+      : `${getHourTimeMinTimeFormat(Number(formatRadius)).minutes.toString()}분`
 
   return (
     <RoutePlaceBtn {...routePlaceBtn}>
@@ -66,7 +70,7 @@ export default function RoutePlaceList(props: {
             </div>
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-indigo-500" />
-              <span>도보 거리 {placeDistance?.toLocaleString()}m</span>
+              <span>도보 거리 {formatRadius.toLocaleString()}m</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
