@@ -8,7 +8,6 @@ import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import {
   useMapStore,
   useMapReadyStore,
-  useRoutePathStore,
   useStartPointStore,
   useCurrentPosiMarkerStore,
 } from '@/stores/useRouteStore'
@@ -17,7 +16,11 @@ import {
   RouteApiDataType,
   TmapPoiItem,
 } from '@/types/placeType'
-import { RouteCategoryKey, RoutePoint } from '@/types/routeType'
+import {
+  RouteCategoryKey,
+  RoutePoint,
+  tmapWalkingRouteResponseType,
+} from '@/types/routeType'
 import {
   addValueByCategory,
   filterApiData,
@@ -54,8 +57,7 @@ export default function RoutePlace({
   const queryPurposes = searchParams?.get('purposes') ?? ''
   const queryTime = searchParams?.get('time') ?? ''
 
-  // const { resetAllCateIndex } = useRoutePlaceIdxStore()
-  const setRoutePath = useRoutePathStore(state => state.setPath)
+  const [routePath, setRoutePath] = useState<tmapWalkingRouteResponseType>()
   const setStartPoint = useStartPointStore(state => state.setStartPoint)
   const setMap = useMapStore(state => state.setMap)
   const setCurrentPosiMarker = useCurrentPosiMarkerStore(
@@ -165,6 +167,7 @@ export default function RoutePlace({
     const drawRoute = async () => {
       toggleDisabled(true)
       try {
+        console.log('2222')
         const currentPosition = await getCurrentPositionPromise()
         const startPoint = {
           x: currentPosition.coords.longitude,
@@ -180,11 +183,13 @@ export default function RoutePlace({
             startPoint.name,
           )
           setCurrentPosiMarker(currentPosiMarker)
+
           const path = await drawRouteByPoints(
             map,
             selectedRoutePoints,
             startPoint,
           )
+
           setMap(map)
           setRoutePath(path)
           setStartPoint(startPoint)
@@ -208,8 +213,6 @@ export default function RoutePlace({
     setStartPoint,
   ])
 
-  console.log('routeArr', routeArr)
-
   return (
     <React.Fragment>
       <LoadingSpin isLoading={isLoading} />
@@ -230,6 +233,10 @@ export default function RoutePlace({
                     >
                       <RoutePlaceList
                         index={idx}
+                        placeDistance={
+                          routePath?.summary[index][0]?.properties
+                            ?.totalDistance
+                        }
                         place={{ key: place.key, list: item }}
                         isDisabled={place.routeArrSize <= place.currentIdx}
                         routeArrSize={place.routeArrSize}
