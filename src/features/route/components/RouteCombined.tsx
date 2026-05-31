@@ -29,14 +29,21 @@ export default function RouteCombined() {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? ''
 
-  const {
-    bankIdx,
-    hospitalIdx,
-    pharmacyIdx,
-    shoppingIdx,
-    karaokeIdx,
-    toiletIdx,
-  } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+  // const {
+  //   bankIdx,
+  //   hospitalIdx,
+  //   pharmacyIdx,
+  //   shoppingIdx,
+  //   karaokeIdx,
+  //   toiletIdx,
+  // } = useRoutePlaceIdxStore() // 각 카테고리 별로 장소를 다르게 보여주려 함
+
+  const bankIdx = useRoutePlaceIdxStore(state => state.bankIdx)
+  const hospitalIdx = useRoutePlaceIdxStore(state => state.hospitalIdx)
+  const pharmacyIdx = useRoutePlaceIdxStore(state => state.pharmacyIdx)
+  const shoppingIdx = useRoutePlaceIdxStore(state => state.shoppingIdx)
+  const karaokeIdx = useRoutePlaceIdxStore(state => state.karaokeIdx)
+  const toiletIdx = useRoutePlaceIdxStore(state => state.toiletIdx)
 
   const routePlaceIndexes = useMemo(
     () => ({
@@ -60,6 +67,8 @@ export default function RouteCombined() {
     () => getSelectedRoutePoints(purposesArr, routeList, routePlaceIndexes),
     [purposesArr, routeList, routePlaceIndexes],
   )
+
+  console.log('render')
   return (
     <RoutePermissionGate>
       {position => (
