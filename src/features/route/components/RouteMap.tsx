@@ -173,6 +173,7 @@ export default function RouteMap({
           y: currentPosition.coords.latitude,
           name: '현재 위치',
         }
+        map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
 
         if (map) {
           const polyline = await drawRouteByPoints(
