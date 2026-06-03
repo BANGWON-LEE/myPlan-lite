@@ -22,9 +22,9 @@ export default function RouteMap({
   position,
   selectedRoutePoints,
 }: RouteMapProps) {
-  const currentPosiMarker = useCurrentPosiMarkerStore(
-    state => state.currentPosiMarker,
-  )
+  // const currentPosiMarker = useCurrentPosiMarkerStore(
+  //   state => state.currentPosiMarker,
+  // )
   const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
@@ -47,13 +47,13 @@ export default function RouteMap({
   const [isLoading, setIsLoading] = useState(false)
 
   const watchIdRef = useRef<number | null>(null)
-
+  const placeMarkersRef = useRef<naver.maps.Marker>(null)
   useEffect(() => {
     if (!isMapReady) return
     if (!map) return
     if (!routePath) return
     if (!startPoint) return
-    if (!currentPosiMarker) return
+    if (!placeMarkersRef.current) return
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       pos => {
@@ -63,7 +63,7 @@ export default function RouteMap({
           name: '현재 위치',
         }
 
-        currentPosiMarker?.setPosition(
+        placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
         )
       },
@@ -88,14 +88,13 @@ export default function RouteMap({
     routePath,
     selectedRoutePoints,
     startPoint,
-    currentPosiMarker,
+    placeMarkersRef,
   ])
 
   function toggleDisabled(state: boolean) {
     setIsLoading(state)
   }
 
-  const placeMarkersRef = useRef<naver.maps.Marker>(null)
   const placePolyPathRef = useRef<naver.maps.Polyline[] | undefined | null>([])
   const placePolyMarkersRef = useRef<naver.maps.Marker[] | undefined | null>([])
 
@@ -164,6 +163,9 @@ export default function RouteMap({
     })
     placePolyMarkersRef.current = []
 
+    placeMarkersRef.current?.setMap(null)
+    placeMarkersRef.current = null
+
     const drawRoute = async () => {
       toggleDisabled(true)
       try {
@@ -176,6 +178,14 @@ export default function RouteMap({
         map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
 
         if (map) {
+          const currentPosiMarker = getDrawMyMarker(
+            map,
+            startPoint,
+            startPoint.name,
+          )
+
+          placeMarkersRef.current = currentPosiMarker
+
           const polyline = await drawRouteByPoints(
             map,
             selectedRoutePoints,
