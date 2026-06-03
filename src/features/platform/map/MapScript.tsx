@@ -40,7 +40,7 @@ export default function MapScript() {
   useEffect(() => {
     if (typeof naver === 'undefined') return
     handleMapLoad()
-  }, [position, setMap])
+  }, [])
 
   return (
     <>

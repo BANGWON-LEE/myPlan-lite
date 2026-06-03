@@ -127,19 +127,29 @@ export async function drawRouteByPoints(
   let currentPoint = startPoint
 
   const walkingPath = await getWalkingArr(currentPoint, routePoints)
+  const polylineArr = [] as naver.maps.Polyline[]
+  const lineMarkersArr = [] as naver.maps.Marker[]
 
   for (const [index, goalPoint] of routePoints.entries()) {
-    drawPolyline(map, walkingPath.path[index], getOrderedRouteColor(index))
-    getDrawRouteMarker(
+    const polyline = drawPolyline(
+      map,
+      walkingPath.path[index],
+      getOrderedRouteColor(index),
+    )
+    polylineArr.push(polyline)
+
+    const marker = getDrawRouteMarker(
       map,
       goalPoint,
       `${index + 1}. ${goalPoint.name}`,
       index + 1,
     )
+    lineMarkersArr.push(marker)
     currentPoint = goalPoint
   }
 
-  return walkingPath
+  // return walkingPath
+  return { polylines: polylineArr, markers: lineMarkersArr }
 }
 
 export function getRoutePointFromPlace(

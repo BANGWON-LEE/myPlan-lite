@@ -1,26 +1,12 @@
 'use client'
-import {
-  drawRouteByPoints,
-  getDrawMyMarker,
-  getInitialMapPosition,
-} from '@/features/route/containers/drawRouteContainer'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
-import {
-  useMapStore,
-  useMapReadyStore,
-  useStartPointStore,
-  useCurrentPosiMarkerStore,
-} from '@/stores/useRouteStore'
+import { useMapReadyStore } from '@/stores/useRouteStore'
 import {
   MapScriptProps,
   RouteApiDataType,
   TmapPoiItem,
 } from '@/types/placeType'
-import {
-  RouteCategoryKey,
-  RoutePoint,
-  tmapWalkingRouteResponseType,
-} from '@/types/routeType'
+import { RouteCategoryKey, RoutePoint } from '@/types/routeType'
 import {
   addValueByCategory,
   filterApiData,
@@ -28,13 +14,11 @@ import {
   formatStringToArray,
 } from '@/util/common/common'
 import { PURPOSE_TO_CATEGORY_KEY } from '@/data/constant'
-import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDown } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { getMyRouteList } from '../../containers/RouteMainContainer'
-import LoadingSpin from '../LoadingSpin'
 import RoutePlaceList from './RoutePlaceList'
 
 type RoutePlaceProps = MapScriptProps & {
@@ -51,20 +35,14 @@ export default function RoutePlace({
   routeList,
   setRouteList,
   routePlaceIndexes,
-  selectedRoutePoints,
 }: RoutePlaceProps) {
   const searchParams = useSearchParams()
   const queryPurposes = searchParams?.get('purposes') ?? ''
   const queryTime = searchParams?.get('time') ?? ''
 
-  const [routePath, setRoutePath] = useState<tmapWalkingRouteResponseType>()
-  const setStartPoint = useStartPointStore(state => state.setStartPoint)
-  const setMap = useMapStore(state => state.setMap)
-  const setCurrentPosiMarker = useCurrentPosiMarkerStore(
-    state => state.setCurrentPosiMarker,
-  )
-  const isMapReady = useMapReadyStore(state => state.isMapReady)
-  const setIsMapReady = useMapReadyStore(state => state.setIsMapReady)
+  const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
+
+  const setIsMapLoadReady = useMapReadyStore(state => state.setIsMapReady)
 
   const { data } = useQuery<RouteApiDataType[]>({
     queryKey: ['place', position, queryPurposes, queryTime],
@@ -77,7 +55,6 @@ export default function RoutePlace({
     placeholderData: prev => prev,
   })
 
-  const [isLoading, setIsLoading] = useState(false)
   const purposesArr = useMemo(
     () => formatStringToArray(queryPurposes).filter(Boolean),
     [queryPurposes],
@@ -110,10 +87,6 @@ export default function RoutePlace({
     })
   })
 
-  function toggleDisabled(state: boolean) {
-    setIsLoading(state)
-  }
-
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!position) return
@@ -140,13 +113,13 @@ export default function RoutePlace({
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (typeof naver !== 'undefined') {
-      setIsMapReady(true)
+      setIsMapLoadReady(true)
       return
     }
 
     const timer = window.setInterval(() => {
       if (typeof naver !== 'undefined') {
-        setIsMapReady(true)
+        setIsMapLoadReady(true)
         window.clearInterval(timer)
       }
     }, 300)
@@ -154,67 +127,10 @@ export default function RoutePlace({
     return () => {
       window.clearInterval(timer)
     }
-  }, [setIsMapReady])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!isMapReady) return
-    if (!position) return
-    if (selectedRoutePoints.length === 0) return
-
-    let cancelled = false
-
-    const drawRoute = async () => {
-      toggleDisabled(true)
-      try {
-        const currentPosition = await getCurrentPositionPromise()
-        const startPoint = {
-          x: currentPosition.coords.longitude,
-          y: currentPosition.coords.latitude,
-          name: '현재 위치',
-        }
-
-        const map = await getInitialMapPosition([startPoint])
-        if (!cancelled && map) {
-          const currentPosiMarker = getDrawMyMarker(
-            map,
-            startPoint,
-            startPoint.name,
-          )
-          setCurrentPosiMarker(currentPosiMarker)
-
-          const path = await drawRouteByPoints(
-            map,
-            selectedRoutePoints,
-            startPoint,
-          )
-
-          setMap(map)
-          setRoutePath(path)
-          setStartPoint(startPoint)
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false)
-      }
-    }
-
-    drawRoute()
-    return () => {
-      cancelled = true
-    }
-  }, [
-    isMapReady,
-    position,
-    selectedRoutePoints,
-    setMap,
-    setCurrentPosiMarker,
-    setRoutePath,
-    setStartPoint,
-  ])
+  }, [isMapLoadReady])
 
   return (
     <React.Fragment>
-      <LoadingSpin isLoading={isLoading} />
       {routeArr.length > 0 ? (
         <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
           {routeArr.map((place, index) => (

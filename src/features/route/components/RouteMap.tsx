@@ -2,6 +2,7 @@
 import MapScript from '@/features/platform/map/MapScript'
 import {
   useCurrentPosiMarkerStore,
+  useMapReadyStore,
   useMapStore,
   usePositionStore,
   useRoutePathStore,
@@ -10,12 +11,17 @@ import {
 import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
+import LoadingSpin from './LoadingSpin'
+import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
+import {
+  drawRouteByPoints,
+  getDrawMyMarker,
+} from '../containers/drawRouteContainer'
 
 export default function RouteMap({
   position,
   selectedRoutePoints,
 }: RouteMapProps) {
-  const map = useMapStore(state => state.map)
   const currentPosiMarker = useCurrentPosiMarkerStore(
     state => state.currentPosiMarker,
   )
@@ -26,11 +32,19 @@ export default function RouteMap({
     savePositionToStorage(position)
   }, [position, setPosition])
 
+  // const [routePolyPath, setRoutePolyPath] = useState<tmapWalkingRouteResponseType>()
+  const setStartPoint = useStartPointStore(state => state.setStartPoint)
+  const map = useMapStore(state => state.map)
+  const setMap = useMapStore(state => state.setMap)
+  const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
+
   const isMapReady = usePositionStore(state => state.position) !== null
   const routePath = useRoutePathStore(state => state.path)
+  // const setRoutePath = useRoutePathStore(state => state.setPath)
   const startPoint = useStartPointStore(state => state.startPoint)
 
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const watchIdRef = useRef<number | null>(null)
 
@@ -77,6 +91,110 @@ export default function RouteMap({
     currentPosiMarker,
   ])
 
+  function toggleDisabled(state: boolean) {
+    setIsLoading(state)
+  }
+
+  const placeMarkersRef = useRef<naver.maps.Marker>(null)
+  const placePolyPathRef = useRef<naver.maps.Polyline[] | undefined | null>([])
+  const placePolyMarkersRef = useRef<naver.maps.Marker[] | undefined | null>([])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!isMapLoadReady) return
+    if (!map) return
+    if (selectedRoutePoints.length === 0) return
+
+    let cancelled = false
+
+    const drawRoute = async () => {
+      toggleDisabled(true)
+      try {
+        const currentPosition = await getCurrentPositionPromise()
+        const startPoint = {
+          x: currentPosition.coords.longitude,
+          y: currentPosition.coords.latitude,
+          name: '현재 위치',
+        }
+
+        if (!cancelled && map) {
+          const currentPosiMarker = getDrawMyMarker(
+            map,
+            startPoint,
+            startPoint.name,
+          )
+
+          placeMarkersRef.current = currentPosiMarker
+
+          const polyline = await drawRouteByPoints(
+            map,
+            selectedRoutePoints,
+            startPoint,
+          )
+
+          placePolyPathRef.current = polyline.polylines
+          placePolyMarkersRef.current = polyline.markers
+
+          setStartPoint(startPoint)
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+
+    drawRoute()
+    return () => {
+      cancelled = true
+    }
+  }, [isMapLoadReady, setMap, setStartPoint])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!isMapLoadReady) return
+    if (!map) return
+    if (selectedRoutePoints.length === 0) return
+
+    placePolyPathRef.current?.forEach(polyline => {
+      polyline.setMap(null)
+    })
+    placePolyPathRef.current = []
+
+    placePolyMarkersRef.current?.forEach(marker => {
+      marker.setMap(null)
+    })
+    placePolyMarkersRef.current = []
+
+    const drawRoute = async () => {
+      toggleDisabled(true)
+      try {
+        const currentPosition = await getCurrentPositionPromise()
+        const startPoint = {
+          x: currentPosition.coords.longitude,
+          y: currentPosition.coords.latitude,
+          name: '현재 위치',
+        }
+        map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
+
+        if (map) {
+          const polyline = await drawRouteByPoints(
+            map,
+            selectedRoutePoints,
+            startPoint,
+          )
+
+          placePolyPathRef.current = polyline.polylines
+          placePolyMarkersRef.current = polyline.markers
+
+          // setStartPoint(startPoint)
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    drawRoute()
+  }, [position, selectedRoutePoints, isMapLoadReady])
+
   return (
     <>
       <div className="relative h-64 bg-gradient-to-br from-blue-100 to-indigo-100">
@@ -88,6 +206,7 @@ export default function RouteMap({
           <p>{errorMesage}</p>
         </div>
       </div>
+      <LoadingSpin isLoading={isLoading} />
     </>
   )
 }

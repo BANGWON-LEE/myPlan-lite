@@ -1,0 +1,183 @@
+최적화 평가 기록
+작성일: 2026-06-03
+대상 변경 파일:
+- src/features/platform/map/MapScript.tsx
+- src/features/route/components/RouteMap.tsx
+- src/features/route/components/routeplace/RoutePlace.tsx
+- src/features/route/containers/drawRouteContainer.ts
+
+1. 전체 요약
+
+이번 변경의 핵심은 RoutePlace가 직접 지도 생성, 현재 위치 마커 생성, 경로 그리기까지 담당하던 구조를 줄이고, RouteMap이 지도 위 시각화 책임을 맡도록 옮긴 것이다.
+
+방향 자체는 좋다. 장소 리스트 컴포넌트는 장소 데이터 조회와 리스트 렌더링에 집중하고, 지도 컴포넌트는 지도와 경로 렌더링에 집중하는 구조가 된다. 또한 drawRouteByPoints가 생성한 polyline과 marker 인스턴스를 반환하게 바꾼 점은 이후 지도 객체를 정리할 수 있게 만드는 중요한 개선이다.
+
+다만 현재 구현은 아직 안정화가 덜 됐다. 특히 RouteMap의 useEffect 의존성 배열 누락, 초기 draw 중복 가능성, 현재 위치 마커 store 미연결 때문에 실제 사용 중 경로가 안 그려지거나, 같은 경로가 중복으로 그려지거나, 위치 추적이 동작하지 않을 가능성이 높다.
+
+종합 평가는 "최적화 방향은 맞지만, 현재 상태 그대로는 동작 안정성이 부족하다"이다.
+
+2. 좋아진 점
+
+RoutePlace의 책임이 줄었다.
+기존에는 RoutePlace 안에서 지도 준비 상태 확인, 현재 위치 조회, 지도 생성, 현재 위치 마커 생성, 경로 draw, loading 상태 관리까지 처리했다. 이번 변경으로 RoutePlace는 장소 데이터와 리스트 렌더링 쪽에 가까워졌다. 컴포넌트 책임 분리는 유지보수에 유리하다.
+
+지도 객체 재생성 가능성을 줄이려는 방향이 보인다.
+MapScript의 effect 의존성에서 position과 setMap을 제거하면서 position 변경 때마다 지도를 새로 만드는 일을 줄이려 한 것으로 보인다. 지도 SDK 객체 생성은 비용이 크기 때문에, 지도는 한 번 만들고 마커나 polyline만 갱신하는 방향이 맞다.
+
+polyline과 marker 제거를 위한 기반이 생겼다.
+drawRouteByPoints가 생성한 naver.maps.Polyline과 naver.maps.Marker 배열을 반환하게 바뀌었다. 이 덕분에 RouteMap에서 이전 경로를 setMap(null)로 제거할 수 있다. 이전 구현처럼 그리기만 하고 참조를 잃는 구조보다 낫다.
+
+경로 변경 시 기존 polyline과 목적지 marker를 제거한다.
+RouteMap의 두 번째 effect에서 placePolyPathRef와 placePolyMarkersRef를 순회하며 setMap(null)을 호출한다. 이 자체는 중복 렌더링 누적을 줄이기 위한 올바른 접근이다.
+
+3. 우선 수정해야 할 문제
+
+문제 1: RouteMap의 지도/경로 draw effect가 map 변경에 반응하지 않는다.
+
+위치:
+src/features/route/components/RouteMap.tsx:102
+src/features/route/components/RouteMap.tsx:151
+
+첫 번째 effect의 의존성은 [isMapLoadReady, setMap, setStartPoint]이고, 두 번째 effect의 의존성은 [position, selectedRoutePoints, isMapLoadReady]이다. 두 effect 모두 내부에서 map을 사용하지만 의존성 배열에 map이 없다.
+
+이 상태에서는 isMapLoadReady가 true가 된 시점에 map이 아직 null이면 effect가 그냥 return한다. 이후 MapScript가 setMap을 호출해서 map store가 채워져도, 의존성 배열에 map이 없기 때문에 경로 draw effect가 다시 실행되지 않을 수 있다.
+
+결과:
+지도는 로드됐는데 경로가 안 그려지는 race condition이 생길 수 있다.
+lint도 이 문제를 경고한다.
+
+권장 수정:
+map을 effect 의존성에 포함해야 한다.
+사용하지 않는 setMap은 제거해야 한다.
+
+문제 2: 초기 경로 그리기가 중복 실행될 수 있다.
+
+위치:
+src/features/route/components/RouteMap.tsx:102
+src/features/route/components/RouteMap.tsx:151
+
+현재 RouteMap에는 selectedRoutePoints를 이용해 drawRouteByPoints를 호출하는 effect가 두 개 있다. 첫 번째 effect는 현재 위치 마커와 startPoint까지 세팅하고, 두 번째 effect는 기존 polyline/marker를 제거한 뒤 경로를 다시 그린다.
+
+조건이 맞으면 두 effect가 같은 초기 상태에서 모두 실행될 수 있다. 이 경우 getCurrentPositionPromise와 /api/walking 호출도 중복되고, polyline과 marker도 중복 생성될 수 있다.
+
+더 큰 문제는 async 완료 순서다. 두 번째 effect가 먼저 정리하고 다시 그린 뒤, 첫 번째 effect가 늦게 완료되면 이전 ref가 새 객체로 덮이고 지도 위에는 정리되지 않은 객체가 남을 수 있다.
+
+권장 수정:
+경로 그리기 effect를 하나로 합치는 편이 좋다.
+하나의 effect 안에서 "기존 객체 제거 -> 현재 위치 확인 -> 현재 위치 마커 갱신 또는 생성 -> 경로 draw -> ref 저장 -> startPoint 저장" 순서로 처리하는 것이 안정적이다.
+
+문제 3: 현재 위치 마커가 store에 저장되지 않아 위치 추적 effect가 동작하지 않을 수 있다.
+
+위치:
+src/features/route/components/RouteMap.tsx:25
+src/features/route/components/RouteMap.tsx:56
+src/features/route/components/RouteMap.tsx:127
+
+watchPosition effect는 currentPosiMarker store 값이 있어야 실행된다. 그런데 새 구현에서는 getDrawMyMarker로 만든 마커를 placeMarkersRef.current에만 저장하고, useCurrentPosiMarkerStore의 setCurrentPosiMarker를 호출하지 않는다.
+
+결과:
+currentPosiMarker가 계속 null이면 watchPosition effect가 return하고, 현재 위치 마커 이동 업데이트가 동작하지 않는다.
+
+추가 문제:
+placeMarkersRef.current에 저장한 현재 위치 마커도 setMap(null)로 제거하는 cleanup이 없다. 경로를 다시 그릴 때 현재 위치 마커가 누적될 수 있다.
+
+권장 수정:
+현재 위치 마커를 store에 저장하거나, watchPosition도 ref 기반으로 바꿔야 한다.
+경로 재그리기 또는 unmount 시 현재 위치 마커도 setMap(null)로 정리해야 한다.
+
+문제 4: routePath store가 더 이상 갱신되지 않는데 watchPosition effect는 routePath를 요구한다.
+
+위치:
+src/features/route/components/RouteMap.tsx:42
+src/features/route/components/RouteMap.tsx:54
+src/features/route/containers/drawRouteContainer.ts:122
+
+drawRouteByPoints의 반환값이 walkingPath에서 { polylines, markers }로 바뀌었고, RouteMap에서 setRoutePath 호출은 주석 처리되어 있다. 그런데 watchPosition effect는 routePath가 없으면 return한다.
+
+결과:
+현재 위치 마커 store 문제와 별개로 routePath가 null이면 위치 추적 effect가 실행되지 않는다.
+
+권장 수정:
+watchPosition effect에서 routePath 조건이 실제로 필요한지 재검토해야 한다. 현재 위치 마커를 움직이는 목적이라면 routePath 의존성은 제거해도 된다.
+경로 원본 데이터가 다른 곳에서 필요하다면 drawRouteByPoints가 walkingPath와 지도 객체 핸들을 함께 반환하도록 타입을 명시하는 것이 좋다.
+
+문제 5: drawRouteByPoints 반환 타입이 명시되어 있지 않아 계약이 약해졌다.
+
+위치:
+src/features/route/containers/drawRouteContainer.ts:122
+
+기존에는 walkingPath 응답을 반환했다. 지금은 polyline과 marker 배열을 반환한다. 의미 있는 변경이지만 함수의 public contract가 바뀐 것이므로 반환 타입을 명시하는 것이 좋다.
+
+권장 타입 예시:
+{
+  polylines: naver.maps.Polyline[]
+  markers: naver.maps.Marker[]
+}
+
+필요하면 여기에 walkingPath도 함께 포함할 수 있다.
+
+문제 6: RoutePlace의 map ready effect 의존성 배열이 맞지 않다.
+
+위치:
+src/features/route/components/routeplace/RoutePlace.tsx:113
+
+effect 내부에서 setIsMapLoadReady를 사용하지만 의존성 배열에는 isMapLoadReady만 있다. lint가 이 부분을 경고한다.
+
+권장 수정:
+의존성 배열은 [setIsMapLoadReady]가 자연스럽다.
+isMapLoadReady는 effect 내부에서 읽지 않으므로 의존성에서 제거해도 된다.
+
+문제 7: MapScript의 position 구독은 제거하거나 의도를 명확히 해야 한다.
+
+위치:
+src/features/platform/map/MapScript.tsx:9
+src/features/platform/map/MapScript.tsx:40
+
+position 값을 구독하지만 실제로는 사용하지 않는다. handleMapLoad 안에서는 usePositionStore.getState()로 최신 값을 읽는다. 최적화 의도라면 position 구독 자체를 제거하는 편이 더 깔끔하다.
+
+추가로 useEffect([])에서 handleMapLoad를 호출하기 때문에 lint는 handleMapLoad 누락을 경고한다. 이 구조를 유지하려면 handleMapLoad를 useCallback으로 감싸거나, effect 안으로 로직을 넣는 방식이 필요하다.
+
+4. 검증 결과
+
+타입 검사:
+./node_modules/.bin/tsc --noEmit
+결과: 통과
+
+lint:
+yarn lint
+결과: 실패
+
+lint 실패의 직접 원인은 tailwind.config.js:80의 require() 사용이다. 이 에러는 이번 변경 파일이 아니라 기존 설정 파일 쪽 문제로 보인다.
+
+다만 이번 변경 파일에서도 다음 hook dependency 경고가 확인됐다.
+
+src/features/platform/map/MapScript.tsx
+- position 미사용
+- useEffect의 handleMapLoad 의존성 누락
+
+src/features/route/components/RouteMap.tsx
+- 첫 번째 draw effect의 map, selectedRoutePoints 의존성 누락
+- 두 번째 draw effect의 map 의존성 누락
+
+src/features/route/components/routeplace/RoutePlace.tsx
+- setIsMapLoadReady 의존성 누락
+
+5. 최적화 관점 결론
+
+성능 최적화 방향은 타당하다.
+비싼 지도 객체를 반복 생성하지 않고, RoutePlace에서 지도 draw 책임을 분리하고, 생성된 polyline/marker 핸들을 보관해 제거할 수 있게 만든 점은 실제 성능과 유지보수성 모두에 도움이 된다.
+
+하지만 현재 구현은 effect 실행 조건이 불안정하다.
+map 준비 시점, naver script 로드 시점, selectedRoutePoints 변경 시점이 서로 어긋나면 경로가 안 그려지거나 중복으로 그려질 수 있다. 이 문제는 성능 최적화 이전에 동작 안정성 문제로 보는 것이 맞다.
+
+우선순위는 다음 순서가 좋다.
+
+1. RouteMap의 두 경로 draw effect를 하나로 합친다.
+2. effect 의존성에 map과 selectedRoutePoints를 정확히 포함한다.
+3. 현재 위치 마커를 store 또는 ref 중 하나의 방식으로 일관되게 관리한다.
+4. 경로 polyline, 목적지 marker, 현재 위치 marker를 모두 cleanup한다.
+5. drawRouteByPoints 반환 타입을 명시하고, walkingPath가 필요한지 결정한다.
+6. lint hook dependency 경고를 정리한다.
+
+최종 판단:
+구조 개선의 방향은 좋고, 실제 최적화로 이어질 수 있는 기반도 있다. 그러나 현재 커밋 상태는 race condition과 cleanup 누락이 있어 그대로 병합하기에는 위험하다. effect를 하나로 정리하고 marker/store 계약을 맞추면 훨씬 안정적인 최적화가 된다.
