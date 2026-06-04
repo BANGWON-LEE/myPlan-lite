@@ -4,7 +4,6 @@ import {
   useMapReadyStore,
   useMapStore,
   usePositionStore,
-  useStartPointStore,
 } from '@/stores/useRouteStore'
 import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
@@ -27,13 +26,11 @@ export default function RouteMap({
     savePositionToStorage(position)
   }, [position, setPosition])
 
-  const setStartPoint = useStartPointStore(state => state.setStartPoint)
   const map = useMapStore(state => state.map)
   const setMap = useMapStore(state => state.setMap)
   const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
 
   const isMapReady = usePositionStore(state => state.position) !== null
-  const startPoint = useStartPointStore(state => state.startPoint)
 
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -44,7 +41,6 @@ export default function RouteMap({
   useEffect(() => {
     if (!isMapReady) return
     if (!map) return
-    if (!startPoint) return
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       pos => {
@@ -53,6 +49,8 @@ export default function RouteMap({
           y: pos.coords.latitude,
           name: '현재 위치',
         }
+
+        console.log('Selected Route watchPosition:', movingPoint)
 
         placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
@@ -73,14 +71,7 @@ export default function RouteMap({
         watchIdRef.current = null
       }
     }
-  }, [
-    isMapReady,
-    map,
-    position,
-    selectedRoutePoints,
-    startPoint,
-    placeMarkersRef,
-  ])
+  }, [isMapReady, map, position, selectedRoutePoints, placeMarkersRef])
 
   function toggleDisabled(state: boolean) {
     setIsLoading(state)
@@ -115,8 +106,6 @@ export default function RouteMap({
           )
 
           placeMarkersRef.current = currentPosiMarker
-
-          setStartPoint(startPoint)
         }
       } finally {
         if (!cancelled) setIsLoading(false)
@@ -127,35 +116,30 @@ export default function RouteMap({
     return () => {
       cancelled = true
     }
-  }, [isMapLoadReady, setMap, setStartPoint])
+  }, [isMapLoadReady, setMap, map])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!isMapLoadReady) return
     if (!map) return
     if (selectedRoutePoints.length === 0) return
-    if (
-      placePolyPathRef.current === null ||
-      placePolyMarkersRef.current === null
-    )
-      return
-
-    placePolyPathRef.current?.forEach(polyline => {
-      polyline.setMap(null)
-    })
-    placePolyPathRef.current = []
-
-    placePolyMarkersRef.current?.forEach(marker => {
-      marker.setMap(null)
-    })
-    placePolyMarkersRef.current = []
-
-    placeMarkersRef.current?.setMap(null)
-    placeMarkersRef.current = null
 
     const drawRoute = async () => {
       toggleDisabled(true)
       try {
+        placePolyPathRef.current?.forEach(polyline => {
+          polyline.setMap(null)
+        })
+        placePolyPathRef.current = []
+
+        placePolyMarkersRef.current?.forEach(marker => {
+          marker.setMap(null)
+        })
+        placePolyMarkersRef.current = []
+
+        placeMarkersRef.current?.setMap(null)
+        placeMarkersRef.current = null
+
         const currentPosition = await getCurrentPositionPromise()
         const startPoint = {
           x: currentPosition.coords.longitude,
@@ -190,6 +174,8 @@ export default function RouteMap({
 
     drawRoute()
   }, [position, selectedRoutePoints, isMapLoadReady])
+
+  console.log('Selected Route placeMarkersRef 1111:', placeMarkersRef.current)
 
   return (
     <>
