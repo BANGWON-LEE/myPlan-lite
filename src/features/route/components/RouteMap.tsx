@@ -150,8 +150,8 @@ export default function RouteMap({
     })
     placePolyMarkersRef.current = []
 
-    // placeMarkersRef.current?.setMap(null)
-    // placeMarkersRef.current = null
+    placeMarkersRef.current?.setMap(null)
+    placeMarkersRef.current = null
 
     const drawRoute = async () => {
       toggleDisabled(true)
@@ -165,9 +165,14 @@ export default function RouteMap({
 
         if (map) {
           map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
-          placeMarkersRef.current?.setPosition(
-            new naver.maps.LatLng(startPoint.y, startPoint.x),
+
+          const currentPosiMarker = getDrawMyMarker(
+            map,
+            startPoint,
+            startPoint.name,
           )
+
+          placeMarkersRef.current = currentPosiMarker
 
           const polyline = await drawRouteByPoints(
             map,
