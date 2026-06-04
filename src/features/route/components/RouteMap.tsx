@@ -76,7 +76,7 @@ export default function RouteMap({
   }, [
     isMapReady,
     map,
-    // routePath,
+    position,
     selectedRoutePoints,
     startPoint,
     placeMarkersRef,
@@ -116,15 +116,6 @@ export default function RouteMap({
 
           placeMarkersRef.current = currentPosiMarker
 
-          const polyline = await drawRouteByPoints(
-            map,
-            selectedRoutePoints,
-            startPoint,
-          )
-
-          placePolyPathRef.current = polyline.polylines
-          placePolyMarkersRef.current = polyline.markers
-
           setStartPoint(startPoint)
         }
       } finally {
@@ -143,6 +134,11 @@ export default function RouteMap({
     if (!isMapLoadReady) return
     if (!map) return
     if (selectedRoutePoints.length === 0) return
+    if (
+      placePolyPathRef.current === null ||
+      placePolyMarkersRef.current === null
+    )
+      return
 
     placePolyPathRef.current?.forEach(polyline => {
       polyline.setMap(null)
@@ -154,8 +150,8 @@ export default function RouteMap({
     })
     placePolyMarkersRef.current = []
 
-    placeMarkersRef.current?.setMap(null)
-    placeMarkersRef.current = null
+    // placeMarkersRef.current?.setMap(null)
+    // placeMarkersRef.current = null
 
     const drawRoute = async () => {
       toggleDisabled(true)
@@ -166,16 +162,12 @@ export default function RouteMap({
           y: currentPosition.coords.latitude,
           name: '현재 위치',
         }
-        map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
 
         if (map) {
-          const currentPosiMarker = getDrawMyMarker(
-            map,
-            startPoint,
-            startPoint.name,
+          map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
+          placeMarkersRef.current?.setPosition(
+            new naver.maps.LatLng(startPoint.y, startPoint.x),
           )
-
-          placeMarkersRef.current = currentPosiMarker
 
           const polyline = await drawRouteByPoints(
             map,
@@ -185,8 +177,6 @@ export default function RouteMap({
 
           placePolyPathRef.current = polyline.polylines
           placePolyMarkersRef.current = polyline.markers
-
-          // setStartPoint(startPoint)
         }
       } finally {
         setIsLoading(false)
