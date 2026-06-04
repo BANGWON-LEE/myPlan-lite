@@ -50,7 +50,7 @@ export default function RouteMap({
           name: '현재 위치',
         }
 
-        console.log('Selected Route watchPosition:', movingPoint)
+        // console.log('Selected Route watchPosition:', movingPoint)
 
         placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
@@ -123,7 +123,8 @@ export default function RouteMap({
     if (!isMapLoadReady) return
     if (!map) return
     if (selectedRoutePoints.length === 0) return
-
+    let cancelled = false
+    let currentPosiMarker: naver.maps.Marker | null = null
     const drawRoute = async () => {
       toggleDisabled(true)
       try {
@@ -150,11 +151,7 @@ export default function RouteMap({
         if (map) {
           map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
 
-          const currentPosiMarker = getDrawMyMarker(
-            map,
-            startPoint,
-            startPoint.name,
-          )
+          currentPosiMarker = getDrawMyMarker(map, startPoint, startPoint.name)
 
           placeMarkersRef.current = currentPosiMarker
 
@@ -168,14 +165,23 @@ export default function RouteMap({
           placePolyMarkersRef.current = polyline.markers
         }
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
 
     drawRoute()
+    return () => {
+      cancelled = true
+
+      currentPosiMarker?.setMap(null)
+
+      if (placeMarkersRef.current === currentPosiMarker) {
+        placeMarkersRef.current = null
+      }
+    }
   }, [position, selectedRoutePoints, isMapLoadReady])
 
-  console.log('Selected Route placeMarkersRef 1111:', placeMarkersRef.current)
+  // console.log('Selected Route placeMarkersRef 1111:', placeMarkersRef.current)
 
   return (
     <>
