@@ -32,7 +32,6 @@ export default function RouteMap({
     savePositionToStorage(position)
   }, [position, setPosition])
 
-  // const [routePolyPath, setRoutePolyPath] = useState<tmapWalkingRouteResponseType>()
   const setStartPoint = useStartPointStore(state => state.setStartPoint)
   const map = useMapStore(state => state.map)
   const setMap = useMapStore(state => state.setMap)
@@ -40,13 +39,13 @@ export default function RouteMap({
 
   const isMapReady = usePositionStore(state => state.position) !== null
   const routePath = useRoutePathStore(state => state.path)
-  // const setRoutePath = useRoutePathStore(state => state.setPath)
   const startPoint = useStartPointStore(state => state.startPoint)
 
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const watchIdRef = useRef<number | null>(null)
+  const placeMarkersRef = useRef<naver.maps.Marker>(null)
 
   useEffect(() => {
     if (!isMapReady) return
@@ -63,7 +62,9 @@ export default function RouteMap({
           name: '현재 위치',
         }
 
-        currentPosiMarker?.setPosition(
+        // console.log('Moving Point:', movingPoint)
+
+        placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
         )
       },
@@ -88,14 +89,13 @@ export default function RouteMap({
     routePath,
     selectedRoutePoints,
     startPoint,
-    currentPosiMarker,
+    placeMarkersRef,
   ])
 
   function toggleDisabled(state: boolean) {
     setIsLoading(state)
   }
 
-  const placeMarkersRef = useRef<naver.maps.Marker>(null)
   const placePolyPathRef = useRef<naver.maps.Polyline[] | undefined | null>([])
   const placePolyMarkersRef = useRef<naver.maps.Marker[] | undefined | null>([])
 
