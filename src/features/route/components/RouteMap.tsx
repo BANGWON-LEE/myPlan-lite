@@ -1,11 +1,9 @@
 'use client'
 import MapScript from '@/features/platform/map/MapScript'
 import {
-  useCurrentPosiMarkerStore,
   useMapReadyStore,
   useMapStore,
   usePositionStore,
-  useRoutePathStore,
   useStartPointStore,
 } from '@/stores/useRouteStore'
 import { RouteMapProps } from '@/types/routeType'
@@ -22,9 +20,6 @@ export default function RouteMap({
   position,
   selectedRoutePoints,
 }: RouteMapProps) {
-  const currentPosiMarker = useCurrentPosiMarkerStore(
-    state => state.currentPosiMarker,
-  )
   const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
@@ -38,7 +33,6 @@ export default function RouteMap({
   const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
 
   const isMapReady = usePositionStore(state => state.position) !== null
-  const routePath = useRoutePathStore(state => state.path)
   const startPoint = useStartPointStore(state => state.startPoint)
 
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
@@ -50,9 +44,7 @@ export default function RouteMap({
   useEffect(() => {
     if (!isMapReady) return
     if (!map) return
-    if (!routePath) return
     if (!startPoint) return
-    if (!currentPosiMarker) return
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       pos => {
@@ -61,8 +53,6 @@ export default function RouteMap({
           y: pos.coords.latitude,
           name: '현재 위치',
         }
-
-        // console.log('Moving Point:', movingPoint)
 
         placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
@@ -86,7 +76,7 @@ export default function RouteMap({
   }, [
     isMapReady,
     map,
-    routePath,
+    // routePath,
     selectedRoutePoints,
     startPoint,
     placeMarkersRef,
