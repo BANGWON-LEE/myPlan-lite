@@ -1,21 +1,23 @@
 'use client'
 
-import { useMapStore, usePositionStore } from '@/stores/useRouteStore'
+import { useMapStore } from '@/stores/useRouteStore'
 import { DEFAULT_MAP_ZOOM } from '@/util/map/mapFunctions'
 import Script from 'next/script'
 import { useEffect } from 'react'
 
-export default function MapScript() {
-  // const position = usePositionStore(state => state.position)
+export default function MapScript({
+  position,
+}: {
+  position: GeolocationPosition | null
+}) {
   const setMap = useMapStore(state => state.setMap)
 
   function handleMapLoad() {
     try {
-      const pos = usePositionStore.getState().position
       const map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(
-          pos?.coords.latitude ?? 37.5665,
-          pos?.coords.longitude ?? 126.978,
+          position?.coords.latitude ?? 37.5665,
+          position?.coords.longitude ?? 126.978,
         ),
         zoom: DEFAULT_MAP_ZOOM,
         mapTypeId: naver.maps.MapTypeId.NORMAL,
@@ -27,8 +29,10 @@ export default function MapScript() {
       const pos = localStorage.getItem('position')
       const map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(
-          pos ? JSON.parse(pos).coords.latitude : 37.5665,
-          pos ? JSON.parse(pos).coords.longitude : 126.978,
+          position?.coords.latitude ??
+            (pos ? JSON.parse(pos).coords.latitude : 37.5665),
+          position?.coords.longitude ??
+            (pos ? JSON.parse(pos).coords.longitude : 126.978),
         ),
         zoom: DEFAULT_MAP_ZOOM,
         mapTypeId: naver.maps.MapTypeId.NORMAL,
