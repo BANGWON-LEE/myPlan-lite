@@ -27,12 +27,14 @@ export default function MapScript({
       // 전역으로 가져오는 좌표값에 문제가 생길 때, localStorage에서 좌표값을 가져와 fallback으로 사용한다.
       console.error('Error loading Naver Map:', error)
       const pos = localStorage.getItem('position')
+      const positionFallback = pos ? JSON.parse(pos).coords : null
+
       const map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(
           position?.coords.latitude ??
-            (pos ? JSON.parse(pos).coords.latitude : 37.5665),
+            (positionFallback ? positionFallback.latitude : 37.5665),
           position?.coords.longitude ??
-            (pos ? JSON.parse(pos).coords.longitude : 126.978),
+            (positionFallback ? positionFallback.longitude : 126.978),
         ),
         zoom: DEFAULT_MAP_ZOOM,
         mapTypeId: naver.maps.MapTypeId.NORMAL,
@@ -41,8 +43,11 @@ export default function MapScript({
     }
   }
 
+  const getMap = useMapStore(state => state.map)
+
   useEffect(() => {
     if (typeof naver === 'undefined') return
+    if (getMap) return
     handleMapLoad()
   }, [])
 

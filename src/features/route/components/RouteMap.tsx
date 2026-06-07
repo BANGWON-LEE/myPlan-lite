@@ -1,10 +1,6 @@
 'use client'
 import MapScript from '@/features/platform/map/MapScript'
-import {
-  useMapReadyStore,
-  useMapStore,
-  usePositionStore,
-} from '@/stores/useRouteStore'
+import { useMapReadyStore, useMapStore } from '@/stores/useRouteStore'
 import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
@@ -28,7 +24,7 @@ export default function RouteMap({
   const map = useMapStore(state => state.map)
   const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
 
-  const isMapReady = usePositionStore(state => state.position) !== null
+  const isMapReady = isMapLoadReady && position
 
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -47,6 +43,8 @@ export default function RouteMap({
           y: pos.coords.latitude,
           name: '현재 위치',
         }
+
+        // console.log('현재 위치 업데이트:', movingPoint)
 
         placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
@@ -67,7 +65,7 @@ export default function RouteMap({
         watchIdRef.current = null
       }
     }
-  }, [isMapReady, map, position, selectedRoutePoints, placeMarkersRef])
+  }, [isMapReady, map, position, placeMarkersRef])
 
   function toggleDisabled(state: boolean) {
     setIsLoading(state)
