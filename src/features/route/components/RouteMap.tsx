@@ -1,24 +1,23 @@
 'use client'
 import MapScript from '@/features/platform/map/MapScript'
 import {
-  useCurrentPosiMarkerStore,
+  useMapReadyStore,
   useMapStore,
   usePositionStore,
-  useRoutePathStore,
-  useStartPointStore,
 } from '@/stores/useRouteStore'
 import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
+import LoadingSpin from './LoadingSpin'
+import {
+  drawRouteByPoints,
+  getDrawMyMarker,
+} from '../containers/drawRouteContainer'
 
 export default function RouteMap({
-  position,
+  position, // 상위 컴포넌트에서 가져오는 현재 위치 좌표
   selectedRoutePoints,
 }: RouteMapProps) {
-  const map = useMapStore(state => state.map)
-  const currentPosiMarker = useCurrentPosiMarkerStore(
-    state => state.currentPosiMarker,
-  )
   const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
@@ -26,20 +25,20 @@ export default function RouteMap({
     savePositionToStorage(position)
   }, [position, setPosition])
 
+  const map = useMapStore(state => state.map)
+  const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
+
   const isMapReady = usePositionStore(state => state.position) !== null
-  const routePath = useRoutePathStore(state => state.path)
-  const startPoint = useStartPointStore(state => state.startPoint)
 
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const watchIdRef = useRef<number | null>(null)
+  const placeMarkersRef = useRef<naver.maps.Marker>(null)
 
   useEffect(() => {
     if (!isMapReady) return
     if (!map) return
-    if (!routePath) return
-    if (!startPoint) return
-    if (!currentPosiMarker) return
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       pos => {
@@ -49,7 +48,7 @@ export default function RouteMap({
           name: '현재 위치',
         }
 
-        currentPosiMarker?.setPosition(
+        placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
         )
       },
@@ -68,14 +67,76 @@ export default function RouteMap({
         watchIdRef.current = null
       }
     }
-  }, [
-    isMapReady,
-    map,
-    routePath,
-    selectedRoutePoints,
-    startPoint,
-    currentPosiMarker,
-  ])
+  }, [isMapReady, map, position, selectedRoutePoints, placeMarkersRef])
+
+  function toggleDisabled(state: boolean) {
+    setIsLoading(state)
+  }
+
+  const placePolyPathRef = useRef<naver.maps.Polyline[] | undefined | null>([])
+  const placePolyMarkersRef = useRef<naver.maps.Marker[] | undefined | null>([])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!isMapLoadReady) return
+    if (!map) return
+    if (selectedRoutePoints.length === 0) return
+    let cancelled = false
+    let currentPosiMarker: naver.maps.Marker | null = null
+    const drawRoute = async () => {
+      toggleDisabled(true)
+      try {
+        placePolyPathRef.current?.forEach(polyline => {
+          polyline.setMap(null)
+        })
+        placePolyPathRef.current = []
+
+        placePolyMarkersRef.current?.forEach(marker => {
+          marker.setMap(null)
+        })
+        placePolyMarkersRef.current = []
+
+        placeMarkersRef.current?.setMap(null)
+        placeMarkersRef.current = null
+
+        const startPoint = {
+          x: position.coords.longitude,
+          y: position.coords.latitude,
+          name: '현재 위치',
+        }
+
+        if (map) {
+          map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
+
+          currentPosiMarker = getDrawMyMarker(map, startPoint, startPoint.name)
+
+          placeMarkersRef.current = currentPosiMarker
+
+          const polyline = await drawRouteByPoints(
+            map,
+            selectedRoutePoints,
+            startPoint,
+          )
+
+          placePolyPathRef.current = polyline.polylines
+          placePolyMarkersRef.current = polyline.markers
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+
+    drawRoute()
+    return () => {
+      cancelled = true
+
+      currentPosiMarker?.setMap(null)
+
+      if (placeMarkersRef.current === currentPosiMarker) {
+        placeMarkersRef.current = null
+      }
+    }
+  }, [map, position, selectedRoutePoints, isMapLoadReady])
 
   return (
     <>
@@ -88,6 +149,7 @@ export default function RouteMap({
           <p>{errorMesage}</p>
         </div>
       </div>
+      <LoadingSpin isLoading={isLoading} />
     </>
   )
 }

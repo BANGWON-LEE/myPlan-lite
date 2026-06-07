@@ -6,7 +6,7 @@ import Script from 'next/script'
 import { useEffect } from 'react'
 
 export default function MapScript() {
-  const position = usePositionStore(state => state.position)
+  // const position = usePositionStore(state => state.position)
   const setMap = useMapStore(state => state.setMap)
 
   function handleMapLoad() {
@@ -40,7 +40,7 @@ export default function MapScript() {
   useEffect(() => {
     if (typeof naver === 'undefined') return
     handleMapLoad()
-  }, [position, setMap])
+  }, [])
 
   return (
     <>

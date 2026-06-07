@@ -2,9 +2,9 @@ import { RouteCategoryKey } from '@/types/routeType'
 import {
   Banknote,
   BriefcaseMedicalIcon,
-  MapPinned,
   Music4,
   ShoppingBag,
+  Toilet,
 } from 'lucide-react'
 
 export const initialPlaceObj = {
@@ -112,7 +112,7 @@ export const purposes = [
   {
     id: '공중화장실',
     key: 'toilet',
-    icon: MapPinned,
+    icon: Toilet,
     label: '공중화장실',
     color: 'bg-orange-500',
   },

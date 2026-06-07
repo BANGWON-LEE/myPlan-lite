@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function RouteHeader() {
   return (
-    <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+    <div className="bg-white border-b border-gray-200 p-2 sticky top-0 z-10">
       <div className="flex items-center justify-start max-w-md mx-auto">
         <Link href="/">
           <button

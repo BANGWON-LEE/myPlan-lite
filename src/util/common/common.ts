@@ -45,7 +45,8 @@ export function filterPlaceList(places: TmapPoiItem[]) {
       !place.name.includes('주차장') &&
       !place.name.includes('정문') &&
       !place.name.includes('후문') &&
-      (!place.name.includes('화장실') || !place.name.includes('은행'))
+      (!place.name.includes('화장실') || !place.name.includes('은행')) &&
+      !place.middleBizName.includes('음식점')
     )
   })
 }
