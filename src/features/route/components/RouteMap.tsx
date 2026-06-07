@@ -9,14 +9,13 @@ import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
 import LoadingSpin from './LoadingSpin'
-import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 import {
   drawRouteByPoints,
   getDrawMyMarker,
 } from '../containers/drawRouteContainer'
 
 export default function RouteMap({
-  position,
+  position, // 상위 컴포넌트에서 가져오는 현재 위치 좌표
   selectedRoutePoints,
 }: RouteMapProps) {
   const setPosition = usePositionStore(state => state.setPosition)
@@ -27,7 +26,6 @@ export default function RouteMap({
   }, [position, setPosition])
 
   const map = useMapStore(state => state.map)
-  const setMap = useMapStore(state => state.setMap)
   const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
 
   const isMapReady = usePositionStore(state => state.position) !== null
@@ -49,8 +47,6 @@ export default function RouteMap({
           y: pos.coords.latitude,
           name: '현재 위치',
         }
-
-        // console.log('Selected Route watchPosition:', movingPoint)
 
         placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
@@ -85,44 +81,6 @@ export default function RouteMap({
     if (!isMapLoadReady) return
     if (!map) return
     if (selectedRoutePoints.length === 0) return
-
-    let cancelled = false
-
-    const drawRoute = async () => {
-      toggleDisabled(true)
-      try {
-        const currentPosition = await getCurrentPositionPromise()
-        const startPoint = {
-          x: currentPosition.coords.longitude,
-          y: currentPosition.coords.latitude,
-          name: '현재 위치',
-        }
-
-        if (!cancelled && map) {
-          const currentPosiMarker = getDrawMyMarker(
-            map,
-            startPoint,
-            startPoint.name,
-          )
-
-          placeMarkersRef.current = currentPosiMarker
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false)
-      }
-    }
-
-    drawRoute()
-    return () => {
-      cancelled = true
-    }
-  }, [isMapLoadReady, setMap, map])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!isMapLoadReady) return
-    if (!map) return
-    if (selectedRoutePoints.length === 0) return
     let cancelled = false
     let currentPosiMarker: naver.maps.Marker | null = null
     const drawRoute = async () => {
@@ -141,10 +99,9 @@ export default function RouteMap({
         placeMarkersRef.current?.setMap(null)
         placeMarkersRef.current = null
 
-        const currentPosition = await getCurrentPositionPromise()
         const startPoint = {
-          x: currentPosition.coords.longitude,
-          y: currentPosition.coords.latitude,
+          x: position.coords.longitude,
+          y: position.coords.latitude,
           name: '현재 위치',
         }
 
@@ -179,9 +136,7 @@ export default function RouteMap({
         placeMarkersRef.current = null
       }
     }
-  }, [position, selectedRoutePoints, isMapLoadReady])
-
-  // console.log('Selected Route placeMarkersRef 1111:', placeMarkersRef.current)
+  }, [map, position, selectedRoutePoints, isMapLoadReady])
 
   return (
     <>
