@@ -18,12 +18,12 @@ export default function RouteMap({
   position, // 상위 컴포넌트에서 가져오는 현재 위치 좌표
   selectedRoutePoints,
 }: RouteMapProps) {
-  const setPosition = usePositionStore(state => state.setPosition)
+  // const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
-    setPosition(position)
+    // setPosition(position)
     savePositionToStorage(position)
-  }, [position, setPosition])
+  }, [position])
 
   const map = useMapStore(state => state.map)
   const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
@@ -141,7 +141,7 @@ export default function RouteMap({
   return (
     <>
       <div className="relative h-64 bg-gradient-to-br from-blue-100 to-indigo-100">
-        <MapScript />
+        <MapScript position={position} />
         <div className="absolute inset-0 flex items-center justify-center">
           <div id="map" className="w-full h-full"></div>
         </div>
