@@ -1,36 +1,30 @@
 'use client'
 import MapScript from '@/features/platform/map/MapScript'
-import {
-  useMapReadyStore,
-  useMapStore,
-  usePositionStore,
-} from '@/stores/useRouteStore'
+import { useMapReadyStore, useMapStore } from '@/stores/useRouteStore'
 import { RouteMapProps } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
 import LoadingSpin from './LoadingSpin'
-import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 import {
   drawRouteByPoints,
   getDrawMyMarker,
 } from '../containers/drawRouteContainer'
 
 export default function RouteMap({
-  position,
+  position, // 상위 컴포넌트에서 가져오는 현재 위치 좌표
   selectedRoutePoints,
 }: RouteMapProps) {
-  const setPosition = usePositionStore(state => state.setPosition)
+  // const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
-    setPosition(position)
+    // setPosition(position)
     savePositionToStorage(position)
-  }, [position, setPosition])
+  }, [position])
 
   const map = useMapStore(state => state.map)
-  const setMap = useMapStore(state => state.setMap)
   const isMapLoadReady = useMapReadyStore(state => state.isMapReady)
 
-  const isMapReady = usePositionStore(state => state.position) !== null
+  const isMapReady = isMapLoadReady && position
 
   const [errorMesage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -50,7 +44,7 @@ export default function RouteMap({
           name: '현재 위치',
         }
 
-        // console.log('Selected Route watchPosition:', movingPoint)
+        // console.log('현재 위치 업데이트:', movingPoint)
 
         placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
@@ -71,7 +65,7 @@ export default function RouteMap({
         watchIdRef.current = null
       }
     }
-  }, [isMapReady, map, position, selectedRoutePoints, placeMarkersRef])
+  }, [isMapReady, map, position, placeMarkersRef])
 
   function toggleDisabled(state: boolean) {
     setIsLoading(state)
@@ -79,44 +73,6 @@ export default function RouteMap({
 
   const placePolyPathRef = useRef<naver.maps.Polyline[] | undefined | null>([])
   const placePolyMarkersRef = useRef<naver.maps.Marker[] | undefined | null>([])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!isMapLoadReady) return
-    if (!map) return
-    if (selectedRoutePoints.length === 0) return
-
-    let cancelled = false
-
-    const drawRoute = async () => {
-      toggleDisabled(true)
-      try {
-        const currentPosition = await getCurrentPositionPromise()
-        const startPoint = {
-          x: currentPosition.coords.longitude,
-          y: currentPosition.coords.latitude,
-          name: '현재 위치',
-        }
-
-        if (!cancelled && map) {
-          const currentPosiMarker = getDrawMyMarker(
-            map,
-            startPoint,
-            startPoint.name,
-          )
-
-          placeMarkersRef.current = currentPosiMarker
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false)
-      }
-    }
-
-    drawRoute()
-    return () => {
-      cancelled = true
-    }
-  }, [isMapLoadReady, setMap, map])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -141,10 +97,9 @@ export default function RouteMap({
         placeMarkersRef.current?.setMap(null)
         placeMarkersRef.current = null
 
-        const currentPosition = await getCurrentPositionPromise()
         const startPoint = {
-          x: currentPosition.coords.longitude,
-          y: currentPosition.coords.latitude,
+          x: position.coords.longitude,
+          y: position.coords.latitude,
           name: '현재 위치',
         }
 
@@ -179,14 +134,12 @@ export default function RouteMap({
         placeMarkersRef.current = null
       }
     }
-  }, [position, selectedRoutePoints, isMapLoadReady])
-
-  // console.log('Selected Route placeMarkersRef 1111:', placeMarkersRef.current)
+  }, [map, position, selectedRoutePoints, isMapLoadReady])
 
   return (
     <>
       <div className="relative h-64 bg-gradient-to-br from-blue-100 to-indigo-100">
-        <MapScript />
+        <MapScript position={position} />
         <div className="absolute inset-0 flex items-center justify-center">
           <div id="map" className="w-full h-full"></div>
         </div>

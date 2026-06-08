@@ -1,12 +1,10 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { POSITION_STORAGE_KEY } from '@/data/constant'
-import { POSITION_QUERY_KEY } from '@/lib/queryKeys'
-import { getCurrentPositionPromise } from '@/util/map/mapFunctions'
 import LocationError from '@/features/error/Error'
+import { useCurrentPositionQuery } from '@/util/map/query'
 
 type LocationPermissionState = 'checking' | 'granted' | 'error'
 
@@ -66,19 +64,7 @@ export default function RoutePermissionGate({
 
   const storedPosition = getStoredPosition()
 
-  const {
-    data: position,
-    error,
-    isLoading,
-  } = useQuery<
-    GeolocationPosition,
-    globalThis.Error | GeolocationPositionError
-  >({
-    queryKey: POSITION_QUERY_KEY,
-    queryFn: async () => await getCurrentPositionPromise(),
-    staleTime: 1000 * 60 * 5,
-    retry: false,
-  })
+  const { data: position, error, isLoading } = useCurrentPositionQuery()
 
   useEffect(() => {
     if (storedPosition) {
