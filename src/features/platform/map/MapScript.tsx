@@ -47,7 +47,7 @@ export default function MapScript({
 
   useEffect(() => {
     if (typeof naver === 'undefined') return
-    if (getMap) return
+    if (!getMap) return
     handleMapLoad()
   }, [])
 
