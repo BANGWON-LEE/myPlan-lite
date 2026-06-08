@@ -118,20 +118,50 @@
 ---------------
 
     src/
-     ├── components/
-     │    ├── PurposeCard/
-     │    ├── TimeCard/
-     │    ├── SectionTitle/
-     │    ├── ActionText/
-     │    ├── StatText/
-     │    └── PlaceCard/
      ├── app/
-     │    ├── page.tsx
-     │    ├── loading.tsx
-     │    └── route/
-     ├── hooks/
-     ├── utils/
-     └── styles/
+     │   ├── layout.tsx
+     │   ├── page.tsx
+     │   ├── globals.css
+     │   ├── route/
+     │   │   ├── page.tsx
+     │   │   └── error.tsx
+     │   └── test/
+     │       └── page.tsx
+     ├── data/
+     │   └── constant.ts
+     ├── features/
+     │   ├── error/
+     │   ├── loading/
+     │   ├── plan/
+     │   ├── platform/
+     │   │   ├── map/
+     │   │   └── pwa/
+     │   ├── route/
+     │   │   ├── components/
+     │   │   └── containers/
+     │   └── ui/
+     │       ├── PurposeCard/
+     │       ├── RoutePlaceBtn/
+     │       └── TimeCard/
+     ├── lib/
+     │   ├── queryClient.ts
+     │   └── queryKeys.ts
+     ├── pages/
+     │   └── api/
+     │       ├── searchLoc.ts
+     │       └── walking.ts
+     ├── share/
+     │   └── components/
+     ├── stores/
+     │   └── useRouteStore.ts
+     ├── stories/
+     ├── test/
+     ├── types/
+     ├── util/
+     │   ├── common/
+     │   ├── map/
+     │   ├── route/
+     │   └── storage/
+     └── global.d.ts
 
 * * *
-
