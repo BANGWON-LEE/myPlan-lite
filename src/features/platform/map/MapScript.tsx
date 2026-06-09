@@ -13,42 +13,33 @@ export default function MapScript({
   const setMap = useMapStore(state => state.setMap)
 
   function handleMapLoad() {
-    try {
-      const map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(
-          position?.coords.latitude ?? 37.5665,
-          position?.coords.longitude ?? 126.978,
-        ),
-        zoom: DEFAULT_MAP_ZOOM,
-        mapTypeId: naver.maps.MapTypeId.NORMAL,
-      })
-      setMap(map)
-    } catch (error) {
-      // 전역으로 가져오는 좌표값에 문제가 생길 때, localStorage에서 좌표값을 가져와 fallback으로 사용한다.
-      console.error('Error loading Naver Map:', error)
-      const pos = localStorage.getItem('position')
-      const positionFallback = pos ? JSON.parse(pos).coords : null
+    // console.log('지도 로드 시도@@')
+    const storagePos = localStorage.getItem('position')
+    const pos = position ?? (storagePos ? JSON.parse(storagePos) : null)
 
-      const map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(
-          position?.coords.latitude ??
-            (positionFallback ? positionFallback.latitude : 37.5665),
-          position?.coords.longitude ??
-            (positionFallback ? positionFallback.longitude : 126.978),
-        ),
-        zoom: DEFAULT_MAP_ZOOM,
-        mapTypeId: naver.maps.MapTypeId.NORMAL,
-      })
-      setMap(map)
-    }
+    const map = new naver.maps.Map('map', {
+      center: new naver.maps.LatLng(
+        pos ? pos.coords.latitude : 37.5665,
+        pos ? pos.coords.longitude : 126.978,
+      ),
+      zoom: DEFAULT_MAP_ZOOM,
+      mapTypeId: naver.maps.MapTypeId.NORMAL,
+    })
+    setMap(map)
   }
 
-  const getMap = useMapStore(state => state.map)
+  const map = useMapStore(state => state.map)
 
   useEffect(() => {
     if (typeof naver === 'undefined') return
-    if (!getMap) return
+    if (map) return
     handleMapLoad()
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      setMap(null)
+    }
   }, [])
 
   return (
