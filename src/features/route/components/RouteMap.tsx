@@ -14,10 +14,8 @@ export default function RouteMap({
   position, // 상위 컴포넌트에서 가져오는 현재 위치 좌표
   selectedRoutePoints,
 }: RouteMapProps) {
-  // const setPosition = usePositionStore(state => state.setPosition)
   useEffect(() => {
     if (!position) return
-    // setPosition(position)
     savePositionToStorage(position)
   }, [position])
 
