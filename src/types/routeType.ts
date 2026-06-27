@@ -1,4 +1,4 @@
-import { MapScriptProps, TmapPoiResponse } from '@/types/placeType'
+import { MapScriptProps, TmapPoiItem, TmapPoiResponse } from '@/types/placeType'
 
 export type TmapCoordinate = [number, number]
 
@@ -115,7 +115,9 @@ export type StoredPosition = {
 }
 
 export type RouteMapProps = MapScriptProps & {
+  routeList: Record<RouteCategoryKey, TmapPoiItem[]>
   selectedRoutePoints: RoutePoint[]
+  queryPurposes: string
 }
 
 export type WalkingApiType = {
@@ -127,4 +129,24 @@ export type WalkingApiType = {
   resCoordType: string
   startName: string
   endName: string
+}
+
+export type WalkApiResType = {
+  polylines: naver.maps.Polyline[]
+  markers: naver.maps.Marker[]
+}
+export interface WalkQueryType extends WalkDrawArgType {
+  routeList: Record<RouteCategoryKey, TmapPoiItem[]>
+  isStartPositionChanged: boolean
+}
+
+export interface WalkArgType extends WalkDrawArgType {
+  map: naver.maps.Map
+}
+
+export interface WalkDrawArgType {
+  selectedRoutePoints: RoutePoint[]
+  // routeList: Record<RouteCategoryKey, TmapPoiItem[]>
+  // getStartPosition: () => RoutePoint
+  getStartPosition: RoutePoint
 }

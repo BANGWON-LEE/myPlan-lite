@@ -1,4 +1,4 @@
-import { PlaceApiDataType, PlaceArgType, TmapPoiItem } from '@/types/placeType'
+import { PlaceApiDataType, PlaceArgType } from '@/types/placeType'
 import { formatStringToArray } from '@/util/common/common'
 import { useQuery } from '@tanstack/react-query'
 import { getMyRouteList } from '../containers/RouteMainContainer'

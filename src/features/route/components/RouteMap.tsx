@@ -1,16 +1,20 @@
 'use client'
 import MapScript from '@/features/platform/map/MapScript'
 import { useMapReadyStore, useMapStore } from '@/stores/useRouteStore'
-import { RouteMapProps } from '@/types/routeType'
+import { RouteMapProps, RoutePoint, WalkArgType } from '@/types/routeType'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
 import LoadingSpin from './LoadingSpin'
 import {
-  drawRouteByPoints,
+  drawPolyline,
   getDrawMyMarker,
+  getDrawRouteMarker,
+  getOrderedRouteColor,
 } from '../containers/drawRouteContainer'
+import { useWalkQuery } from '../api/api'
 
 export default function RouteMap({
+  routeList,
   position, // 상위 컴포넌트에서 가져오는 현재 위치 좌표
   selectedRoutePoints,
 }: RouteMapProps) {
@@ -72,6 +76,62 @@ export default function RouteMap({
   const placePolyPathRef = useRef<naver.maps.Polyline[] | undefined | null>([])
   const placePolyMarkersRef = useRef<naver.maps.Marker[] | undefined | null>([])
 
+  const getStartPosition = {
+    x: position.coords.longitude,
+    y: position.coords.latitude,
+    name: '현재 위치',
+  }
+
+  const prevStartPositionRef = useRef<RoutePoint | null>(null)
+
+  const isStartPositionChanged =
+    prevStartPositionRef.current === null
+      ? false
+      : prevStartPositionRef.current.x !== getStartPosition.x ||
+        prevStartPositionRef.current.y !== getStartPosition.y
+
+  const { data: walkingPath } = useWalkQuery({
+    selectedRoutePoints,
+    getStartPosition,
+    routeList,
+    isStartPositionChanged,
+  })
+
+  async function drawRouteByPoints({
+    map,
+    selectedRoutePoints,
+    getStartPosition,
+  }: WalkArgType) {
+    if (walkingPath === undefined) return
+
+    let currentPoint = getStartPosition
+
+    // const walkingPath = await getWalkingArr(selectedRoutePoints, currentPoint)
+    const polylineArr = [] as naver.maps.Polyline[]
+    const lineMarkersArr = [] as naver.maps.Marker[]
+
+    for (const [index, goalPoint] of selectedRoutePoints.entries()) {
+      const polyline = drawPolyline(
+        map,
+        walkingPath.path[index],
+        getOrderedRouteColor(index),
+      )
+      polylineArr.push(polyline)
+
+      const marker = getDrawRouteMarker(
+        map,
+        goalPoint,
+        `${index + 1}. ${goalPoint.name}`,
+        index + 1,
+      )
+      lineMarkersArr.push(marker)
+      currentPoint = goalPoint
+    }
+
+    // return walkingPath
+    return { polylines: polylineArr, markers: lineMarkersArr }
+  }
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!isMapLoadReady) return
@@ -95,27 +155,29 @@ export default function RouteMap({
         placeMarkersRef.current?.setMap(null)
         placeMarkersRef.current = null
 
-        const startPoint = {
-          x: position.coords.longitude,
-          y: position.coords.latitude,
-          name: '현재 위치',
-        }
-
         if (map) {
-          map.setCenter(new naver.maps.LatLng(startPoint.y, startPoint.x))
+          map.setCenter(
+            new naver.maps.LatLng(getStartPosition.y, getStartPosition.x),
+          )
 
-          currentPosiMarker = getDrawMyMarker(map, startPoint, startPoint.name)
+          currentPosiMarker = getDrawMyMarker(
+            map,
+            getStartPosition,
+            getStartPosition.name,
+          )
 
           placeMarkersRef.current = currentPosiMarker
 
-          const polyline = await drawRouteByPoints(
+          const polyline = await drawRouteByPoints({
             map,
             selectedRoutePoints,
-            startPoint,
-          )
+            getStartPosition,
+          })
 
-          placePolyPathRef.current = polyline.polylines
-          placePolyMarkersRef.current = polyline.markers
+          prevStartPositionRef.current = getStartPosition
+
+          placePolyPathRef.current = polyline?.polylines
+          placePolyMarkersRef.current = polyline?.markers
         }
       } finally {
         if (!cancelled) setIsLoading(false)
@@ -132,7 +194,7 @@ export default function RouteMap({
         placeMarkersRef.current = null
       }
     }
-  }, [map, position, selectedRoutePoints, isMapLoadReady])
+  }, [map, position, selectedRoutePoints, isMapLoadReady, getStartPosition])
 
   return (
     <>

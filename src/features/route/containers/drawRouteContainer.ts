@@ -8,10 +8,11 @@ import {
   renderRouteMarker,
 } from '@/features/route/components/RouteMarker'
 import { TmapPoiItem } from '@/types/placeType'
-import { RoutePoint, tmapWalkingRouteResponseType } from '@/types/routeType'
+import { RoutePoint, WalkArgType } from '@/types/routeType'
 import { ROUTE_MAP_ZOOM } from '@/util/map/mapFunctions'
+import { getWalkingArr, useWalkQuery } from '../api/api'
 
-function getOrderedRouteColor(index: number) {
+export function getOrderedRouteColor(index: number) {
   return ORDERED_ROUTE_COLORS[index] ?? ORDERED_ROUTE_COLORS.at(-1) ?? '#1d4ed8'
   //at(-1)은 배열의 마지막 요소를 반환하는 방법, 기존에 [arr.length-1]로 했던 것을 더 간결하게 표현
 }
@@ -25,32 +26,7 @@ function getOrderedMarkerColor(index: number) {
   //at(-1)은 배열의 마지막 요소를 반환하는 방법, 기존에 [arr.length-1]로 했던 것을 더 간결하게 표현
 }
 
-async function getWalkingPathArr(
-  startPoint: RoutePoint,
-  routePoints: RoutePoint[],
-) {
-  const response = await fetch('/api/walking', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-
-    body: JSON.stringify({
-      startPoint: startPoint,
-      routePoints: routePoints,
-      reqCoordType: 'WGS84GEO',
-      resCoordType: 'WGS84GEO',
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`경로를 그리지 못했습니다.`)
-  }
-
-  return (await response.json()) as tmapWalkingRouteResponseType
-}
-
-function drawPolyline(
+export function drawPolyline(
   map: naver.maps.Map,
   path: [number, number][],
   color: string,
@@ -66,7 +42,7 @@ function drawPolyline(
   })
 }
 
-function getDrawRouteMarker(
+export function getDrawRouteMarker(
   map: naver.maps.Map,
   point: RoutePoint,
   title: string,
@@ -111,46 +87,37 @@ export function createRouteMap(startPoint: RoutePoint) {
   return map
 }
 
-async function getWalkingArr(
-  currentPoint: RoutePoint,
-  routePoints: RoutePoint[],
-) {
-  const path = await getWalkingPathArr(currentPoint, routePoints)
-  return path
-}
+// export async function drawRouteByPoints({
+//   map,
+//   selectedRoutePoints,
+//   getStartPosition,
+// }: WalkArgType) {
+//   let currentPoint = getStartPosition()
+//   // const walkingPath = await getWalkingArr(selectedRoutePoints, currentPoint)
+//   const polylineArr = [] as naver.maps.Polyline[]
+//   const lineMarkersArr = [] as naver.maps.Marker[]
 
-export async function drawRouteByPoints(
-  map: naver.maps.Map,
-  routePoints: RoutePoint[],
-  startPoint: RoutePoint,
-) {
-  let currentPoint = startPoint
+//   for (const [index, goalPoint] of selectedRoutePoints.entries()) {
+//     const polyline = drawPolyline(
+//       map,
+//       walkingPath.path[index],
+//       getOrderedRouteColor(index),
+//     )
+//     polylineArr.push(polyline)
 
-  const walkingPath = await getWalkingArr(currentPoint, routePoints)
-  const polylineArr = [] as naver.maps.Polyline[]
-  const lineMarkersArr = [] as naver.maps.Marker[]
+//     const marker = getDrawRouteMarker(
+//       map,
+//       goalPoint,
+//       `${index + 1}. ${goalPoint.name}`,
+//       index + 1,
+//     )
+//     lineMarkersArr.push(marker)
+//     currentPoint = goalPoint
+//   }
 
-  for (const [index, goalPoint] of routePoints.entries()) {
-    const polyline = drawPolyline(
-      map,
-      walkingPath.path[index],
-      getOrderedRouteColor(index),
-    )
-    polylineArr.push(polyline)
-
-    const marker = getDrawRouteMarker(
-      map,
-      goalPoint,
-      `${index + 1}. ${goalPoint.name}`,
-      index + 1,
-    )
-    lineMarkersArr.push(marker)
-    currentPoint = goalPoint
-  }
-
-  // return walkingPath
-  return { polylines: polylineArr, markers: lineMarkersArr }
-}
+//   // return walkingPath
+//   return { polylines: polylineArr, markers: lineMarkersArr }
+// }
 
 export function getRoutePointFromPlace(
   place: Pick<TmapPoiItem, 'pnsLon' | 'pnsLat' | 'name'>,

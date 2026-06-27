@@ -1,4 +1,5 @@
 import { AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { RouteCategoryKey, RoutePoint } from './routeType'
 
 export type placeType = {
   name: string
@@ -41,7 +42,7 @@ export interface TmapPoiResponse {
   }
 }
 
-export type RouteApiDataType = AxiosResponse<{
+export type PlaceApiDataType = AxiosResponse<{
   // data: {
   searchPoiInfo: TmapPoiResponse
   // }
@@ -76,4 +77,19 @@ export type PositionState = {
   position: GeolocationPosition | null
   setPosition: (pos: GeolocationPosition) => void
   clearPosition: () => void
+}
+
+export type RoutePlaceProps = MapScriptProps & {
+  routeList: Record<RouteCategoryKey, TmapPoiItem[]>
+  setRouteList: React.Dispatch<
+    React.SetStateAction<Record<RouteCategoryKey, TmapPoiItem[]>>
+  >
+  routePlaceIndexes: Record<RouteCategoryKey, number>
+  selectedRoutePoints: RoutePoint[]
+}
+
+export type PlaceArgType = {
+  position: GeolocationPosition | null
+  queryPurposes: string
+  queryTime: string
 }
