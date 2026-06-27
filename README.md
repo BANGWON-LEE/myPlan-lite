@@ -154,7 +154,6 @@
      │   └── components/
      ├── stores/
      │   └── useRouteStore.ts
-     ├── stories/
      ├── test/
      ├── types/
      ├── util/

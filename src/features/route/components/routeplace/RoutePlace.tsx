@@ -106,7 +106,6 @@ export default function RoutePlace({
     }
 
     addValueByCategory(listArr, formatApiData)
-    // resetAllCateIndex()
     setRouteList(listArr)
   }, [data, position, queryPurposes, setRouteList])
 

@@ -5,7 +5,7 @@ import {
 } from '@/data/constant'
 import type { StoredPosition } from '@/types/routeType'
 
-export function shouldUpdatePositionStorage(
+export function judgeUpdatePositionStorage(
   currentPosition: GeolocationPosition | null | undefined,
 ): boolean {
   if (!currentPosition) return false // 현재 위치가 없으면 저장할 필요 없음
@@ -47,7 +47,7 @@ export function savePositionToStorage(
   if (!validateStoredPosition()) return
 
   const hasStoredPosition = !!localStorage.getItem(POSITION_STORAGE_KEY)
-  if (hasStoredPosition && !shouldUpdatePositionStorage(currentPosition)) return
+  if (hasStoredPosition && !judgeUpdatePositionStorage(currentPosition)) return
 
   const payload: StoredPosition = {
     coords: {

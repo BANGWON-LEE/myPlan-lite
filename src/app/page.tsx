@@ -29,7 +29,7 @@ export default function Home() {
     '@type': 'WebApplication',
     name: '마이 플랜',
     description:
-      '목적에 맞는 최적 장소를 빠르게 추천받아 이동 시간을 줄이세요.',
+      '목적에 맞는 최적 루트를 빠르게 추천받아 이동 시간을 줄이세요.',
     applicationCategory: 'TravelApplication',
     operatingSystem: 'Web',
   }
