@@ -46,8 +46,6 @@ export default function RouteMap({
           name: '현재 위치',
         }
 
-        // console.log('현재 위치 업데이트:', movingPoint)
-
         placeMarkersRef.current?.setPosition(
           new naver.maps.LatLng(movingPoint.y, movingPoint.x),
         )
@@ -106,7 +104,6 @@ export default function RouteMap({
 
     let currentPoint = getStartPosition
 
-    // const walkingPath = await getWalkingArr(selectedRoutePoints, currentPoint)
     const polylineArr = [] as naver.maps.Polyline[]
     const lineMarkersArr = [] as naver.maps.Marker[]
 
@@ -128,7 +125,6 @@ export default function RouteMap({
       currentPoint = goalPoint
     }
 
-    // return walkingPath
     return { polylines: polylineArr, markers: lineMarkersArr }
   }
 
