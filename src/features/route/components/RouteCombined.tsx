@@ -1,6 +1,6 @@
 'use client'
 
-import RoutePlace from './routeplace/RoutePlace'
+import RoutePlace from './RoutePlace'
 import React, { useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import RoutePermissionGate from './RoutePermissionGate'
@@ -66,6 +66,8 @@ export default function RouteCombined() {
           <RouteMap
             position={position}
             selectedRoutePoints={selectedRoutePoints}
+            routeList={routeList}
+            queryPurposes={queryPurposes}
           />
           <RoutePlace
             position={position}

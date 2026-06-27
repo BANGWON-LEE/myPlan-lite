@@ -37,10 +37,6 @@ export default async function getPathWalking(
   const summaryPath = getWalkingSummary(resData)
 
   return res.status(200).json({ path: walkPath, summary: summaryPath })
-
-  // return res
-  //   .status(200)
-  //   .json({ path: resultArr, summary: result.data.features[0] })
 }
 
 export function getWalkingSummary(
