@@ -1,26 +1,6 @@
 import { AVERAGE_WALKING_SPEED_METERS_PER_SECOND } from '@/data/constant'
 import { PlaceApiDataType, TmapPoiItem } from '@/types/placeType'
 
-export function checkEmptyString(text: string) {
-  const textStatus = text === '' || text === null || text === undefined
-  if (textStatus) return alert('검색어를 입력해주세요')
-}
-
-export function handleMissingQueryPurposes() {
-  if (typeof window === 'undefined') return
-
-  alert('목적을 다시 선택해주세요.')
-  window.history.back()
-}
-
-export const formatMyLocation = (value: number): number => value / 1e7
-export const formatTmapPath = (value: number): number => value * 0.00001
-
-export function formatAddressTitle(title: string, charsToRemove: string) {
-  const removePattern = new RegExp(`[${charsToRemove}]`, 'g')
-  return title.replace(removePattern, '')
-}
-
 export function getHourTimeMinTimeFormat(distanceMeter: number): {
   hours: number
   minutes: number
@@ -91,8 +71,6 @@ export function addValueByCategory(
   placeArr: Record<string, TmapPoiItem[]>,
 ) {
   Object.keys(placeArr).forEach(cateName => {
-    // console.log('cateNAme', cateName)
-
     switch (cateName) {
       case '은행':
         return (listArr.bank = placeArr[cateName])
@@ -110,6 +88,4 @@ export function addValueByCategory(
         return
     }
   })
-  // console.log('listArr', listArr)
-  // return listArr
 }
