@@ -73,6 +73,8 @@ export default function RoutePlace({
     if (!position) return
     if (placeList === undefined) return
 
+    console.log('렌더링')
+
     const purposes = formatStringToArray(queryPurposes)
     const filterApiArr = filterApiData(placeList)
     const formatApiData = formatResult(purposes, filterApiArr)
@@ -88,7 +90,7 @@ export default function RoutePlace({
 
     addValueByCategory(listArr, formatApiData)
     setRouteList(listArr)
-  }, [placeList, position, queryPurposes, setRouteList])
+  }, [placeList, queryPurposes, setRouteList])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
