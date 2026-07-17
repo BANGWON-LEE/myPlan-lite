@@ -1,6 +1,6 @@
 {
   "name": "마이 플랜",
-  "short_name": "마이플랜",
+  "short_name": "마이 플랜",
   "description": "가장 가까운 장소와 루트를 추천해주는 서비스",
   "id": "/",
   "start_url": "/",

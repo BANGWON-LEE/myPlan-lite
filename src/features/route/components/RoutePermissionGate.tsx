@@ -64,7 +64,8 @@ export default function RoutePermissionGate({
 
   const storedPosition = getStoredPosition()
 
-  const { data: position, error, isLoading } = useCurrentPositionQuery()
+  const { data: locationResult, error, isLoading } = useCurrentPositionQuery()
+  const position = locationResult?.position
 
   useEffect(() => {
     if (storedPosition) {
@@ -90,8 +91,10 @@ export default function RoutePermissionGate({
       ? 'granted'
       : 'error'
 
-  if (permission === 'granted' && (position || storedPosition)) {
-    return <>{children(position ?? storedPosition!)}</>
+  const currentPosition = position ?? storedPosition
+
+  if (permission === 'granted' && currentPosition) {
+    return <>{children(currentPosition)}</>
   } else if (permission === 'error') {
     return <LocationError />
   }

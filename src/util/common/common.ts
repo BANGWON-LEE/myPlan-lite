@@ -1,25 +1,5 @@
 import { AVERAGE_WALKING_SPEED_METERS_PER_SECOND } from '@/data/constant'
-import { RouteApiDataType, TmapPoiItem } from '@/types/placeType'
-
-export function checkEmptyString(text: string) {
-  const textStatus = text === '' || text === null || text === undefined
-  if (textStatus) return alert('검색어를 입력해주세요')
-}
-
-export function handleMissingQueryPurposes() {
-  if (typeof window === 'undefined') return
-
-  alert('목적을 다시 선택해주세요.')
-  window.history.back()
-}
-
-export const formatMyLocation = (value: number): number => value / 1e7
-export const formatTmapPath = (value: number): number => value * 0.00001
-
-export function formatAddressTitle(title: string, charsToRemove: string) {
-  const removePattern = new RegExp(`[${charsToRemove}]`, 'g')
-  return title.replace(removePattern, '')
-}
+import { PlaceApiDataType, TmapPoiItem } from '@/types/placeType'
 
 export function getHourTimeMinTimeFormat(distanceMeter: number): {
   hours: number
@@ -53,7 +33,7 @@ export function filterPlaceList(places: TmapPoiItem[]) {
 
 // 장소 데이터 중, 불필요한 데이터를 필터링 처리하는 함수
 export function filterApiData(
-  data: RouteApiDataType[] | undefined,
+  data: PlaceApiDataType[] | undefined,
 ): TmapPoiItem[][] {
   if (data === undefined) return []
   const placeNameArr = data.map(el => {
@@ -79,7 +59,6 @@ export function formatResult(
     {} as Record<string, TmapPoiItem[]>,
   )
 
-  // console.log('formatResult', formatResult)
   return formatResult
 }
 
@@ -88,16 +67,10 @@ export function formatStringToArray(str: string) {
 }
 
 export function addValueByCategory(
-  // setRouteList: React.Dispatch<
-  //   React.SetStateAction<Record<string, TmapPoiItem[]>>
-  // >,
   listArr: Record<string, TmapPoiItem[]>,
-  // purposeArr: string[],
   placeArr: Record<string, TmapPoiItem[]>,
 ) {
   Object.keys(placeArr).forEach(cateName => {
-    // console.log('cateNAme', cateName)
-
     switch (cateName) {
       case '은행':
         return (listArr.bank = placeArr[cateName])
@@ -115,6 +88,4 @@ export function addValueByCategory(
         return
     }
   })
-  // console.log('listArr', listArr)
-  // return listArr
 }

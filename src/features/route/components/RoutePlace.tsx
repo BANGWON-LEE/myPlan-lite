@@ -1,12 +1,8 @@
 'use client'
 import LoadingScreen from '@/features/loading/components/LoadingScreen'
 import { useMapReadyStore } from '@/stores/useRouteStore'
-import {
-  MapScriptProps,
-  RouteApiDataType,
-  TmapPoiItem,
-} from '@/types/placeType'
-import { RouteCategoryKey, RoutePoint } from '@/types/routeType'
+import { RoutePlaceProps, TmapPoiItem } from '@/types/placeType'
+import { RouteCategoryKey } from '@/types/routeType'
 import {
   addValueByCategory,
   filterApiData,
@@ -14,21 +10,11 @@ import {
   formatStringToArray,
 } from '@/util/common/common'
 import { PURPOSE_TO_CATEGORY_KEY } from '@/data/constant'
-import { useQuery } from '@tanstack/react-query'
 import { ArrowDown } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
-import { getMyRouteList } from '../../containers/RouteMainContainer'
+import { usePlaceQuery } from '../api/api'
 import RoutePlaceList from './RoutePlaceList'
-
-type RoutePlaceProps = MapScriptProps & {
-  routeList: Record<RouteCategoryKey, TmapPoiItem[]>
-  setRouteList: React.Dispatch<
-    React.SetStateAction<Record<RouteCategoryKey, TmapPoiItem[]>>
-  >
-  routePlaceIndexes: Record<RouteCategoryKey, number>
-  selectedRoutePoints: RoutePoint[]
-}
 
 export default function RoutePlace({
   position,
@@ -44,15 +30,10 @@ export default function RoutePlace({
 
   const setIsMapLoadReady = useMapReadyStore(state => state.setIsMapReady)
 
-  const { data } = useQuery<RouteApiDataType[]>({
-    queryKey: ['place', position, queryPurposes, queryTime],
-    queryFn: async () => {
-      const purposesArr = formatStringToArray(queryPurposes)
-      return getMyRouteList(position, purposesArr, queryTime)
-    },
-    enabled: !!position && formatStringToArray(queryPurposes).length > 0,
-    staleTime: 1000 * 60 * 5,
-    placeholderData: prev => prev,
+  const { data: placeList } = usePlaceQuery({
+    position,
+    queryPurposes,
+    queryTime,
   })
 
   const purposesArr = useMemo(
@@ -90,10 +71,12 @@ export default function RoutePlace({
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!position) return
-    if (data === undefined) return
+    if (placeList === undefined) return
+
+    console.log('렌더링')
 
     const purposes = formatStringToArray(queryPurposes)
-    const filterApiArr = filterApiData(data)
+    const filterApiArr = filterApiData(placeList)
     const formatApiData = formatResult(purposes, filterApiArr)
 
     const listArr: Record<RouteCategoryKey, TmapPoiItem[]> = {
@@ -106,9 +89,8 @@ export default function RoutePlace({
     }
 
     addValueByCategory(listArr, formatApiData)
-    // resetAllCateIndex()
     setRouteList(listArr)
-  }, [data, position, queryPurposes, setRouteList])
+  }, [placeList, queryPurposes, setRouteList])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
