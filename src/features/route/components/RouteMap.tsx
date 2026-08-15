@@ -2,6 +2,11 @@
 import MapScript from '@/features/platform/map/MapScript'
 import { useMapReadyStore, useMapStore } from '@/stores/useRouteStore'
 import { RouteMapProps, RoutePoint, WalkArgType } from '@/types/routeType'
+import {
+  calibratePosition,
+  CalibrationState,
+  LocationSample,
+} from '@/util/location/calibration'
 import { savePositionToStorage } from '@/util/storage/positionStorage'
 import { useEffect, useRef, useState } from 'react'
 import LoadingSpin from './LoadingSpin'
@@ -33,6 +38,8 @@ export default function RouteMap({
 
   const watchIdRef = useRef<number | null>(null)
   const placeMarkersRef = useRef<naver.maps.Marker>(null)
+  // 위치 보정은 이전 샘플과 좌표를 기준으로 계산하므로 watchPosition 생명주기 동안 상태를 유지한다.
+  const calibrationStateRef = useRef<CalibrationState | null>(null)
 
   useEffect(() => {
     if (!isMapReady) return
@@ -40,9 +47,25 @@ export default function RouteMap({
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       pos => {
+        // 브라우저 원본 좌표를 보정 모듈이 쓰는 공통 샘플 형태로 변환한다.
+        const currentPosition: LocationSample = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          speed: pos.coords.speed,
+          timestamp: pos.timestamp,
+        }
+        // auto 모드는 최근 샘플 속도를 보고 도보/주행 보정 강도를 자동으로 고른다.
+        const calibrated = calibratePosition(
+          currentPosition,
+          calibrationStateRef.current,
+          { mode: 'auto' },
+        )
+        calibrationStateRef.current = calibrated.state
+
         const movingPoint = {
-          x: pos.coords.longitude,
-          y: pos.coords.latitude,
+          x: calibrated.coordinate.longitude,
+          y: calibrated.coordinate.latitude,
           name: '현재 위치',
         }
 
@@ -64,6 +87,8 @@ export default function RouteMap({
         navigator.geolocation.clearWatch(watchIdRef.current)
         watchIdRef.current = null
       }
+      // 감시가 종료되면 다음 시작 위치가 이전 이동 상태의 영향을 받지 않도록 초기화한다.
+      calibrationStateRef.current = null
     }
   }, [isMapReady, map, position, placeMarkersRef])
 
